@@ -6,6 +6,8 @@
 
 #include <cmath>
 
+
+
 namespace Math3D {
 
 // Define this to have Math3D.cp generate a main which tests these classes
