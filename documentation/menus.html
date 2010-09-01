@@ -1,0 +1,104 @@
+<html>
+
+<head>
+<title>Documentation - QAvimator - Menu Items - What do they do?</title>
+<link rel="stylesheet" type="text/css" href="documentation.css" />
+<meta http-equiv="Content-Type" content="text/html; charset=iso8859-15" />
+</head>
+
+<body>
+
+<h1>QAvimator</h1>
+
+<ul>
+<li><a href="index.html">Introduction - What is QAvimator?</a></li>
+<li><a href="installation.html">Installation</a></li>
+<li><a href="start.html">Getting Started - Your First Animation</a></li>
+<li><a href="theory.html">Theory - How do Animations Work?</a></li>
+<li><a href="menus.html">Menu Items - What do they do?</a></li>
+<li><a href="glossary.html">Glossary - Terminology Explained</a></li>
+</ul>
+
+<h2>Menu Items - What do they do?</h2>
+
+<h3>File</h3>
+<p>
+<ul>
+<li><span class="menu_item">New</span><br />
+<span class="menu_explanation">Generates a new animation, resets all body parts to their default positions</span></li>
+<li><span class="menu_item">Open</span><br />
+<span class="menu_explanation">Opens an existing .avm or .bvh animation</span></li>
+<li><span class="menu_item">Add</span><br />
+<span class="menu_explanation">Adds another animation to the current scene, useful for 
+animations that are meant to be used for more than one avatar</span></li>
+<li><span class="menu_item">Save</span><br />
+<span class="menu_explanation">Saves the currently selected animation</span></li>
+<li><span class="menu_item">Save As...</span><br />
+<span class="menu_explanation">Saves the currently selected animation under a new name</span></li>
+<li><span class="menu_item">Load Props</span><br />
+<span class="menu_explanation">Loads a set of props into the current scene</span></li>
+<li><span class="menu_item">Save Props</span><br />
+<span class="menu_explanation">Saves the props in the scene</span></li>
+<li><span class="menu_item">Exit</span><br />
+<span class="menu_explanation">Exits the application</span></li>
+</ul>
+</p>
+
+<h3>Edit</h3>
+<p>
+<ul>
+<li><span class="menu_item_inactive">Undo (not yet working)</span><br />
+<span class="menu_explanation_inactive">Reverts the last editing operation</span></li>
+<li><span class="menu_item_inactive">Redo (not yet working)</span><br />
+<span class="menu_explanation_inactive">Restores the last editing operation that has been 
+undone before</span></li>
+<li><span class="menu_item">Cut</span><br />
+<span class="menu_explanation">Cuts out the frame into the copy buffer</span></li>
+<li><span class="menu_item">Copy</span><br />
+<span class="menu_explanation">Copies the current frame to the copy buffer</span></li>
+<li><span class="menu_item">Paste</span><br />
+<span class="menu_explanation">Overwrites the current frame with the content of the copy
+buffer</span></li>
+<li><span class="menu_item">Optimize BVH</span><br />
+<span class="menu_explanation">Tries to remove all unnecessary key frames from the
+animation to make it easier to modify again</span></li>
+</ul>
+</p>
+
+<h3>Options</h3>
+<p>
+<ul>
+<li><span class="menu_item">Skeleton</span><br />
+<span class="menu_explanation">Shows the internal avatar skeleton</span></li>
+<li><span class="menu_item">Joint Limits</span><br />
+<span class="menu_explanation">Enables or disables the rotation limits for the joints. If
+enabled, you can only move a body part as far as it would go, if it was a real human
+body</span></li>
+<li><span class="menu_item">Loop</span><br />
+<span class="menu_explanation">If this option is checked, the animation will start over from
+the beginning wile playing. If unchecked, the animation will stop at the end.</span></li>
+<li><span class="menu_item">Protect First Frame</span><br />
+<span class="menu_explanation">If this option is checked the first animation frame will be
+protected (you see a red floor instead of the normal grey one). This is done to preserve
+the first frame as a "reference frame". Second Life in particular needs this reference to
+work properly. It will never be shown in the uploaded animation.</span></li>
+<li><span class="menu_item">Show Timeline</span><br />
+<span class="menu_explanation">Show or hide the timeline with all keyframes and transitions
+</span></li>
+<li><span class="menu_item">Configure QAvimator ...</span><br />
+<span class="menu_explanation">Opens the configuration dialog</span></li>
+</ul>
+</p>
+
+<h3>Help</h3>
+<p>
+<ul>
+<li><span class="menu_item">About</span><br />
+<span class="menu_explanation">Shows the version and build number of your copy of QAvimator
+</span></li>
+</ul>
+</p>
+
+</body>
+
+</html>

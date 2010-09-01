@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>avm</string>
+				<string>bvh</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>qavimator</string>
+			<key>CFBundleTypeName</key>
+			<string>QAnimation</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>XML</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>prp</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>qavimator</string>
+			<key>CFBundleTypeName</key>
+			<string>QAvimator Prop</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>XML</string>
+		</dict>
+	</array>
+	<key>CFBundleExecutable</key>
+	<string>qavimator</string>
+	<key>CFBundleIconFile</key>
+	<string>qavimator</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>0.1</string>
+	<key>CFBundleIdentifier</key>
+	<string>org.qavimator.mac</string>
+	<key>CFBundleName</key>
+	<string>QAvimator</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleSignature</key>
+	<string>aplt</string>
+	<key>LSRequiresCarbon</key>
+	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>
+
+Credits:
+Zi Ree: Qt port, main developer, windows setup
+Darkside Eldrich: Multi avatar base code
+Christine Montgomery: Responsible for the MacOS X port.
+Trinity Dejavu: Website and silly feature requests.
+Vince Invincible: Developer of orginal Avimator
+Lynard Goodliffe: Made the first Windows setup build.
+Ralin Redgrave: CMake build and OSX app bundle.
+Thanks to everyone who helped with testing
+	
+	</string>
+</dict>
+</plist>

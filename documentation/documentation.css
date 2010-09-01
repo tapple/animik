@@ -1,0 +1,60 @@
+body
+{
+  font: sans-serif;
+  font-size: 10pt;
+  text-align: justify;
+  background-color: #ffffff;
+  color: #000000;
+}
+
+h1
+{
+  text-align: center;
+}
+
+h2
+{
+  text-align: center;
+}
+
+img
+{
+  margin: 8px;
+}
+
+.menu_item
+{
+  font-weight: bold;
+}
+
+.menu_explanation
+{
+}
+
+.menu_item_inactive
+{
+  color: #c0c0c0;
+  font-weight: bold;
+}
+
+.menu_explanation_inactive
+{
+  color: #c0c0c0;
+}
+
+.glossary_navigator
+{
+  font-weight: bold;
+  font-size: 8pt;
+  text-align: center;
+}
+
+.glossary_term
+{
+  font-weight: bold;
+}
+
+.glossary_explanation
+{
+  font-size: 8pt;
+}

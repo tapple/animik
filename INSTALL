@@ -1,0 +1,35 @@
+### Install instructions for CMake based build ###
+
+CMake on unix-like systems:
+
+	- install CMake 2.4+
+	- install QT4 development package
+	- install glut
+	
+	mkdir _build
+	cd _build
+	cmake .. -DCMAKE_INSTALL_PREFIX=../_install
+	make install
+
+OSX Bundle:
+
+	- install CMake 2.4+
+	- install XCode
+	- install QT4 frameworks
+	
+	cd other/osx
+	./make_bundle
+
+Windows MinGW:
+	
+	- Install MinGW
+	- Install CMake 2.4+ and make sure cmake is in system PATH
+	- Install QT4 libs and make sure qmake is in system PATH
+	- Download GLUT and make sure its header is in [glut package]\GL\glut.h
+	
+	mkdir _build
+	cd _build
+	cmake .. -DCMAKE_INSTALL_PREFIX=..\_install -G "MinGW Makefiles" -DGLUT_INCLUDE_PATH=[glut package] -DGLUT_LIBRARIES=[glut package]\glut32.lib
+	mingw32-make install
+	
+	- copy [glut package]/glut32.dll into _install directory

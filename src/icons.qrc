@@ -1,0 +1,25 @@
+<RCC>
+    <qresource prefix="/icons" >
+        <file>icons/add.png</file>
+        <file>icons/box.png</file>
+        <file>icons/cone.png</file>
+        <file>icons/delete.png</file>
+        <file>icons/editcopy.png</file>
+        <file>icons/editcut.png</file>
+        <file>icons/editpaste.png</file>
+        <file>icons/fileadd.png</file>
+        <file>icons/filenew.png</file>
+        <file>icons/fileopen.png</file>
+        <file>icons/filesave.png</file>
+        <file>icons/filesaveas.png</file>
+        <file>icons/key.png</file>
+        <file>icons/loop.png</file>
+        <file>icons/play.png</file>
+        <file>icons/redo.png</file>
+        <file>icons/resetcamera.png</file>
+        <file>icons/sphere.png</file>
+        <file>icons/stop.png</file>
+        <file>icons/torus.png</file>
+        <file>icons/undo.png</file>
+    </qresource>
+</RCC>
