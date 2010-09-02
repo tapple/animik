@@ -143,6 +143,7 @@ unsigned int Prop::isAttached() const
   return attachmentPoint;
 }
 
+
 // ------------------- Class Vertex ----------------------
 
 /*Vertex::Vertex(double xc,double yc,double zc)         //edu: usage?
