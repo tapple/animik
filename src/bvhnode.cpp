@@ -376,7 +376,7 @@ void BVHNode::dumpKeyframes()
     Rotation rot=frameData(keys[index]).rotation();
     Position pos=frameData(keys[index]).position();
 
-    qDebug(QString("%1: %2 - Pos: <%3,%4,%5> Rot: <%6,%7,%8>").arg(name()).arg(keys[index]).arg(pos.x).arg(pos.y).arg(pos.z).arg(rot.x).arg(rot.y).arg(rot.z).toLatin1().constData());
+//    qDebug(QString("%1: %2 - Pos: <%3,%4,%5> Rot: <%6,%7,%8>").arg(name()).arg(keys[index]).arg(pos.x).arg(pos.y).arg(pos.z).arg(rot.x).arg(rot.y).arg(rot.z).toLatin1().constData());
   }
 }
 
