@@ -8,3 +8,7 @@ Bugs:
 
 Untested:
   * Saving / data integrity when working with multiple avs
+
+== mihalovic ===============================================================================================================================
+Features:
+  * Rotate/pan of scene doesn't unselect limb/prop. Only simple click on background.

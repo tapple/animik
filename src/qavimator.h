@@ -194,7 +194,7 @@ class qavimator : public QMainWindow, Ui::MainWindow
     void helpAbout();
 
     void animationChanged(int which);
-    void setAvatarShape(int shape);
+    void setAvatarShape(/*int shape*/ Animation::FigureType shape);
     void setAvatarScale(int percent);
     void partChoice();
     void rotationValue();

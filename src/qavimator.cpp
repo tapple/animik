@@ -39,10 +39,10 @@
 
 qavimator::qavimator() : QMainWindow(0)
 {
-  nodeMapping <<  0
-              <<  1 <<  2 <<  3 <<  4 << 5
-              <<  7 <<  8 <<  9 << 10
-              << 12 << 13 << 14 << 15
+  nodeMapping <<  0                             //edu: position
+              <<  1 <<  2 <<  3 <<  4 << 5      //edu: hip, abdomen, chest, neck, head
+              <<  7 <<  8 <<  9 << 10           //edu: (left) collar, shoulder, fore-arm, hand
+              << 12 << 13 << 14 << 15           //edu: ...
               << 17 << 18 << 19
               << 21 << 22 << 23;
 
@@ -145,7 +145,7 @@ qavimator::~qavimator()
   fileExit();
 }
 
-// FIXME:: implement a static Settings:: class
+// FIXME:: implement a static Settings:: class                              //TODO: Yes, move it there
 void qavimator::readSettings()
 {
   QSettings settings;
@@ -180,8 +180,8 @@ void qavimator::readSettings()
     protectFirstFrame=settings.value("/protect_first_frame").toBool();
     showTimelinePanel=settings.value("/show_timeline").toBool();
 
-    int width=settings.value("/mainwindow_width").toInt();
-    int height=settings.value("/mainwindow_height").toInt();
+    width=settings.value("/mainwindow_width").toInt();
+    height=settings.value("/mainwindow_height").toInt();
 
     lastPath=settings.value("/last_path").toString();
 
@@ -198,6 +198,8 @@ void qavimator::readSettings()
     if(height<50) height=50;
 
     figureType=settings.value("/figure").toInt();
+
+    //TODO: if(figureType > Animation::NUM_FIGURES) throw new ConfigurationException();
 
     settings.endGroup();
   }
@@ -216,7 +218,7 @@ void qavimator::readSettings()
   optionsProtectFirstFrameAction->blockSignals(false);
 
   figureCombo->setCurrentIndex(figureType);
-  setAvatarShape(figureType);
+  setAvatarShape( (Animation::FigureType)figureType );
 }
 
 // slot gets called by AnimationView::mousePressEvent()
@@ -757,15 +759,18 @@ void qavimator::frameSlider(int position)
   updateInputs();
 }
 
-void qavimator::setAvatarShape(int shape)
+void qavimator::setAvatarShape(/*int shape*/ Animation::FigureType shape)                               //TODO: "int shape" to "enum FigureType"?
 {
   Animation* anim=animationView->getAnimation();
   if(!anim) return;
 
-  if(shape==0)
+/*  if(shape==0)
     anim->setFigureType(Animation::FIGURE_FEMALE);
   else
-    anim->setFigureType(Animation::FIGURE_MALE);
+    anim->setFigureType(Animation::FIGURE_MALE);        */
+
+  anim->setFigureType(shape);
+
   animationView->repaint();
 }
 
@@ -1907,7 +1912,7 @@ void qavimator::on_selectAnimationCombo_activated(int which)
 
 void qavimator::on_figureCombo_activated(int newShape)
 {
-  setAvatarShape(newShape);
+    setAvatarShape((Animation::FigureType)newShape);
 }
 
 void qavimator::on_scaleSpin_valueChanged(int newValue)
