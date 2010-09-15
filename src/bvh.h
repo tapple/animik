@@ -100,7 +100,7 @@ class BVH
     QStringList validNodes;
     BVHNode* positionNode;
 
-    QString token();
+    QString nextToken();
     bool expect_token(const QString& expect);
     BVHNode* bvhReadNode();
 

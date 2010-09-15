@@ -16,7 +16,8 @@ SOURCES += animation.cpp \
     slpartsfemale.cpp \
     slpartsmale.cpp \
     timeline.cpp \
-    timelineview.cpp
+    timelineview.cpp \
+    KeyFramerTab.cpp
 HEADERS += animation.h \
     animationview.h \
     bvh.h \
@@ -33,9 +34,11 @@ HEADERS += animation.h \
     settingsdialog.h \
     slparts.h \
     timeline.h \
-    timelineview.h
+    timelineview.h \
+    KeyFramerTab.h
 FORMS += mainapplicationform.ui \
-    settingsdialogform.ui
+    settingsdialogform.ui \
+    KeyFramerTab.ui
 RESOURCES += icons.qrc
 TEMPLATE = app
 TARGET = ../bin/qavimator

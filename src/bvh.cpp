@@ -49,7 +49,7 @@ BVH::~ BVH()
 {
 }
 
-QString BVH::token()
+QString BVH::nextToken()
 {
   if(tokenPos>=tokens.size())
   {
@@ -63,7 +63,7 @@ bool BVH::expect_token(const QString& name)
 {
 //  qDebug("BVH::expect_token('%s')",name.toLatin1().constData());
 
-  if(name!=token())
+  if(name!=nextToken())
   {
     qDebug("BVH::expect_token(): Bad or outdated animation file: %s missing\n", name.toLatin1().constData());
     return false;
@@ -75,7 +75,7 @@ BVHNode* BVH::bvhReadNode()
 {
   qDebug("BVH::bvhReadNode()");
 
-  QString type=token();
+  QString type=nextToken();
   if(type=="}") return NULL;
 
   // check for node type first
@@ -90,7 +90,7 @@ BVHNode* BVH::bvhReadNode()
   }
 
   // add node with name
-  BVHNode* node=new BVHNode(token());
+  BVHNode* node=new BVHNode(nextToken());
   if(!validNodes.contains(node->name()))
     node->type=BVH_NO_SL;
   else
@@ -99,15 +99,15 @@ BVHNode* BVH::bvhReadNode()
 
   expect_token("{");
   expect_token("OFFSET");
-  node->offset[0]=token().toFloat();
-  node->offset[1]=token().toFloat();
-  node->offset[2]=token().toFloat();
+  node->offset[0]=nextToken().toFloat();
+  node->offset[1]=nextToken().toFloat();
+  node->offset[2]=nextToken().toFloat();
   node->ikOn=false;
   node->ikWeight=0.0;
   if(node->type!=BVH_END)
   {
     expect_token("CHANNELS");
-    node->numChannels=token().toFloat();
+    node->numChannels=nextToken().toFloat();
 
     // rotation order for this node
     QString order(QString::null);
@@ -115,7 +115,7 @@ BVHNode* BVH::bvhReadNode()
     {
       node->channelMin[i] = -10000;
       node->channelMax[i] = 10000;
-      type=token();
+      type=nextToken();
       if     (type=="Xposition") node->channelType[i]=BVH_XPOS;
       else if(type=="Yposition") node->channelType[i]=BVH_YPOS;
       else if(type=="Zposition") node->channelType[i]=BVH_ZPOS;
@@ -195,7 +195,7 @@ void BVH::assignChannels(BVHNode* node,int frame)
 
   for(int i=0;i<node->numChannels;i++)
   {
-    double value=token().toFloat();
+    double value=nextToken().toFloat();
     BVHChannelType type=node->channelType[i];
     if     (type==BVH_XPOS) pos->x=value;
     else if(type==BVH_YPOS) pos->y=value;
@@ -329,14 +329,14 @@ BVHNode* BVH::bvhRead(const QString& file)
 
   expect_token("MOTION");
   expect_token("Frames:");
-  int totalFrames=token().toInt();
+  int totalFrames=nextToken().toInt();
   lastLoadedNumberOfFrames=totalFrames;
 
   expect_token("Frame");
   expect_token("Time:");
 
   // store FPS
-  lastLoadedFrameTime=token().toFloat();
+  lastLoadedFrameTime=nextToken().toFloat();
 
   for(int i=0;i<totalFrames;i++)
     assignChannels(root,i);
@@ -356,10 +356,10 @@ void BVH::avmReadKeyFrame(BVHNode* root)
   if(root->type==BVH_ROOT)
     lastLoadedPositionNode->addKeyframe(0,Position(pos->x,pos->y,pos->z),Rotation(rot->x,rot->y,rot->z));
 
-  int numKeyFrames=token().toInt();
+  int numKeyFrames=nextToken().toInt();
   for(int i=0;i<numKeyFrames;i++)
   {
-    int key=token().toInt();
+    int key=nextToken().toInt();
 
     if(key<lastLoadedNumberOfFrames)
     {
@@ -384,7 +384,7 @@ void BVH::avmReadKeyFrameProperties(BVHNode* root)
 
   qDebug("BVH::avmReadKeyFrameProperties()");
 
-  QString numKeys=token();
+  QString numKeys=nextToken();
   if(numKeys.isEmpty()) return;
 
   int numKeyFrames=numKeys.toInt();
@@ -392,7 +392,7 @@ void BVH::avmReadKeyFrameProperties(BVHNode* root)
 
   for(int i=0;i<numKeyFrames;i++)
   {
-    int key=token().toInt();
+    int key=nextToken().toInt();
 
     if(key & 1) root->setEaseIn(root->keyframeDataByIndex(i).frameNumber(),true);
     if(key & 2) root->setEaseOut(root->keyframeDataByIndex(i).frameNumber(),true);
@@ -433,7 +433,7 @@ BVHNode* BVH::avmRead(const QString& file)
 
   expect_token("MOTION");
   expect_token("Frames:");
-  int totalFrames=token().toInt();
+  int totalFrames=nextToken().toInt();
   lastLoadedNumberOfFrames=totalFrames;
   lastLoadedLoopOut=totalFrames;
 //  qDebug("BVH::avmRead(): set loop out to totalFrames");
@@ -442,7 +442,7 @@ BVHNode* BVH::avmRead(const QString& file)
   expect_token("Time:");
 
   // set FPS
-  lastLoadedFrameTime=token().toFloat();
+  lastLoadedFrameTime=nextToken().toFloat();
 
   for(int i=0;i<totalFrames;i++)
   {
@@ -456,9 +456,9 @@ BVHNode* BVH::avmRead(const QString& file)
 
   // read remaining properties
   QString propertyName;
-  while(!(propertyName=token()).isEmpty())
+  while(!(propertyName=nextToken()).isEmpty())
   {
-      QString propertyValue=token();
+      QString propertyValue=nextToken();
 
       if(!propertyValue.isEmpty())
       {
@@ -491,7 +491,7 @@ BVHNode* BVH::avmRead(const QString& file)
           qDebug("Reading %d Positions:",num);
           for(int index=0;index<num;index++)
           {
-            int key=token().toInt();
+            int key=nextToken().toInt();
             qDebug("Reading position frame %d",key);
             const FrameData& frameData=root->frameData(key);
             lastLoadedPositionNode->addKeyframe(key,frameData.position(),Rotation());
@@ -503,7 +503,7 @@ BVHNode* BVH::avmRead(const QString& file)
           qDebug("Reading %d PositionsEases:",num);
           for(int index=0;index<num;index++)
           {
-            int key=token().toInt();
+            int key=nextToken().toInt();
             qDebug("Reading position ease for key index %d: %d",index,key);
 
             if(key & 1) lastLoadedPositionNode->setEaseIn(lastLoadedPositionNode->keyframeDataByIndex(index).frameNumber(),true);

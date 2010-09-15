@@ -164,6 +164,11 @@ class qavimator : public QMainWindow, Ui::MainWindow
     // prevent closing of main window if there are unsaved changes
     virtual void closeEvent(QCloseEvent* event);
 
+
+    //edu
+    void OpenNewTab();
+
+
     void fileNew();
     void fileOpen();
     void fileOpen(const QString& fileName);

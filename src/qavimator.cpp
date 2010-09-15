@@ -31,6 +31,9 @@
 #include "settings.h"
 #include "settingsdialog.h"
 
+//edu
+#include "KeyFramerTab.h"
+
 #define ANIM_FILTER "Animation Files (*.avm *.bvh)"
 #define PROP_FILTER "Props (*.prp)"
 #define PRECISION   100
@@ -137,6 +140,9 @@ qavimator::qavimator() : QMainWindow(0)
   if(openFiles.count()==0) fileNew();
 
   updateInputs();
+
+  //edu
+  OpenNewTab();
 }
 
 qavimator::~qavimator()
@@ -144,6 +150,15 @@ qavimator::~qavimator()
   if(timeline) delete timeline;
   fileExit();
 }
+
+
+//edu
+void qavimator::OpenNewTab()
+{
+    QWidget* keyFramerTab = new KeyFramerTab();
+    mdiArea->addSubWindow(keyFramerTab);
+}
+
 
 // FIXME:: implement a static Settings:: class                              //TODO: Yes, move it there
 void qavimator::readSettings()
