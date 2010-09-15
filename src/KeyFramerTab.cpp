@@ -130,7 +130,7 @@ KeyFramerTab::~KeyFramerTab()
 {
     if(timeline) delete timeline;
 //edu:    fileExit();
-    delete this;
+//edu:    delete ui;
 }
 
 

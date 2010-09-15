@@ -331,9 +331,9 @@ void AnimationView::setProjection()
 
 void AnimationView::setBodyMaterial()
 {
-  GLfloat ambientA[]={0.9,0.667,0.561,1};
-  GLfloat diffuseA[]={0.9,0.667,0.561,0};
-  GLfloat specularA[]={0.6,0.6,0.6,0.0};
+  GLfloat ambientA[]={0.9, 0.667, 0.561, 1};
+  GLfloat diffuseA[]={0.9, 0.667, 0.561, 0};
+  GLfloat specularA[]={0.6, 0.6, 0.6, 0.0};
   GLfloat shininessA=100.0;
 
   glMaterialfv(GL_FRONT,GL_AMBIENT,ambientA);
@@ -925,14 +925,14 @@ void AnimationView::drawPart(Animation* anim,unsigned int currentAnimationIndex,
           (mirrorSelected==selectName || partSelected==selectName)
 	)
       {
-        glColor4f(1.0,0.635,0.059,1);
+        glColor4f(1.0, 0.635, 0.059, 1);
       }
       else if(partSelected==selectName)
-        glColor4f(0.6,0.3,0.3,1);
+        glColor4f(0.6, 0.3, 0.3, 1);
       else if(partHighlighted==selectName)
-        glColor4f(0.4,0.5,0.3,1);
+        glColor4f(0.4, 0.5, 0.3, 1);
       else
-        glColor4f(0.6,0.5,0.5,1);
+          glColor4f(0.6, 0.5, 0.5, 1);           //edu: when drawing aux figures, use (0.55, 0.5, 0.5, 0.9)
       if(anim->getIK(motion))
       {
         glGetFloatv(GL_CURRENT_COLOR,color);
