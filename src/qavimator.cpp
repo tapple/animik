@@ -155,7 +155,7 @@ qavimator::~qavimator()
 //edu
 void qavimator::OpenNewTab()
 {
-    QWidget* keyFramerTab = new KeyFramerTab();
+    QWidget* keyFramerTab = new KeyFramerTab(this);
     mdiArea->addSubWindow(keyFramerTab);
 }
 

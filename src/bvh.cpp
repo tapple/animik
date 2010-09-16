@@ -66,7 +66,7 @@ bool BVH::expect_token(const QString& name)
   if(name!=nextToken())
   {
     qDebug("BVH::expect_token(): Bad or outdated animation file: %s missing\n", name.toLatin1().constData());
-    return false;
+    return false;                                                                       //edu: Maybe an exception should be thrown here. Else the execution continues
   }
   return true;
 }
