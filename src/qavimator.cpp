@@ -21,6 +21,7 @@
 #include <QCloseEvent>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QMdiSubWindow>
 
 #include "qavimator.h"
 #include "animationview.h"
@@ -121,6 +122,10 @@ qavimator::qavimator() : QMainWindow(0)
   connect(timeline,SIGNAL(positionCenter(int)),timelineView,SLOT(scrollTo(int)));
   connect(timeline,SIGNAL(trackClicked(int)),animationView,SLOT(selectPart(int)));
 
+  //edu:
+  connect(mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow *)), this, SLOT(UpdateMenus()));
+  connect(mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow *)), this, SLOT(UpdateToolbar()));
+
   xRotationSlider->setPageStep(10*PRECISION);
   yRotationSlider->setPageStep(10*PRECISION);
   zRotationSlider->setPageStep(10*PRECISION);
@@ -143,6 +148,10 @@ qavimator::qavimator() : QMainWindow(0)
 
   //edu
   OpenNewTab();
+  OpenNewTab();
+  OpenNewTab();
+  OpenNewTab();
+  OpenNewTab();
 }
 
 qavimator::~qavimator()
@@ -152,12 +161,57 @@ qavimator::~qavimator()
 }
 
 
+
 //edu
 void qavimator::OpenNewTab()
 {
-    QWidget* keyFramerTab = new KeyFramerTab(this);
-    mdiArea->addSubWindow(keyFramerTab);
+  QWidget* keyFramerTab = new KeyFramerTab(this);
+  connect(keyFramerTab, SIGNAL(destroyed()), this, SLOT(UpdateMenus()));
+  connect(keyFramerTab, SIGNAL(destroyed()), this, SLOT(UpdateToolbar()));
+  mdiArea->addSubWindow(keyFramerTab);
 }
+
+
+//edu:
+void qavimator::UpdateMenus()
+{
+    //TODO
+}
+
+//edu:
+void qavimator::UpdateToolbar()
+{
+  bool hasTabs = (activeTab() != 0);
+
+  fileAddAction->setEnabled(hasTabs);
+
+  fileSaveAction->setEnabled(hasTabs);
+  fileSaveAsAction->setEnabled(hasTabs);
+
+  editCutAction->setEnabled(hasTabs);
+  editCopyAction->setEnabled(hasTabs);
+  editPasteAction->setEnabled(hasTabs);
+
+  if(!hasTabs)
+    resetCameraAction->setVisible(false);
+
+}
+
+//edu:
+/**
+  Return QWidget content of active tab.
+  */
+QWidget* qavimator::activeTab()
+{
+    if (QMdiSubWindow *activeSubWindow = mdiArea->activeSubWindow())
+        return (activeSubWindow->widget());
+    return 0;
+}
+
+
+
+
+
 
 
 // FIXME:: implement a static Settings:: class                              //TODO: Yes, move it there
@@ -232,8 +286,10 @@ void qavimator::readSettings()
   optionsProtectFirstFrameAction->setChecked(protectFirstFrame);
   optionsProtectFirstFrameAction->blockSignals(false);
 
+  qDebug("readSettings(): figureCombo goes to index %d", figureType);
+
   figureCombo->setCurrentIndex(figureType);
-  setAvatarShape( (Animation::FigureType)figureType );
+  setAvatarShape( /*(Animation::FigureType)*/figureType );
 }
 
 // slot gets called by AnimationView::mousePressEvent()
@@ -774,17 +830,15 @@ void qavimator::frameSlider(int position)
   updateInputs();
 }
 
-void qavimator::setAvatarShape(/*int shape*/ Animation::FigureType shape)                               //TODO: "int shape" to "enum FigureType"?
+void qavimator::setAvatarShape(int shape)
 {
   Animation* anim=animationView->getAnimation();
   if(!anim) return;
 
-/*  if(shape==0)
+  if(shape==0)
     anim->setFigureType(Animation::FIGURE_FEMALE);
   else
-    anim->setFigureType(Animation::FIGURE_MALE);        */
-
-  anim->setFigureType(shape);
+    anim->setFigureType(Animation::FIGURE_MALE);
 
   animationView->repaint();
 }
@@ -1706,6 +1760,9 @@ void qavimator::selectAnimation(Animation* animation)
   // update avatar figure combo box
   int figure=0;
   if(animation->getFigureType()==Animation::FIGURE_MALE) figure=1;
+
+  qDebug("selectAnimation(): figureCombo goes to index %d", figure);
+
   figureCombo->setCurrentIndex(figure);
 
   // update timeline
@@ -1927,7 +1984,9 @@ void qavimator::on_selectAnimationCombo_activated(int which)
 
 void qavimator::on_figureCombo_activated(int newShape)
 {
-    setAvatarShape((Animation::FigureType)newShape);
+    qDebug("on_figureCombo_activated(): figureCombo does something (newShape= %d)", newShape);
+
+    setAvatarShape(newShape);
 }
 
 void qavimator::on_scaleSpin_valueChanged(int newValue)

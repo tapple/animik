@@ -31,6 +31,8 @@
 KeyFramerTab::KeyFramerTab(/*QWidget *parent,*/ Ui_MainWindow* mainWindow)
     : QWidget(/*parent*/ 0)//, ui(new Ui::KeyFramerTab)
 {
+    setAttribute(Qt::WA_DeleteOnClose);
+
     this->mainWindow = mainWindow;
 
     nodeMapping <<  0                             //edu: position
@@ -136,7 +138,7 @@ KeyFramerTab::KeyFramerTab(/*QWidget *parent,*/ Ui_MainWindow* mainWindow)
 KeyFramerTab::~KeyFramerTab()
 {
     if(timeline) delete timeline;
-    fileExit();
+//edu: cannot be called when it's widgets are being disposed     fileExit();
 //edu:    delete ui;
 }
 
@@ -144,7 +146,7 @@ KeyFramerTab::~KeyFramerTab()
 void KeyFramerTab::bindMenuActions()
 {
     connect(mainWindow->fileNewAction, SIGNAL(triggered()), this, SLOT(fileNewAction_triggered()));
-    connect(mainWindow->fileOpenAction, SIGNAL(triggered()), this, SLOT(fileNewAction_triggered()));
+    connect(mainWindow->fileOpenAction, SIGNAL(triggered()), this, SLOT(fileOpenAction_triggered()));
     connect(mainWindow->fileAddAction, SIGNAL(triggered()), this, SLOT(fileAddAction_triggered()));
     connect(mainWindow->fileSaveAction, SIGNAL(triggered()), this, SLOT(fileSaveAction_triggered()));
     connect(mainWindow->fileSaveAsAction, SIGNAL(triggered()), this, SLOT(fileSaveAsAction_triggered()));
@@ -173,6 +175,19 @@ void KeyFramerTab::bindMenuActions()
 void KeyFramerTab::bindToolbarActions()
 {
     connect(mainWindow->resetCameraAction, SIGNAL(triggered()), this, SLOT(resetCameraAction_triggered()));
+}
+
+
+void KeyFramerTab::Save()
+{
+  //TODO
+}
+
+
+void KeyFramerTab::UpdateToolbar()
+{
+  mainWindow->resetCameraAction->setVisible(true);
+  mainWindow->resetCameraAction->setEnabled(true);
 }
 
 
@@ -800,17 +815,15 @@ void KeyFramerTab::frameSlider(int position)
   updateInputs();
 }
 
-void KeyFramerTab::setAvatarShape(/*int shape*/ Animation::FigureType shape)                               //TODO: "int shape" to "enum FigureType"?
+void KeyFramerTab::setAvatarShape(int shape)                               //TODO: "int shape" to "enum FigureType"?
 {
   Animation* anim=animationView->getAnimation();
   if(!anim) return;
 
-/*  if(shape==0)
+  if(shape==0)
     anim->setFigureType(Animation::FIGURE_FEMALE);
   else
-    anim->setFigureType(Animation::FIGURE_MALE);        */
-
-  anim->setFigureType(shape);
+    anim->setFigureType(Animation::FIGURE_MALE);
 
   animationView->repaint();
 }
@@ -1226,8 +1239,8 @@ void KeyFramerTab::fileSaveProps()
 // Menu Action: File / Exit
 void KeyFramerTab::fileExit()
 {
-  if(!clearOpenFiles())
-    return;
+    if(!clearOpenFiles())
+        return;
 
   QSettings settings;
   settings.beginGroup("/qavimator");
@@ -1258,7 +1271,7 @@ void KeyFramerTab::fileExit()
   settings.endGroup();
 
   // remove all widgets and close the main form
-  qApp->exit(0);
+//edu: Oh yeaaas?!   qApp->exit(0);
 }
 
 // Menu Action: Edit / Cut
@@ -1821,7 +1834,7 @@ void KeyFramerTab::setPlaystate(PlayState state)
 }
 
 // prevent closing of main window if there are unsaved changes
-void KeyFramerTab::closeEvent(QCloseEvent* event)                   //TODO: really gets called this way in a tab?
+void KeyFramerTab::closeEvent(QCloseEvent* event)                   //TODO: really gets called this way in a tab? EDU: Yes!
 {
   if(!clearOpenFiles())
     event->ignore();
@@ -1846,8 +1859,6 @@ double KeyFramerTab::calculateLongestRunningTime()
 
 
 // -------------------------------------------------------------------------
-// autoconnection from designer UI
-
 // ------- Menu Actions slots -------
 
 
@@ -1965,6 +1976,8 @@ void KeyFramerTab::resetCameraAction_triggered()
   emit resetCamera();
 }
 
+
+// Autoconnection from designer UI
 // ------- UI Element Slots --------
 
 void KeyFramerTab::on_selectAnimationCombo_activated(int which)
@@ -1974,7 +1987,7 @@ void KeyFramerTab::on_selectAnimationCombo_activated(int which)
 
 void KeyFramerTab::on_figureCombo_activated(int newShape)
 {
-    setAvatarShape((Animation::FigureType)newShape);
+    setAvatarShape(newShape);
 }
 
 void KeyFramerTab::on_scaleSpin_valueChanged(int newValue)
@@ -2204,12 +2217,12 @@ void KeyFramerTab::on_fpsSpin_valueChanged(int newValue)
   setFPS(newValue);
 }
 
-// end autoconnection from designer UI
+// End autoconnection from designer UI
 // -------------------------------------------------------------------------
 
 
 
-void KeyFramerTab::changeEvent(QEvent *e)
+/*void KeyFramerTab::changeEvent(QEvent *e)
 {
     QWidget::changeEvent(e);
     switch (e->type()) {
@@ -2219,4 +2232,4 @@ void KeyFramerTab::changeEvent(QEvent *e)
     default:
         break;
     }
-}
+}   */

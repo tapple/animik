@@ -35,7 +35,8 @@ HEADERS += animation.h \
     slparts.h \
     timeline.h \
     timelineview.h \
-    KeyFramerTab.h
+    KeyFramerTab.h \
+    AbstractDocumentTab.h
 FORMS += mainapplicationform.ui \
     settingsdialogform.ui \
     KeyFramerTab.ui

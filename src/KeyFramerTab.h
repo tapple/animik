@@ -10,13 +10,13 @@
 
 #include <QWidget>
 
+#include "AbstractDocumentTab.h"
+#include "ui_KeyFramerTab.h"
 #include "bvhnode.h"
 #include "animation.h"
 #include "prop.h"
 #include "rotation.h"
 #include "playstate.h"
-
-#include "ui_KeyFramerTab.h"
 
 class Ui_MainWindow;
 class Animation;
@@ -32,7 +32,7 @@ class QCloseEvent;
     class KeyFramerTab;
 }*/
 
-class KeyFramerTab : public QWidget, public Ui::KeyFramerTab {
+class KeyFramerTab : public QWidget, public Ui::KeyFramerTab, public AbstractDocumentTab {
     Q_OBJECT
 public:
     /**
@@ -40,6 +40,9 @@ public:
     */
     KeyFramerTab(/*QWidget *parent = 0, */Ui_MainWindow* mainWindow);
     ~KeyFramerTab();
+
+    virtual void Save();
+    virtual void UpdateToolbar();
 
 signals:
     void enableRotation(bool state);
@@ -187,7 +190,7 @@ protected:
     void helpAbout();
 
     void animationChanged(int which);
-    void setAvatarShape(/*int shape*/ Animation::FigureType shape);
+    void setAvatarShape(int shape);
     void setAvatarScale(int percent);
     void partChoice();
     void rotationValue();
@@ -285,7 +288,7 @@ protected:
     double longestRunningTime;
 
 
-    void changeEvent(QEvent *e);
+//    void changeEvent(QEvent *e);
 
 private:
     Ui_MainWindow* mainWindow;
