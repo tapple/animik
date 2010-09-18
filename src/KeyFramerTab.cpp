@@ -6,9 +6,7 @@
 
 #include "KeyFramerTab.h"
 #include "ui_KeyFramerTab.h"
-
-#include "ui_mainapplicationform.h"
-
+#include "qavimator.h"
 #include "animationview.h"
 #include "rotation.h"
 #include "prop.h"
@@ -28,12 +26,10 @@
 //TODO: I need to have in touch the ToolBar with it's buttons
 
 
-KeyFramerTab::KeyFramerTab(/*QWidget *parent,*/ Ui_MainWindow* mainWindow)
-    : QWidget(/*parent*/ 0)//, ui(new Ui::KeyFramerTab)
+KeyFramerTab::KeyFramerTab(/*QWidget *parent,*/ qavimator* mainWindow, const QString& fileName)
+  : QWidget(/*parent*/ 0), AbstractDocumentTab(mainWindow)
 {
     setAttribute(Qt::WA_DeleteOnClose);
-
-    this->mainWindow = mainWindow;
 
     nodeMapping <<  0                             //edu: position
                 <<  1 <<  2 <<  3 <<  4 << 5      //edu: hip, abdomen, chest, neck, head
@@ -44,7 +40,6 @@ KeyFramerTab::KeyFramerTab(/*QWidget *parent,*/ Ui_MainWindow* mainWindow)
 
     setupUi(this);
 
-    setWindowTitle("qavimator");
 //    setAttribute(Qt::WA_DeleteOnClose);
     frameDataValid=false;
     currentPart=0;
@@ -58,7 +53,7 @@ KeyFramerTab::KeyFramerTab(/*QWidget *parent,*/ Ui_MainWindow* mainWindow)
     // playback stopped by default
     setPlaystate(PLAYSTATE_STOPPED);
 
-    readSettings();
+//    readSettings();
 
     bindMenuActions();
     bindToolbarActions();
@@ -122,15 +117,10 @@ KeyFramerTab::KeyFramerTab(/*QWidget *parent,*/ Ui_MainWindow* mainWindow)
 
     currentFrameSlider->setPageStep(1);
 
-/*edu: No, can't be this way. Do it from parameter*/
-    if(qApp->argc()>1)
-    {
-      fileOpen(qApp->argv()[1]);
-    }
-
-    // if opening of files didn't work or no files were specified on the
-    // command line, open a new one
-    if(openFiles.count()==0) fileNew();                     //edu: just for now
+    if(fileName.isEmpty())
+      fileNew();
+    else
+      fileOpen(fileName);
 
     updateInputs();
 }
@@ -138,26 +128,22 @@ KeyFramerTab::KeyFramerTab(/*QWidget *parent,*/ Ui_MainWindow* mainWindow)
 KeyFramerTab::~KeyFramerTab()
 {
     if(timeline) delete timeline;
-//edu: cannot be called when it's widgets are being disposed     fileExit();
-//edu:    delete ui;
 }
 
 
 void KeyFramerTab::bindMenuActions()
 {
+  //TODO: eliminate the QActions one by one by offering
+
     connect(mainWindow->fileNewAction, SIGNAL(triggered()), this, SLOT(fileNewAction_triggered()));
     connect(mainWindow->fileOpenAction, SIGNAL(triggered()), this, SLOT(fileOpenAction_triggered()));
     connect(mainWindow->fileAddAction, SIGNAL(triggered()), this, SLOT(fileAddAction_triggered()));
-    connect(mainWindow->fileSaveAction, SIGNAL(triggered()), this, SLOT(fileSaveAction_triggered()));
-    connect(mainWindow->fileSaveAsAction, SIGNAL(triggered()), this, SLOT(fileSaveAsAction_triggered()));
-    connect(mainWindow->fileExportForSecondLifeAction, SIGNAL(triggered()), this, SLOT(fileExitAction_triggered()));
+
+//    connect(mainWindow->fileSaveAsAction, SIGNAL(triggered()), this, SLOT(fileSaveAsAction_triggered()));
+//    connect(mainWindow->fileExportForSecondLifeAction, SIGNAL(triggered()), this, SLOT(fileExportForSecondLife()));
     connect(mainWindow->fileLoadPropsAction, SIGNAL(triggered()), this, SLOT(fileLoadPropsAction_triggered()));
     connect(mainWindow->fileSavePropsAction, SIGNAL(triggered()), this, SLOT(fileSavePropsAction_triggered()));
     connect(mainWindow->fileExitAction, SIGNAL(triggered()), this, SLOT(fileExitAction_triggered()));
-
-    connect(mainWindow->editCopyAction, SIGNAL(triggered()), this, SLOT(editCopyAction_triggered()));
-    connect(mainWindow->editCutAction, SIGNAL(triggered()), this, SLOT(editCutAction_triggered()));
-    connect(mainWindow->editPasteAction, SIGNAL(triggered()), this, SLOT(editPasteAction_triggered()));
 
     connect(mainWindow->toolsOptimizeBVHAction, SIGNAL(triggered()), this, SLOT(toolsOptimizeBVHAction_triggered()));
     connect(mainWindow->toolsMirrorAction, SIGNAL(triggered()), this, SLOT(toolsMirrorAction_triggered()));
@@ -167,9 +153,6 @@ void KeyFramerTab::bindMenuActions()
     connect(mainWindow->optionsLoopAction, SIGNAL(toggled(bool)), this, SLOT(optionsLoopAction_toggled(bool)));
     connect(mainWindow->optionsProtectFirstFrameAction, SIGNAL(triggered(bool)), this, SLOT(optionsProtectFirstFrameAction_toggled(bool)));
     connect(mainWindow->optionsShowTimelineAction, SIGNAL(triggered(bool)), this, SLOT(optionsShowTimelineAction_toggled(bool)));
-    connect(mainWindow->optionsConfigureQAvimatorAction, SIGNAL(triggered()), this, SLOT(optionsConfigureQAvimatorAction_triggered()));
-
-    connect(mainWindow->helpAboutAction, SIGNAL(triggered()), this, SLOT(helpAboutAction_triggered()));
 }
 
 void KeyFramerTab::bindToolbarActions()
@@ -177,12 +160,38 @@ void KeyFramerTab::bindToolbarActions()
     connect(mainWindow->resetCameraAction, SIGNAL(triggered()), this, SLOT(resetCameraAction_triggered()));
 }
 
-
 void KeyFramerTab::Save()
 {
-  //TODO
+  if(CurrentFile==UntitledName())
+    fileSaveAs();
+  else
+    animationView->getAnimation()->saveBVH(CurrentFile);
 }
 
+void KeyFramerTab::SaveAs()
+{
+  fileSaveAs();
+}
+
+void KeyFramerTab::Cut()
+{
+  editCut();
+}
+
+void KeyFramerTab::Copy()
+{
+  editCopy();
+}
+
+void KeyFramerTab::Paste()
+{
+  editPaste();
+}
+
+void KeyFramerTab::ExportForSecondLife()
+{
+  fileExportForSecondLife();
+}
 
 void KeyFramerTab::UpdateToolbar()
 {
@@ -890,7 +899,7 @@ void KeyFramerTab::fileNew()
   animationIds.append(anim);
   calculateLongestRunningTime();
   // add new animation to combo box
-  addToOpenFiles(UNTITLED_NAME);
+  addToOpenFiles(/*UNTITLED_NAME*/UntitledName());
 
   anim->useRotationLimits(jointLimits);
 
@@ -1062,22 +1071,16 @@ void KeyFramerTab::fileAdd(const QString& name)
 
 
 // Menu Action: File / Save
-void KeyFramerTab::fileSave()
-{
-  if(currentFile==UNTITLED_NAME)
-    fileSaveAs();
-  else
-    animationView->getAnimation()->saveBVH(currentFile);
-}
+
 
 // Menu Action: File / Save As...
 void KeyFramerTab::fileSaveAs()
 {
    //// For some unknown reason passing "this" locks up the OSX qavimator window. Possibly a QT4 bug, needs investigation
 #ifdef __APPLE__
-   QString file=QFileDialog::getSaveFileName(NULL,tr("Save Animation File"),currentFile,ANIM_FILTER,0,QFileDialog:: DontConfirmOverwrite);
+   QString file=QFileDialog::getSaveFileName(NULL,tr("Save Animation File"), CurrentFile,ANIM_FILTER,0,QFileDialog:: DontConfirmOverwrite);
 #else
-   QString file=QFileDialog::getSaveFileName(this,tr("Save Animation File"),currentFile,ANIM_FILTER,0,QFileDialog:: DontConfirmOverwrite);
+   QString file=QFileDialog::getSaveFileName(this,tr("Save Animation File"), CurrentFile,ANIM_FILTER,0,QFileDialog:: DontConfirmOverwrite);
 #endif
 
   if(!file.isEmpty())
@@ -1110,9 +1113,9 @@ void KeyFramerTab::fileExportForSecondLife()
     // FIXME: think of a sensible thing to do when the animation has not been saved
     //        as .avm yet
     //TODO: And also let user choose the export file location
-  if(currentFile!=UNTITLED_NAME)
+  if(CurrentFile != /*UNTITLED_NAME*/ UntitledName())
   {
-    QFileInfo fileInfo(currentFile);
+    QFileInfo fileInfo(CurrentFile);
     QString exportName=fileInfo.path()+"/"+fileInfo.baseName()+".bvh";
 
     qDebug("qavimator::fileExportForSecondLife(): exporting animation as '%s'.",exportName.toLatin1().constData());
@@ -1194,9 +1197,9 @@ void KeyFramerTab::fileSaveProps()
 {
    //// For some unknown reason passing "this" locks up the OSX qavimator window. Possibly a QT4 bug, needs investigation
 #ifdef __APPLE__
-   QString fileName=QFileDialog::getSaveFileName(NULL,tr("Save Props"),currentFile,PROP_FILTER);
+   QString fileName=QFileDialog::getSaveFileName(NULL,tr("Save Props"), CurrentFile,PROP_FILTER);
 #else
-   QString fileName=QFileDialog::getSaveFileName(this,tr("Save Props"),currentFile,PROP_FILTER);
+   QString fileName=QFileDialog::getSaveFileName(this,tr("Save Props"), CurrentFile,PROP_FILTER);
 #endif
 
   if(!fileName.isEmpty())
@@ -1373,28 +1376,6 @@ void KeyFramerTab::showTimeline(bool on)
   animationView->resize(oldSize);
 }
 
-// Menu Action: Options / Configure QAvimator
-void KeyFramerTab::configure()
-{
-  SettingsDialog* dialog=new SettingsDialog(this);
-  connect(dialog,SIGNAL(configChanged()),this,SLOT(configChanged()));
-
-  dialog->exec();
-
-  delete dialog;
-}
-
-void KeyFramerTab::configChanged()
-{
-  animationView->repaint();
-}
-
-// Menu Action: Help / About ...
-void KeyFramerTab::helpAbout()
-{
-  QMessageBox::about(this,QObject::tr("About QAvimator"),QObject::tr("QAvimator - Animation editor for Second Life<br />%1").arg(SVN_ID));
-}
-
 
 // checks if a file already exists at the given path and displays a warning message
 // returns true if it's ok to save/overwrite, else returns false
@@ -1537,7 +1518,7 @@ bool KeyFramerTab::clearOpenFiles()
   openFiles.clear();
   selectAnimationCombo->clear();
   animationIds.clear();
-  setCurrentFile(UNTITLED_NAME);
+  setCurrentFile(/*UNTITLED_NAME*/ UntitledName());
   longestRunningTime=0.0;
 
   return true;
@@ -1545,10 +1526,11 @@ bool KeyFramerTab::clearOpenFiles()
 
 
 // convenience function to set window title in a defined way
-void KeyFramerTab::setCurrentFile(const QString& fileName)                          //TODO: make it tab title
+void KeyFramerTab::setCurrentFile(const QString& fileName)
 {
-  currentFile=fileName;
-  setWindowTitle("qavimator ["+currentFile+"]");
+  CurrentFile=fileName;
+  mainWindow->setWindowTitle("qavimator ["+CurrentFile+"]");
+  setWindowTitle(CurrentFile);            //TODO: shorten file name (no path)
 }
 
 // this slot gets called from Animation::setFrame(int)
@@ -1770,7 +1752,7 @@ void KeyFramerTab::selectAnimation(Animation* animation)
 
   // enable export to second life if current file name is not the default untitled name
 
-  mainWindow->fileExportForSecondLifeAction->setEnabled(!(currentFile==UNTITLED_NAME));
+  mainWindow->fileExportForSecondLifeAction->setEnabled(!(CurrentFile==/*UNTITLED_NAME*/ UntitledName()));
 }
 
 // set loop in point (user view, so always +1)
@@ -1877,10 +1859,6 @@ void KeyFramerTab::fileAddAction_triggered()
   fileAdd();
 }
 
-void KeyFramerTab::fileSaveAction_triggered()
-{
-  fileSave();
-}
 
 void KeyFramerTab::fileSaveAsAction_triggered()
 {
@@ -1905,21 +1883,6 @@ void KeyFramerTab::fileSavePropsAction_triggered()
 void KeyFramerTab::fileExitAction_triggered()
 {
   fileExit();
-}
-
-void KeyFramerTab::editCutAction_triggered()
-{
-  editCut();
-}
-
-void KeyFramerTab::editCopyAction_triggered()
-{
-  editCopy();
-}
-
-void KeyFramerTab::editPasteAction_triggered()
-{
-  editPaste();
 }
 
 void KeyFramerTab::toolsOptimizeBVHAction_triggered()
@@ -1959,15 +1922,6 @@ void KeyFramerTab::optionsShowTimelineAction_toggled(bool on)
   showTimeline(on);
 }
 
-void KeyFramerTab::optionsConfigureQAvimatorAction_triggered()
-{
-  configure();
-}
-
-void KeyFramerTab::helpAboutAction_triggered()
-{
-  helpAbout();
-}
 
 // ------- Additional Toolbar Element Slots --------
 
@@ -2219,17 +2173,3 @@ void KeyFramerTab::on_fpsSpin_valueChanged(int newValue)
 
 // End autoconnection from designer UI
 // -------------------------------------------------------------------------
-
-
-
-/*void KeyFramerTab::changeEvent(QEvent *e)
-{
-    QWidget::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}   */

@@ -46,7 +46,7 @@ class QWidget;
 
 
 
-class qavimator : public QMainWindow, Ui::MainWindow
+class qavimator : public QMainWindow, public Ui::MainWindow
 {
   Q_OBJECT
 
@@ -179,7 +179,7 @@ protected:
   //edu
   QList<AbstractDocumentTab> documentTabs;
   void OpenNewTab();
-  QWidget* activeTab();
+  AbstractDocumentTab* activeTab();
 
 
   void fileNew();

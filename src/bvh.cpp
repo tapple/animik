@@ -520,7 +520,7 @@ BVHNode* BVH::avmRead(const QString& file)
   return(root);
 }
 
-BVHNode* BVH::animRead(const QString& file,const QString& limFile)
+BVHNode* BVH::animRead(const QString& file, const QString& limFile)
 {
   BVHNode* root;
 

@@ -2,7 +2,6 @@
 #define KEYFRAMERTAB_H
 
 
-#define UNTITLED_NAME "Untitled.avm"
 #define PLAY_IMAGE "data/play.png"
 #define PAUSE_IMAGE "data/pause.png"
 #define KEY_IMAGE "data/key.png"
@@ -18,7 +17,7 @@
 #include "rotation.h"
 #include "playstate.h"
 
-class Ui_MainWindow;
+class qavimator;
 class Animation;
 class Prop;
 class Timeline;
@@ -36,13 +35,20 @@ class KeyFramerTab : public QWidget, public Ui::KeyFramerTab, public AbstractDoc
     Q_OBJECT
 public:
     /**
-      Main windows is passed to access menu and toolbar actions
+      Main window is passed to access some menu and toolbar actions
     */
-    KeyFramerTab(/*QWidget *parent = 0, */Ui_MainWindow* mainWindow);
-    ~KeyFramerTab();
+  KeyFramerTab(/*QWidget *parent = 0, */qavimator* mainWindow, const QString& fileName);
+  ~KeyFramerTab();
 
-    virtual void Save();
-    virtual void UpdateToolbar();
+  virtual void Save();
+  virtual void SaveAs();
+  virtual void Cut();
+  virtual void Copy();
+  virtual void Paste();
+  virtual void Undo() {/*TODO*/};
+  virtual void Redo() {/*TODO*/};
+  virtual void ExportForSecondLife();
+  virtual void UpdateToolbar();
 
 signals:
     void enableRotation(bool state);
@@ -54,7 +60,6 @@ signals:
 
 protected slots:
     void readSettings();
-    void configChanged();
 
     void partClicked(BVHNode* node,Rotation rot,RotationLimits rotLimits,Position pos);
     void partDragged(BVHNode* node,double changeX,double changeY,double changeZ);
@@ -77,16 +82,12 @@ protected slots:
     void fileNewAction_triggered();
     void fileOpenAction_triggered();
     void fileAddAction_triggered();
-    void fileSaveAction_triggered();
+//    void fileSaveAction_triggered();
     void fileSaveAsAction_triggered();
     void fileExportForSecondLifeAction_triggered();
     void fileLoadPropsAction_triggered();
     void fileSavePropsAction_triggered();
     void fileExitAction_triggered();
-
-    void editCutAction_triggered();
-    void editCopyAction_triggered();
-    void editPasteAction_triggered();
 
     void toolsOptimizeBVHAction_triggered();
     void toolsMirrorAction_triggered();
@@ -96,9 +97,6 @@ protected slots:
     void optionsLoopAction_toggled(bool on);
     void optionsProtectFirstFrameAction_toggled(bool on);
     void optionsShowTimelineAction_toggled(bool on);
-    void optionsConfigureQAvimatorAction_triggered();
-
-    void helpAboutAction_triggered();
 
     // ------- Additional Toolbar Element Slots -------
 
@@ -166,7 +164,7 @@ protected:
     // "add" a new file without clearing the old one(s)
     void fileAdd();
     void fileAdd(const QString& fileName);
-    void fileSave();
+//edu    void fileSave();
     void fileSaveAs();
     void fileExportForSecondLife();
     void fileLoadProps();
@@ -185,9 +183,6 @@ protected:
     void setLoop(bool on);
     void setProtectFirstFrame(bool on);
     void showTimeline(bool state);
-    void configure();
-
-    void helpAbout();
 
     void animationChanged(int which);
     void setAvatarShape(int shape);
@@ -254,7 +249,10 @@ protected:
     float getYPos();
     float getZPos();
 
-    QString currentFile;
+//edu: went to ADT    QString CurrentFile;
+    //edu so far
+    virtual QString UntitledName() const {return "Untitled.avm";}
+
     QStringList openFiles;
     // last path used for open or save
     QString lastPath;
@@ -291,8 +289,6 @@ protected:
 //    void changeEvent(QEvent *e);
 
 private:
-    Ui_MainWindow* mainWindow;
-
     void bindMenuActions();
     void bindToolbarActions();
 //    Ui::KeyFramerTab *ui;

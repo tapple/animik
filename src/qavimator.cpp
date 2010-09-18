@@ -34,6 +34,7 @@
 
 //edu
 #include "KeyFramerTab.h"
+#include "NewFileDialog.h"
 
 #define ANIM_FILTER "Animation Files (*.avm *.bvh)"
 #define PROP_FILTER "Props (*.prp)"
@@ -41,7 +42,7 @@
 
 #define SVN_ID      "$Id$"
 
-qavimator::qavimator() : QMainWindow(0)
+qavimator::qavimator() //: QMainWindow(0)
 {
   nodeMapping <<  0                             //edu: position
               <<  1 <<  2 <<  3 <<  4 << 5      //edu: hip, abdomen, chest, neck, head
@@ -165,7 +166,7 @@ qavimator::~qavimator()
 //edu
 void qavimator::OpenNewTab()
 {
-  QWidget* keyFramerTab = new KeyFramerTab(this);
+  QWidget* keyFramerTab = new KeyFramerTab(this, "");
   connect(keyFramerTab, SIGNAL(destroyed()), this, SLOT(UpdateMenus()));
   connect(keyFramerTab, SIGNAL(destroyed()), this, SLOT(UpdateToolbar()));
   mdiArea->addSubWindow(keyFramerTab);
@@ -201,10 +202,10 @@ void qavimator::UpdateToolbar()
 /**
   Return QWidget content of active tab.
   */
-QWidget* qavimator::activeTab()
+AbstractDocumentTab* qavimator::activeTab()
 {
     if (QMdiSubWindow *activeSubWindow = mdiArea->activeSubWindow())
-        return (activeSubWindow->widget());
+        return dynamic_cast<AbstractDocumentTab *>(activeSubWindow->widget());
     return 0;
 }
 
@@ -1389,7 +1390,7 @@ void qavimator::configure()
 
 void qavimator::configChanged()
 {
-  animationView->repaint();
+  animationView->repaint();                 //TODO: inside Tab of course
 }
 
 // Menu Action: Help / About ...
@@ -1864,6 +1865,11 @@ double qavimator::calculateLongestRunningTime()
 void qavimator::on_fileNewAction_triggered()
 {
   fileNew();
+
+  //edu, heavy.
+  NewFileDialog* dialog = new NewFileDialog(this);
+  dialog->exec();
+  delete dialog;
 }
 
 void qavimator::on_fileOpenAction_triggered()
@@ -1878,12 +1884,17 @@ void qavimator::on_fileAddAction_triggered()
 
 void qavimator::on_fileSaveAction_triggered()
 {
-  fileSave();
+  fileSave();     //edu: Caution: when saving new file, the OpenFileDialog steals tab's focus (SIGSEGV)
+
+  //edu
+  activeTab()->Save();
 }
 
 void qavimator::on_fileSaveAsAction_triggered()
 {
   fileSaveAs();
+
+  activeTab()->SaveAs();
 }
 
 void qavimator::on_fileExportForSecondLifeAction_triggered()
