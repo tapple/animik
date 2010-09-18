@@ -16,8 +16,8 @@ public:
     NewFileDialog(QWidget *parent = 0);
     ~NewFileDialog();
 
-    enum ProjectType {AVM, AVBL};
-    NewFileDialog::ProjectType SelectedProjectType() const {return selectedItem;};
+    enum ProjectType {AVM = 0, AVBL};     //TODO: this definitely must go somewhere else
+    NewFileDialog::ProjectType SelectedProjectType() const {return selectedItem;}
 
 protected slots:
   void on_listView_clicked(QModelIndex modelIndex);

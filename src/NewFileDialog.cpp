@@ -28,14 +28,19 @@ NewFileDialog::NewFileDialog(QWidget *parent)
 
 NewFileDialog::~NewFileDialog()
 {
-    delete ui;
+  delete ui;
 }
 
 
 void NewFileDialog::on_listView_clicked(QModelIndex modelIndex)
 {
   ui->buttonBox->buttons().at(0)->setEnabled(modelIndex.isValid());
-  //TODO... Some hint to the left?
+
+  if(modelIndex.isValid())
+  {
+    selectedItem = (ProjectType) modelIndex.row();
+    //TODO: some hint to the left?
+  }
 }
 
 
@@ -43,7 +48,7 @@ void NewFileDialog::on_listView_doubleClicked(QModelIndex modelIndex)
 {
   if(modelIndex.isValid())
   {
-    selectedItem = ???;     //TODO
+    selectedItem = (ProjectType) modelIndex.row();
     accept();
   }
 }

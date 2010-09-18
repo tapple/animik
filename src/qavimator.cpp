@@ -143,7 +143,7 @@ qavimator::qavimator() //: QMainWindow(0)
 
   // if opening of files didn't work or no files were specified on the
   // command line, open a new one
-  if(openFiles.count()==0) fileNew();
+  if(openFiles.count()==0) fileNew(NewFileDialog::AVM /*edu: soon to be obsolete*/);
 
   updateInputs();
 
@@ -888,7 +888,7 @@ void qavimator::easeOutChanged(int change)
 // ------ Menu Action Slots (Callbacks) -----------
 
 // Menu action: File / New
-void qavimator::fileNew()
+void qavimator::fileNew(NewFileDialog::ProjectType fileType)
 {
   clearProps();
   if(!clearOpenFiles()) return;
@@ -1864,11 +1864,12 @@ double qavimator::calculateLongestRunningTime()
 
 void qavimator::on_fileNewAction_triggered()
 {
-  fileNew();
-
-  //edu, heavy.
   NewFileDialog* dialog = new NewFileDialog(this);
   dialog->exec();
+
+  if(dialog->result() == QDialog::Accepted)
+    fileNew(dialog->SelectedProjectType());
+
   delete dialog;
 }
 

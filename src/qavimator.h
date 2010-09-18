@@ -37,6 +37,8 @@
 #include "rotation.h"
 #include "playstate.h"
 
+#include "NewFileDialog.h"        //TODO
+
 class Animation;
 class Prop;
 class Timeline;
@@ -181,8 +183,7 @@ protected:
   void OpenNewTab();
   AbstractDocumentTab* activeTab();
 
-
-  void fileNew();
+  void fileNew(NewFileDialog::ProjectType fileType);       //TODO: place the enum elsewhere
   void fileOpen();
   void fileOpen(const QString& fileName);
   // "add" a new file without clearing the old one(s)
