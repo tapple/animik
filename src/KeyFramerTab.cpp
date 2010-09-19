@@ -135,7 +135,7 @@ void KeyFramerTab::bindMenuActions()
 {
   //TODO: eliminate the QActions one by one by offering
 
-    connect(mainWindow->fileNewAction, SIGNAL(triggered()), this, SLOT(fileNewAction_triggered()));
+//    connect(mainWindow->fileNewAction, SIGNAL(triggered()), this, SLOT(fileNewAction_triggered()));
     connect(mainWindow->fileOpenAction, SIGNAL(triggered()), this, SLOT(fileOpenAction_triggered()));
     connect(mainWindow->fileAddAction, SIGNAL(triggered()), this, SLOT(fileAddAction_triggered()));
 
@@ -884,8 +884,9 @@ void KeyFramerTab::easeOutChanged(int change)
 
 void KeyFramerTab::fileNew()
 {
-  clearProps();
-  if(!clearOpenFiles()) return;
+/*  clearProps();                     //TODO: no need for this if we have
+  if(!clearOpenFiles()) return;     //      one file in the tab.
+*/
 
   Animation* anim=new Animation(animationView->getBVH());
 
@@ -1844,10 +1845,10 @@ double KeyFramerTab::calculateLongestRunningTime()
 // ------- Menu Actions slots -------
 
 
-void KeyFramerTab::fileNewAction_triggered()
+/*void KeyFramerTab::fileNewAction_triggered()
 {
   fileNew();
-}
+}       */
 
 void KeyFramerTab::fileOpenAction_triggered()
 {

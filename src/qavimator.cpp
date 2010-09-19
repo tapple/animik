@@ -143,16 +143,16 @@ qavimator::qavimator() //: QMainWindow(0)
 
   // if opening of files didn't work or no files were specified on the
   // command line, open a new one
-  if(openFiles.count()==0) fileNew(NewFileDialog::AVM /*edu: soon to be obsolete*/);
+  if(openFiles.count()==0)
+    fileNew(NewFileDialog::AVM /*edu: soon to be obsolete*/);
 
-  updateInputs();
+//DEBUG   updateInputs();
 
   //edu
   OpenNewTab();
   OpenNewTab();
-  OpenNewTab();
-  OpenNewTab();
-  OpenNewTab();
+
+  updateInputs();     //DEBUG
 }
 
 qavimator::~qavimator()
@@ -164,12 +164,13 @@ qavimator::~qavimator()
 
 
 //edu
-void qavimator::OpenNewTab()
+void qavimator::OpenNewTab()      //TODO
 {
   QWidget* keyFramerTab = new KeyFramerTab(this, "");
   connect(keyFramerTab, SIGNAL(destroyed()), this, SLOT(UpdateMenus()));
   connect(keyFramerTab, SIGNAL(destroyed()), this, SLOT(UpdateToolbar()));
   mdiArea->addSubWindow(keyFramerTab);
+  mdiArea->setActiveSubWindow(mdiArea->???);
 }
 
 
@@ -890,61 +891,75 @@ void qavimator::easeOutChanged(int change)
 // Menu action: File / New
 void qavimator::fileNew(NewFileDialog::ProjectType fileType)
 {
-  clearProps();
-  if(!clearOpenFiles()) return;
-
-  Animation* anim=new Animation(animationView->getBVH());
-
-  // set timeline animation first, because ...
-  timeline->setAnimation(anim);
-  // ... setting animation here will delete all old animations
-  animationView->setAnimation(anim);
-  selectAnimation(anim);
-
-  // add new animation to internal list
-  animationIds.append(anim);
-  calculateLongestRunningTime();
-  // add new animation to combo box
-  addToOpenFiles(UNTITLED_NAME);
-
-  anim->useRotationLimits(jointLimits);
-
-  if(protectFirstFrame)
+  switch(fileType)
   {
-//    qDebug("qavimator::fileNew(): adding loop points for protected frame 1 animation");
-    // skip first frame, since it's protected anyway
-    anim->setFrame(1);
-    setCurrentFrame(1);
-    setLoopInPoint(2);
-  }
-  else
-  {
-//    qDebug("qavimator::fileNew(): adding loop points for unprotected frame 1 animation");
-    anim->setFrame(0);
-    setCurrentFrame(0);
-    setLoopInPoint(1);
-  }
-  setLoopOutPoint(anim->getNumberOfFrames());
+    case NewFileDialog::AVM :
+    {
+      OpenNewTab();
 
-  // show frame as unprotected
-  emit protectFrame(false);
-  protect=false;
+      clearProps();
+      if(!clearOpenFiles()) return;
 
-  // FIXME: code duplication
-  connect(anim,SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
+      Animation* anim=new Animation(animationView->getBVH());
 
-  editPartCombo->setCurrentIndex(1);
+      // set timeline animation first, because ...
+      timeline->setAnimation(anim);
+      // ... setting animation here will delete all old animations
+      animationView->setAnimation(anim);
+      selectAnimation(anim);
 
-  setPlaystate(PLAYSTATE_STOPPED);
+      // add new animation to internal list
+      animationIds.append(anim);
+      calculateLongestRunningTime();
+      // add new animation to combo box
+      addToOpenFiles(UNTITLED_NAME);
 
-  updateInputs();
-  updateFps();
+      anim->useRotationLimits(jointLimits);
 
-  emit enableRotation(false);
-  emit enablePosition(true);
-  emit enableProps(false);
+      if(protectFirstFrame)
+      {
+    //    qDebug("qavimator::fileNew(): adding loop points for protected frame 1 animation");
+        // skip first frame, since it's protected anyway
+        anim->setFrame(1);
+        setCurrentFrame(1);
+        setLoopInPoint(2);
+      }
+      else
+      {
+    //    qDebug("qavimator::fileNew(): adding loop points for unprotected frame 1 animation");
+        anim->setFrame(0);
+        setCurrentFrame(0);
+        setLoopInPoint(1);
+      }
+      setLoopOutPoint(anim->getNumberOfFrames());
 
-  anim->setDirty(false);
+      // show frame as unprotected
+      emit protectFrame(false);
+      protect=false;
+
+      // FIXME: code duplication
+      connect(anim,SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
+
+      editPartCombo->setCurrentIndex(1);
+
+      setPlaystate(PLAYSTATE_STOPPED);
+
+      updateInputs();
+      updateFps();
+
+      emit enableRotation(false);
+      emit enablePosition(true);
+      emit enableProps(false);
+
+      anim->setDirty(false);
+    }break;
+    case NewFileDialog::AVBL :
+    {
+    //TODO: BlenderTab
+    }break;
+    default:
+      throw "Unknown file type";
+  }//switch
 }
 
 QString qavimator::selectFileToOpen(const QString& caption)

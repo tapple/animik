@@ -79,7 +79,7 @@ protected slots:
     // autoconnection from designer UI
 
     // ------- Menu Action Slots --------
-    void fileNewAction_triggered();
+//    void fileNewAction_triggered();
     void fileOpenAction_triggered();
     void fileAddAction_triggered();
 //    void fileSaveAction_triggered();
