@@ -19,8 +19,6 @@
 #define PROP_FILTER "Props (*.prp)"
 #define PRECISION   100
 
-#define SVN_ID      "$Id$"
-
 
 
 //TODO: I need to have in touch the ToolBar with it's buttons
@@ -141,7 +139,7 @@ void KeyFramerTab::bindMenuActions()
 //    connect(mainWindow->fileExportForSecondLifeAction, SIGNAL(triggered()), this, SLOT(fileExportForSecondLife()));
     connect(mainWindow->fileLoadPropsAction, SIGNAL(triggered()), this, SLOT(fileLoadPropsAction_triggered()));
     connect(mainWindow->fileSavePropsAction, SIGNAL(triggered()), this, SLOT(fileSavePropsAction_triggered()));
-    connect(mainWindow->fileExitAction, SIGNAL(triggered()), this, SLOT(fileExitAction_triggered()));
+    connect(mainWindow->fileQuitAction, SIGNAL(triggered()), this, SLOT(fileExitAction_triggered()));
 
     connect(mainWindow->toolsOptimizeBVHAction, SIGNAL(triggered()), this, SLOT(toolsOptimizeBVHAction_triggered()));
     connect(mainWindow->toolsMirrorAction, SIGNAL(triggered()), this, SLOT(toolsMirrorAction_triggered()));
@@ -151,11 +149,24 @@ void KeyFramerTab::bindMenuActions()
     connect(mainWindow->optionsLoopAction, SIGNAL(toggled(bool)), this, SLOT(optionsLoopAction_toggled(bool)));
     connect(mainWindow->optionsProtectFirstFrameAction, SIGNAL(triggered(bool)), this, SLOT(optionsProtectFirstFrameAction_toggled(bool)));
     connect(mainWindow->optionsShowTimelineAction, SIGNAL(triggered(bool)), this, SLOT(optionsShowTimelineAction_toggled(bool)));
+
+    //TODO: and so on... There are many more animation related
 }
 
 void KeyFramerTab::bindToolbarActions()
 {
     connect(mainWindow->resetCameraAction, SIGNAL(triggered()), this, SLOT(resetCameraAction_triggered()));
+}
+
+bool KeyFramerTab::IsUnsaved()
+{
+  for(unsigned int index=0;index< (unsigned int) animationIds.count();index++)
+  {
+    if(animationIds.at(index)->dirty())
+      return true;
+  }
+
+  return false;
 }
 
 void KeyFramerTab::Save()
@@ -1832,7 +1843,7 @@ void KeyFramerTab::setPlaystate(PlayState state)
 }
 
 // prevent closing of main window if there are unsaved changes
-void KeyFramerTab::closeEvent(QCloseEvent* event)                   //TODO: really gets called this way in a tab? EDU: Yes!
+void KeyFramerTab::closeEvent(QCloseEvent* event)
 {
   if(!clearOpenFiles())
     event->ignore();

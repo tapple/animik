@@ -36,20 +36,20 @@
 #include "KeyFramerTab.h"
 #include "NewFileDialog.h"
 
-#define ANIM_FILTER "Animation Files (*.avm *.bvh)"
-#define PROP_FILTER "Props (*.prp)"
-#define PRECISION   100
+#define ANIM_FILTER "Animation Files (*.avm *.avbl *.bvh)"
+/*#define PROP_FILTER "Props (*.prp)"
+#define PRECISION   100   */
 
 #define SVN_ID      "$Id$"
 
 qavimator::qavimator() //: QMainWindow(0)
 {
-  nodeMapping <<  0                             //edu: position
+/*rbsh  nodeMapping <<  0                             //edu: position
               <<  1 <<  2 <<  3 <<  4 << 5      //edu: hip, abdomen, chest, neck, head
               <<  7 <<  8 <<  9 << 10           //edu: (left) collar, shoulder, fore-arm, hand
               << 12 << 13 << 14 << 15           //edu: ...
               << 17 << 18 << 19
-              << 21 << 22 << 23;
+              << 21 << 22 << 23;      */
 
   QCoreApplication::setOrganizationName("DeZiRee");
   QCoreApplication::setOrganizationDomain("qavimator.org");
@@ -59,21 +59,21 @@ qavimator::qavimator() //: QMainWindow(0)
 
   setWindowTitle("qavimator");
   setAttribute(Qt::WA_DeleteOnClose);
-  frameDataValid=false;
+/*rbsh  frameDataValid=false;
   currentPart=0;
-  longestRunningTime=0.0;
+  longestRunningTime=0.0;     */
 
   // prepare play button icons
-  stopIcon=QIcon(":/icons/icons/stop.png");
+/*rbsh  stopIcon=QIcon(":/icons/icons/stop.png");
   playIcon=QIcon(":/icons/icons/play.png");
   loopIcon=QIcon(":/icons/icons/loop.png");
 
   // playback stopped by default
-  setPlaystate(PLAYSTATE_STOPPED);
+  setPlaystate(PLAYSTATE_STOPPED);      */
 
   readSettings();
 
-  connect(animationView,SIGNAL(partClicked(BVHNode*,
+/*rbsh  connect(animationView,SIGNAL(partClicked(BVHNode*,
                                            Rotation,
                                            RotationLimits,
                                            Position)),
@@ -130,33 +130,25 @@ qavimator::qavimator() //: QMainWindow(0)
   yPositionSlider->setPageStep(10*PRECISION);
   zPositionSlider->setPageStep(10*PRECISION);
 
-  currentFrameSlider->setPageStep(1);
+  currentFrameSlider->setPageStep(1);         */
 
-  if(qApp->argc()>1)
+/*TODO  if(qApp->argc()>1)
   {
     fileOpen(qApp->argv()[1]);
-  }
-
-  // if opening of files didn't work or no files were specified on the
-  // command line, open a new one
-  if(openFiles.count()==0)
-    fileNew(NewFileDialog::AVM /*edu: soon to be obsolete*/);
-
-//DEBUG   updateInputs();
-
+  }   */
 
   //edu:
 /*  OpenNewTab();
   OpenNewTab();
   animationView->setVisible(false);   //DEBUG: If commented, the previous 2 lines must be too (else SIGSEGV)   */
 
-  updateInputs();     //DEBUG
+//rbsh  updateInputs();     //DEBUG
 }
 
 qavimator::~qavimator()
 {
-  if(timeline) delete timeline;
-  fileExit();
+//rbsh  if(timeline) delete timeline;
+  quit();
 }
 
 
@@ -278,7 +270,7 @@ void qavimator::readSettings()
 
   resize(width,height);
 
-  optionsLoopAction->setChecked(loop);
+/*rbsh  optionsLoopAction->setChecked(loop);
   optionsSkeletonAction->setChecked(skeleton);
   optionsJointLimitsAction->setChecked(jointLimits);
   optionsShowTimelineAction->setChecked(showTimelinePanel);
@@ -289,13 +281,12 @@ void qavimator::readSettings()
   optionsProtectFirstFrameAction->setChecked(protectFirstFrame);
   optionsProtectFirstFrameAction->blockSignals(false);
 
-  qDebug("readSettings(): figureCombo goes to index %d", figureType);
-
   figureCombo->setCurrentIndex(figureType);
-  setAvatarShape( /*(Animation::FigureType)*/figureType );
+  setAvatarShape( figureType );   */
 }
 
 // slot gets called by AnimationView::mousePressEvent()
+/*rbsh
 void qavimator::partClicked(BVHNode* node,Rotation rot,RotationLimits limits,Position pos)
 {
   avatarPropsTab->setCurrentIndex(0);
@@ -404,10 +395,10 @@ void qavimator::partDragged(BVHNode* node,double x,double y,double z)
     }
   }
   else qDebug("qavimator::partDragged(): node==0!");
-}
+}         */
 
 // slot gets called by AnimationView::propClicked()
-void qavimator::propClicked(Prop* prop)
+/*void qavimator::propClicked(Prop* prop)
 {
   avatarPropsTab->setCurrentIndex(1);
 
@@ -456,9 +447,10 @@ void qavimator::backgroundClicked()
   emit enableEaseInOut(false);
   editPartCombo->setCurrentIndex(0);
   updateKeyBtn();
-}
+}       */
 
 // slot gets called by body part dropdown list
+/*rbsh
 void qavimator::partChoice()
 {
   // get node number from entry list in combo box
@@ -607,8 +599,9 @@ void qavimator::positionValue()
   animationView->repaint();
 
   updateKeyBtn();
-}
+}       */
 
+/*rbsh
 void qavimator::updateInputs()
 {
   // deactivate redraw to reduce interface "jitter" during updating
@@ -719,8 +712,9 @@ void qavimator::updateKeyBtn()
     emit enableEaseInOut(false);
 
 //  timeline->repaint();
-}
+}       */
 
+/*rbsh
 void qavimator::enableInputs(bool state)
 {
   // protection overrides state for keyframe button
@@ -867,8 +861,9 @@ void qavimator::numFramesChanged(int num)
   }
 
   updateInputs();
-}
+}         */
 
+/*rbsh
 void qavimator::easeInChanged(int change)
 {
   bool ease=false;
@@ -885,7 +880,7 @@ void qavimator::easeOutChanged(int change)
 
   Animation* anim=animationView->getAnimation();
   anim->setEaseOut(currentPart,anim->getFrame(),ease);
-}
+}         */
 
 // ------ Menu Action Slots (Callbacks) -----------
 
@@ -898,7 +893,7 @@ void qavimator::fileNew(NewFileDialog::ProjectType fileType)
     {
       OpenNewTab();
 
-      clearProps();
+/*rbsh      clearProps();
       if(!clearOpenFiles()) return;
 
       Animation* anim=new Animation(animationView->getBVH());
@@ -952,7 +947,7 @@ void qavimator::fileNew(NewFileDialog::ProjectType fileType)
       emit enablePosition(true);
       emit enableProps(false);
 
-      anim->setDirty(false);
+      anim->setDirty(false);      */
     }break;
     case NewFileDialog::AVBL :
     {
@@ -987,6 +982,7 @@ QString qavimator::selectFileToOpen(const QString& caption)
 }
 
 // Menu action: File / Open ...
+/*rbsh
 void qavimator::fileOpen()
 {
   fileOpen(QString::null);
@@ -1008,11 +1004,11 @@ void qavimator::fileOpen(const QString& name)
 
   // update timeline and animation view with the currently selected body part
   // this helps to sync the visual selections
-  partChoice();
-}
+//rbsh  partChoice();
+}       */
 
 // Menu action: File / Add New Animation ...
-void qavimator::fileAdd()
+/*void qavimator::fileAdd()
 {
   fileAdd(QString::null);
 }
@@ -1032,6 +1028,7 @@ void qavimator::fileAdd(const QString& name)
       QMessageBox::warning(this,QObject::tr("Load Animation File"),QObject::tr("<qt>Animation file not found:<br />%1</qt>").arg(file));
       return;
     }
+
     addToOpenFiles(file);
     Animation* anim=new Animation(animationView->getBVH(),file);
     animationIds.append(anim);
@@ -1086,9 +1083,10 @@ void qavimator::fileAdd(const QString& name)
 // anim->setPlaystate(PLAYSTATE_LOOPING);
 
   }
-}
+}       */
 
 // Menu Action: File / Save
+/*rbsh
 void qavimator::fileSave()
 {
   if(currentFile==UNTITLED_NAME)
@@ -1128,9 +1126,10 @@ void qavimator::fileSaveAs()
       fileExportForSecondLifeAction->setEnabled(true);
     }
   }
-}
+}         */
 
 // Menu Action: File / Export For Second Life
+/*rbsh
 void qavimator::fileExportForSecondLife()
 {
   // FIXME: think of a sensible thing to do when the animation has not been saved
@@ -1144,9 +1143,10 @@ void qavimator::fileExportForSecondLife()
     animationView->getAnimation()->saveBVH(exportName);
     QMessageBox::information(this,QObject::tr("Export for Second Life"),QObject::tr("Animation was exported for Second Life as:\n%1").arg(exportName));
   }
-}
+}       */
 
 // Menu Action: File / Load Props...
+/*rbsh
 void qavimator::fileLoadProps()
 {
    //// For some unknown reason passing "this" locks up the OSX qavimator window. Possibly a QT4 bug, needs investigation
@@ -1256,13 +1256,13 @@ void qavimator::fileSaveProps()
       } // for
     }
   }
-}
+}       */
 
-// Menu Action: File / Exit
-void qavimator::fileExit()
+// Menu Action: File / Quit
+void qavimator::quit()
 {
-  if(!clearOpenFiles())
-    return;
+//rbsh  if(!clearOpenFiles())           //TODO: inspect unsaved tabs
+//rbsh    return;
 
   QSettings settings;
   settings.beginGroup("/qavimator");
@@ -1276,7 +1276,7 @@ void qavimator::fileExit()
   settings.setValue("/protect_first_frame",optionsProtectFirstFrameAction->isChecked());
   settings.setValue("/show_timeline",optionsShowTimelineAction->isChecked());
 
-  settings.setValue("/figure",figureCombo->currentIndex());
+//rbsh  settings.setValue("/figure",figureCombo->currentIndex());
   settings.setValue("/mainwindow_width",size().width());
   settings.setValue("/mainwindow_height",size().height());
 
@@ -1297,6 +1297,7 @@ void qavimator::fileExit()
 }
 
 // Menu Action: Edit / Cut
+/*rbsh
 void qavimator::editCut()
 {
 //  qDebug("qavimator::editCut()");
@@ -1322,9 +1323,10 @@ void qavimator::editPaste()
     animationView->repaint();
     updateInputs();
   }
-}
+}     */
 
 // Menu Action: Edit / Paste
+/*rbsh
 void qavimator::toolsOptimizeBVH()
 {
   animationView->getAnimation()->optimize();
@@ -1338,9 +1340,10 @@ void qavimator::showSkeleton(bool on)
     animationView->showSkeleton();
   else
     animationView->hideSkeleton();
-}
+}           */
 
 // Menu Action: Options / Loop
+/*rbsh
 void qavimator::setLoop(bool on)
 {
   loop=on;
@@ -1351,9 +1354,10 @@ void qavimator::setLoop(bool on)
   else
     // just update play button icon (in case we're stopped it changes from/to looping icon)
     setPlaystate(playstate);
-}
+}       */
 
 // Menu Action: Options / Joint Limits
+/*rbsh
 void qavimator::setJointLimits(bool on)
 {
   jointLimits=on;
@@ -1364,9 +1368,10 @@ void qavimator::setJointLimits(bool on)
     animationView->repaint();
     updateInputs();
   }
-}
+}       */
 
 // Menu Action: Options / Protect First Frame
+/*rbsh
 void qavimator::setProtectFirstFrame(bool on)
 {
   protectFirstFrame=on;
@@ -1375,9 +1380,10 @@ void qavimator::setProtectFirstFrame(bool on)
 
   emit protectFrame(protect);
   updateInputs();
-}
+}     */
 
 // Menu Action: Options / Show Timeline
+/*rbsh
 void qavimator::showTimeline(bool on)
 {
   if(on)
@@ -1391,7 +1397,7 @@ void qavimator::showTimeline(bool on)
   animationView->resize(oldSize.width(),oldSize.height()-1);
   qApp->processEvents();
   animationView->resize(oldSize);
-}
+}     */
 
 // Menu Action: Options / Configure QAvimator
 void qavimator::configure()
@@ -1404,9 +1410,11 @@ void qavimator::configure()
   delete dialog;
 }
 
+//only re-emits further
 void qavimator::configChanged()
 {
-  animationView->repaint();                 //TODO: inside Tab of course
+//rbsh  animationView->repaint();                 //TODO: inside Tabs of course
+  emit configurationChanged();
 }
 
 // Menu Action: Help / About ...
@@ -1428,6 +1436,7 @@ bool qavimator::checkFileOverwrite(const QFileInfo& fileInfo)
   return true;
 }
 
+/*rbsh
 void qavimator::setX(float x)
 {
   setSliderValue(xRotationSlider,xRotationEdit,x);
@@ -1486,9 +1495,10 @@ float qavimator::getYPos()
 float qavimator::getZPos()
 {
   return zPositionSlider->value()/PRECISION;
-}
+}       */
 
 // helper function to prevent feedback between the two widgets
+/*rbsh
 void qavimator::setSliderValue(QSlider* slider,QLineEdit* edit,float value)
 {
   slider->blockSignals(true);
@@ -1497,8 +1507,9 @@ void qavimator::setSliderValue(QSlider* slider,QLineEdit* edit,float value)
   edit->setText(QString::number(value));
   edit->blockSignals(false);
   slider->blockSignals(false);
-}
+}   */
 
+/*rbsh
 void qavimator::updateFps()
 {
   int fps=animationView->getAnimation()->fps();
@@ -1519,9 +1530,9 @@ void qavimator::addToOpenFiles(const QString& fileName)
 {
     openFiles.append(fileName);
 
-    QString fixedName=fileName;
-    QRegExp pattern(".*/");
-    fixedName.remove(pattern);
+    QString fixedName=fileName;         */
+//rbsh as well    QRegExp pattern(".*/");
+/*rbsh    fixedName.remove(pattern);
     pattern.setPattern("(\\.bvh|\\.avm)");
     fixedName.remove(pattern);
 
@@ -1533,16 +1544,18 @@ void qavimator::removeFromOpenFiles(unsigned int which)
   if(which>= (unsigned int) openFiles.count()) return;
   openFiles.removeAt(which);
   selectAnimationCombo->removeItem(which);
-}
+}         */
 
 // empty out the open files list
 bool qavimator::clearOpenFiles()
 {
-  for(unsigned int index=0;index< (unsigned int) animationIds.count();index++)
+  for(unsigned int index=0;index< (unsigned int) /*animationIds.count()*/mdiArea->subWindowList().count();index++)
   {
-    if(animationIds.at(index)->dirty())
+    if(/*animationIds.at(index)->dirty()*/dynamic_cast<AbstractDocumentTab* >(mdiArea->subWindowList().at(index)->widget())->IsUnsaved())     //TODO: more conveniet way
     {
-      int answer=QMessageBox::question(this,tr("Unsaved Changes"),tr("There are some unsaved changes. Are you sure you want to continue and lose all unsaved data?"),QMessageBox::Yes,QMessageBox::No,QMessageBox::NoButton);
+      int answer=QMessageBox::question(this,tr("Unsaved Changes"),
+                                       tr("There are some unsaved changes. Are you sure you want to continue and lose all unsaved data?"),        //TODO: invert the question
+                                       QMessageBox::Yes, QMessageBox::No, QMessageBox::NoButton);
       if(answer==QMessageBox::No)
         return false;
       else
@@ -1550,25 +1563,26 @@ bool qavimator::clearOpenFiles()
     }
   }
 
-  timeline->setAnimation(0);
+/*  timeline->setAnimation(0);
   animationView->clear();
   openFiles.clear();
   selectAnimationCombo->clear();
   animationIds.clear();
   setCurrentFile(UNTITLED_NAME);
-  longestRunningTime=0.0;
+  longestRunningTime=0.0;         */
 
   return true;
 }
 
 // convenience function to set window title in a defined way
-void qavimator::setCurrentFile(const QString& fileName)
+void qavimator::setCurrentFile(const QString& fileName)           //TODO: to setWindowTitle
 {
-  currentFile=fileName;
-  setWindowTitle("qavimator ["+currentFile+"]");
+//  currentFile=fileName;
+  setWindowTitle("qavimator ["+fileName+"]");
 }
 
 // this slot gets called from Animation::setFrame(int)
+/*rbsh
 void qavimator::setCurrentFrame(int frame)
 {
   // make sure current frame is only updated when no animation is playing (manual change,
@@ -1590,9 +1604,11 @@ void qavimator::setCurrentFrame(int frame)
     updateInputs();
     updateKeyBtn();
   }
-}
+}     */
+
 
 // this slot gets called when someone clicks one of the "New Prop" buttons
+/*rbsh
 void qavimator::newProp(Prop::PropType type)
 {
   const Prop* prop=animationView->addProp(type,10,40,10, 10,10,10, 0,0,0, 0);
@@ -1736,9 +1752,11 @@ void qavimator::clearProps()
   animationView->clearProps();
   propNameCombo->clear();
   selectProp(QString::null);
-}
+}           */
+
 
 // gets called by selecting an animation from the animation combo box
+/*rbsh
 void qavimator::animationChanged(int which)
 {
   qDebug("qavimator::animationChanged(%d)",which);
@@ -1777,8 +1795,6 @@ void qavimator::selectAnimation(Animation* animation)
   // update avatar figure combo box
   int figure=0;
   if(animation->getFigureType()==Animation::FIGURE_MALE) figure=1;
-
-  qDebug("selectAnimation(): figureCombo goes to index %d", figure);
 
   figureCombo->setCurrentIndex(figure);
 
@@ -1847,7 +1863,7 @@ void qavimator::setPlaystate(PlayState state)
     playButton->setIcon(stopIcon);
   else
     qDebug("qavimator::setPlaystate(): unknown playstate %d",(int) state);
-}
+}         */
 
 // prevent closing of main window if there are unsaved changes
 void qavimator::closeEvent(QCloseEvent* event)
@@ -1859,6 +1875,7 @@ void qavimator::closeEvent(QCloseEvent* event)
 }
 
 // calculates the longest running time of all animations
+/*rbsh
 double qavimator::calculateLongestRunningTime()
 {
   qDebug("qavimator::calculateLongestRunningTime()");
@@ -1871,7 +1888,7 @@ double qavimator::calculateLongestRunningTime()
   }
   qDebug("qavimator::calculateLongestRunningTime(): longestRunningTime now: %f seconds",longestRunningTime);
   return longestRunningTime;
-}
+}     */
 
 // -------------------------------------------------------------------------
 // autoconnection from designer UI
@@ -1891,9 +1908,8 @@ void qavimator::on_fileNewAction_triggered()
 
 void qavimator::on_fileOpenAction_triggered()
 {
-  fileOpen();
-  
-  //edu
+//rbsh  fileOpen();
+
   QString file = selectFileToOpen(tr("Select Animation File to Load"));
 
   if(!file.isEmpty())
@@ -1903,14 +1919,15 @@ void qavimator::on_fileOpenAction_triggered()
   }
 }
 
+/*rbsh
 void qavimator::on_fileAddAction_triggered()
 {
   fileAdd();
-}
+}   */
 
 void qavimator::on_fileSaveAction_triggered()
 {
-  fileSave();     //edu: Caution: when saving new file, the OpenFileDialog steals tab's focus (SIGSEGV)
+//rbsh  fileSave();     //edu: Caution: when saving new file, the OpenFileDialog steals tab's focus (SIGSEGV)
 
   //edu
   activeTab()->Save();
@@ -1918,17 +1935,23 @@ void qavimator::on_fileSaveAction_triggered()
 
 void qavimator::on_fileSaveAsAction_triggered()
 {
-  fileSaveAs();
+//rbsh  fileSaveAs();
 
   activeTab()->SaveAs();
 }
 
-void qavimator::on_fileExportForSecondLifeAction_triggered()
+void qavimator::on_fileCloseAction_triggered()
 {
-  fileExportForSecondLife();
+  mdiArea->activeSubWindow()->close();
 }
 
-void qavimator::on_fileLoadPropsAction_triggered()
+void qavimator::on_fileExportForSecondLifeAction_triggered()
+{
+//rbsh  fileExportForSecondLife();
+  activeTab()->ExportForSecondLife();
+}
+
+/*rbshvoid qavimator::on_fileLoadPropsAction_triggered()
 {
   fileLoadProps();
 }
@@ -1938,11 +1961,12 @@ void qavimator::on_fileSavePropsAction_triggered()
   fileSaveProps();
 }
 
-void qavimator::on_fileExitAction_triggered()
+void qavimator::on_fileQuitAction_triggered()
 {
-  fileExit();
-}
+  quit();
+}     */
 
+/*rbsh
 void qavimator::on_editCutAction_triggered()
 {
   editCut();
@@ -1956,11 +1980,12 @@ void qavimator::on_editCopyAction_triggered()
 void qavimator::on_editPasteAction_triggered()
 {
   editPaste();
-}
+}   */
 
+/*rbsh
 void qavimator::on_toolsOptimizeBVHAction_triggered()
 {
-  toolsOptimizeBVH();
+  emit toolsOptimizeBVH();
 }
 
 void qavimator::on_toolsMirrorAction_triggered()
@@ -1977,12 +2002,12 @@ void qavimator::on_optionsSkeletonAction_toggled(bool on)
 
 void qavimator::on_optionsJointLimitsAction_toggled(bool on)
 {
-  setJointLimits(on);
+  emit setJointLimits(on);
 }
 
 void qavimator::on_optionsLoopAction_toggled(bool on)
 {
-  setLoop(on);
+  emit setLoop(on);
 }
 
 void qavimator::on_optionsProtectFirstFrameAction_toggled(bool on)
@@ -1993,7 +2018,7 @@ void qavimator::on_optionsProtectFirstFrameAction_toggled(bool on)
 void qavimator::on_optionsShowTimelineAction_toggled(bool on)
 {
   showTimeline(on);
-}
+}     */
 
 void qavimator::on_optionsConfigureQAvimatorAction_triggered()
 {
@@ -2005,12 +2030,6 @@ void qavimator::on_helpAboutAction_triggered()
   helpAbout();
 }
 
-// ------- Additional Toolbar Element Slots --------
-
-void qavimator::on_resetCameraAction_triggered()
-{
-  emit resetCamera();
-}
 
 // ------- UI Element Slots --------
 
@@ -2026,7 +2045,7 @@ void qavimator::on_mdiArea_subWindowActivated(QMdiSubWindow*)
   UpdateToolbar();
 }
 
-void qavimator::on_selectAnimationCombo_activated(int which)
+/*rbsh void qavimator::on_selectAnimationCombo_activated(int which)
 {
   animationChanged(which);
 }
@@ -2147,7 +2166,10 @@ void qavimator::on_easeOutCheck_stateChanged(int newState)
 {
   easeOutChanged(newState);
 }
+    */
 
+
+/*rbsh
 void qavimator::on_newBoxPropButton_clicked()
 {
   newProp(Prop::Box);
@@ -2227,7 +2249,10 @@ void qavimator::on_propZRotSpin_valueChanged(int)
 {
   propRotationChanged();
 }
+        */
 
+
+/*rbsh
 void qavimator::on_currentFrameSlider_valueChanged(int newValue)
 {
   frameSlider(newValue);
@@ -2263,7 +2288,7 @@ void qavimator::on_framesSpin_valueChanged(int newValue)
 void qavimator::on_fpsSpin_valueChanged(int newValue)
 {
   setFPS(newValue);
-}
+}         */
 
 // end autoconnection from designer UI
 // -------------------------------------------------------------------------

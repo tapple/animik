@@ -17,6 +17,8 @@ class AbstractDocumentTab
 public:
   AbstractDocumentTab(qavimator* mainWindow);
 
+  virtual bool IsUnsaved() = 0;
+
   //Factory methods to return apropriate tab type based on file extension or just demand
   static AbstractDocumentTab* GetNewTab(qavimator* mainWindow, QString& fileFullPath);
   static AbstractDocumentTab* GetNewTab(qavimator* mainWindow, NewFileDialog::ProjectType tabType);

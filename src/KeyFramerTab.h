@@ -49,6 +49,7 @@ public:
   virtual void Redo() {/*TODO*/};
   virtual void ExportForSecondLife();
   virtual void UpdateToolbar();
+  virtual bool IsUnsaved();
 
 signals:
     void enableRotation(bool state);
