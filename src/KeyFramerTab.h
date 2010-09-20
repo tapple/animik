@@ -58,6 +58,9 @@ signals:
     void resetCamera();
     void protectFrame(bool state);
 
+public slots:
+    virtual void Open(const QString& fileName);
+
 protected slots:
     void readSettings();
 
@@ -80,7 +83,7 @@ protected slots:
 
     // ------- Menu Action Slots --------
 //    void fileNewAction_triggered();
-    void fileOpenAction_triggered();
+//edu: it's up    void fileOpenAction_triggered();
     void fileAddAction_triggered();
 //    void fileSaveAction_triggered();
     void fileSaveAsAction_triggered();
@@ -157,6 +160,8 @@ protected slots:
 protected:
     // prevent closing of main window if there are unsaved changes
     virtual void closeEvent(QCloseEvent* event);
+    //
+    virtual void resizeEvent(QResizeEvent *event);
 
     void fileNew();
     void fileOpen();

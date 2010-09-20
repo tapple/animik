@@ -29,8 +29,6 @@
 KeyFramerTab::KeyFramerTab(/*QWidget *parent,*/ qavimator* mainWindow, const QString& fileName)
   : QWidget(/*parent*/ 0), AbstractDocumentTab(mainWindow)
 {
-    setAttribute(Qt::WA_DeleteOnClose);
-
     nodeMapping <<  0                             //edu: position
                 <<  1 <<  2 <<  3 <<  4 << 5      //edu: hip, abdomen, chest, neck, head
                 <<  7 <<  8 <<  9 << 10           //edu: (left) collar, shoulder, fore-arm, hand
@@ -40,7 +38,7 @@ KeyFramerTab::KeyFramerTab(/*QWidget *parent,*/ qavimator* mainWindow, const QSt
 
     setupUi(this);
 
-//    setAttribute(Qt::WA_DeleteOnClose);
+    setAttribute(Qt::WA_DeleteOnClose);
     frameDataValid=false;
     currentPart=0;
     longestRunningTime=0.0;
@@ -53,7 +51,7 @@ KeyFramerTab::KeyFramerTab(/*QWidget *parent,*/ qavimator* mainWindow, const QSt
     // playback stopped by default
     setPlaystate(PLAYSTATE_STOPPED);
 
-//    readSettings();
+    readSettings();                                 //TOTO: need to take values from Settings (read in qavimator.cpp)
 
     bindMenuActions();
     bindToolbarActions();
@@ -136,7 +134,7 @@ void KeyFramerTab::bindMenuActions()
   //TODO: eliminate the QActions one by one by offering
 
 //    connect(mainWindow->fileNewAction, SIGNAL(triggered()), this, SLOT(fileNewAction_triggered()));
-    connect(mainWindow->fileOpenAction, SIGNAL(triggered()), this, SLOT(fileOpenAction_triggered()));
+//    connect(mainWindow->fileOpenAction, SIGNAL(triggered()), this, SLOT(Open()));
     connect(mainWindow->fileAddAction, SIGNAL(triggered()), this, SLOT(fileAddAction_triggered()));
 
 //    connect(mainWindow->fileSaveAsAction, SIGNAL(triggered()), this, SLOT(fileSaveAsAction_triggered()));
@@ -1825,6 +1823,16 @@ void KeyFramerTab::closeEvent(QCloseEvent* event)                   //TODO: real
     event->accept();
 }
 
+void KeyFramerTab::resizeEvent(QResizeEvent *event)           //TODO: This doesn't work. Find some real solution
+{
+  // hack to get 3D view back in shape
+  qApp->processEvents();
+  QSize oldSize=animationView->size();
+  animationView->resize(oldSize.width(),oldSize.height()-1);
+  qApp->processEvents();
+  animationView->resize(oldSize);
+}
+
 // calculates the longest running time of all animations
 double KeyFramerTab::calculateLongestRunningTime()
 {
@@ -1850,9 +1858,10 @@ double KeyFramerTab::calculateLongestRunningTime()
   fileNew();
 }       */
 
-void KeyFramerTab::fileOpenAction_triggered()
+void KeyFramerTab::Open(const QString& fileName)
 {
-  fileOpen();
+//edu  fileOpen();
+  fileOpen(fileName);
 }
 
 void KeyFramerTab::fileAddAction_triggered()

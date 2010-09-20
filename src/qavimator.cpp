@@ -166,11 +166,19 @@ qavimator::~qavimator()
 //edu
 void qavimator::OpenNewTab()      //TODO
 {
+//  if(mdiArea->activeSubWindow())
+//    qDebug() << "OpenNewTab(): we have " << mdiArea->subWindowList().count() <<" tabs. Active is: " << mdiArea->activeSubWindow() << " (" << activeTab()->getFile() << ")";
+
   QWidget* keyFramerTab = new KeyFramerTab(this, "");
+  mdiArea->addSubWindow(keyFramerTab);
+
   connect(keyFramerTab, SIGNAL(destroyed()), this, SLOT(UpdateMenus()));
   connect(keyFramerTab, SIGNAL(destroyed()), this, SLOT(UpdateToolbar()));
-  mdiArea->addSubWindow(keyFramerTab);
-  mdiArea->setActiveSubWindow(mdiArea->???);
+
+  keyFramerTab->showMaximized();
+
+//  if(mdiArea->activeSubWindow())
+//    qDebug() << "OpenNewTab(): we have " << mdiArea->subWindowList().count() <<" tabs. Active is: " << mdiArea->activeSubWindow() << " (" << activeTab()->getFile() << ")";
 }
 
 
@@ -1891,6 +1899,15 @@ void qavimator::on_fileNewAction_triggered()
 void qavimator::on_fileOpenAction_triggered()
 {
   fileOpen();
+  
+  //edu
+  QString file = selectFileToOpen(tr("Select Animation File to Load"));
+
+  if(!file.isEmpty())
+  {
+    OpenNewTab();
+    activeTab()->Open(file);
+  }
 }
 
 void qavimator::on_fileAddAction_triggered()

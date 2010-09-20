@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+#include "NewFileDialog.h"        //TODO
+
 class qavimator;
 
 
@@ -13,11 +15,16 @@ class qavimator;
 class AbstractDocumentTab
 {
 public:
-  AbstractDocumentTab(qavimator* mainWindow)
-  {
-    this->mainWindow = mainWindow;
-  }
+  AbstractDocumentTab(qavimator* mainWindow);
 
+  //Factory methods to return apropriate tab type based on file extension or just demand
+  static AbstractDocumentTab* GetNewTab(qavimator* mainWindow, QString& fileFullPath);
+  static AbstractDocumentTab* GetNewTab(qavimator* mainWindow, NewFileDialog::ProjectType tabType);
+
+//public slots:
+  /** Load file in this tab. Supposed to be called once,
+      right after tab creation (opening existing file)*/
+  virtual void Open(const QString& fileName) = 0;
   virtual void Save() = 0;
   virtual void SaveAs() = 0;
   virtual void Cut() = 0;
@@ -29,6 +36,8 @@ public:
 
   //Update display state of buttons in the toolbar of main window
   virtual void UpdateToolbar() = 0;
+
+  QString getFile(){ return CurrentFile; }    //DEBUG
 
 protected:
   qavimator* mainWindow;
