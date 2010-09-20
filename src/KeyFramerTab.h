@@ -60,6 +60,7 @@ signals:
 
 public slots:
     virtual void Open(const QString& fileName);
+    virtual void onTabActivated();
 
 protected slots:
     void readSettings();
@@ -160,8 +161,6 @@ protected slots:
 protected:
     // prevent closing of main window if there are unsaved changes
     virtual void closeEvent(QCloseEvent* event);
-    //
-    virtual void resizeEvent(QResizeEvent *event);
 
     void fileNew();
     void fileOpen();

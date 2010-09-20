@@ -123,10 +123,6 @@ qavimator::qavimator() //: QMainWindow(0)
   connect(timeline,SIGNAL(positionCenter(int)),timelineView,SLOT(scrollTo(int)));
   connect(timeline,SIGNAL(trackClicked(int)),animationView,SLOT(selectPart(int)));
 
-  //edu:
-  connect(mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow *)), this, SLOT(UpdateMenus()));
-  connect(mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow *)), this, SLOT(UpdateToolbar()));
-
   xRotationSlider->setPageStep(10*PRECISION);
   yRotationSlider->setPageStep(10*PRECISION);
   zRotationSlider->setPageStep(10*PRECISION);
@@ -148,9 +144,11 @@ qavimator::qavimator() //: QMainWindow(0)
 
 //DEBUG   updateInputs();
 
-  //edu
+
+  //edu:
+/*  OpenNewTab();
   OpenNewTab();
-  OpenNewTab();
+  animationView->setVisible(false);   //DEBUG: If commented, the previous 2 lines must be too (else SIGSEGV)   */
 
   updateInputs();     //DEBUG
 }
@@ -204,8 +202,9 @@ void qavimator::UpdateToolbar()
 
   if(!hasTabs)
     resetCameraAction->setVisible(false);
-
 }
+
+
 
 //edu:
 /**
@@ -217,12 +216,6 @@ AbstractDocumentTab* qavimator::activeTab()
         return dynamic_cast<AbstractDocumentTab *>(activeSubWindow->widget());
     return 0;
 }
-
-
-
-
-
-
 
 // FIXME:: implement a static Settings:: class                              //TODO: Yes, move it there
 void qavimator::readSettings()
@@ -2020,6 +2013,18 @@ void qavimator::on_resetCameraAction_triggered()
 }
 
 // ------- UI Element Slots --------
+
+
+void qavimator::on_mdiArea_subWindowActivated(QMdiSubWindow*)
+{
+  //as there is no such meaningful event in a document tab
+  //we need to nudge it explicitely
+  if(activeTab())
+    activeTab()->onTabActivated();
+
+  UpdateMenus();
+  UpdateToolbar();
+}
 
 void qavimator::on_selectAnimationCombo_activated(int which)
 {

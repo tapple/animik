@@ -66,10 +66,6 @@ signals:
 
 protected slots:
 
-  //edu
-  void UpdateMenus();
-  void UpdateToolbar();
-
   void readSettings();
   void configChanged();
 
@@ -122,6 +118,10 @@ protected slots:
   void on_resetCameraAction_triggered();
 
   // ------- UI Element Slots --------
+
+  //edu
+  void on_mdiArea_subWindowActivated(QMdiSubWindow*);
+
   void on_selectAnimationCombo_activated(int);
   void on_figureCombo_activated(int);
   void on_scaleSpin_valueChanged(int newValue);
@@ -182,6 +182,8 @@ protected:
   QList<AbstractDocumentTab> documentTabs;
   void OpenNewTab();
   AbstractDocumentTab* activeTab();
+  void UpdateMenus();
+  void UpdateToolbar();
 
   void fileNew(NewFileDialog::ProjectType fileType);       //TODO: place the enum elsewhere
   void fileOpen();

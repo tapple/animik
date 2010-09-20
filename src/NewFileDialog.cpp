@@ -19,7 +19,7 @@ NewFileDialog::NewFileDialog(QWidget *parent)
   list << NewFileDialog::AVM << NewFileDialog::AVBL;
   ui->listView->setModel(new QList<NewFileDialog::ProjectType>);  */
 
-  ui->buttonBox->buttons().at(0)->setEnabled(false);    //OK button
+  ui->buttonBox->buttons().at(0)->setEnabled(false);    //OK button disabled
 
   connect(ui->buttonBox->buttons().at(0), SIGNAL(clicked()), this, SLOT(accept()));
   connect(ui->buttonBox->buttons().at(1), SIGNAL(clicked()), this, SLOT(reject()));

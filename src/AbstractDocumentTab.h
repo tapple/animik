@@ -37,7 +37,7 @@ public:
   //Update display state of buttons in the toolbar of main window
   virtual void UpdateToolbar() = 0;
 
-  QString getFile(){ return CurrentFile; }    //DEBUG
+  virtual void onTabActivated() = 0;
 
 protected:
   qavimator* mainWindow;

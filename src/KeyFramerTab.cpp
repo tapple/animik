@@ -198,6 +198,23 @@ void KeyFramerTab::UpdateToolbar()
 }
 
 
+//edu
+void KeyFramerTab::onTabActivated()
+{
+//  qDebug("KeyFramerTab::onTabActivated()");
+
+  // hack to get 3D view back in shape
+//  qApp->processEvents();
+  animationView->makeCurrent();
+  QSize oldSize = animationView->size();
+  animationView->resize(oldSize.width(),oldSize.height()-1);
+  qApp->processEvents();
+  animationView->resize(oldSize);
+
+  UpdateToolbar();
+}
+
+
 // FIXME:: implement a static Settings:: class                              //TODO: Yes, move it there
 //TODO: in Tab implementations we only read already loaded settings from Settings class.
 //TODO: The actuall load is performed in qavimator class.
@@ -1823,15 +1840,6 @@ void KeyFramerTab::closeEvent(QCloseEvent* event)                   //TODO: real
     event->accept();
 }
 
-void KeyFramerTab::resizeEvent(QResizeEvent *event)           //TODO: This doesn't work. Find some real solution
-{
-  // hack to get 3D view back in shape
-  qApp->processEvents();
-  QSize oldSize=animationView->size();
-  animationView->resize(oldSize.width(),oldSize.height()-1);
-  qApp->processEvents();
-  animationView->resize(oldSize);
-}
 
 // calculates the longest running time of all animations
 double KeyFramerTab::calculateLongestRunningTime()

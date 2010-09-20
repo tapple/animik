@@ -60,7 +60,10 @@
 #define ROTATE_HANDLE_Y   DRAG_HANDLE_START+7
 #define ROTATE_HANDLE_Z   DRAG_HANDLE_START+8
 
+class QEvent;
 class QMouseEvent;
+
+
 
 class AnimationView : public QGLWidget
 {
@@ -145,6 +148,7 @@ class AnimationView : public QGLWidget
       MODE_SKELETON,
       MODE_ROT_AXES
     };
+
 
     virtual void paintGL();
     virtual void paintOverlayGL();
