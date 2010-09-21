@@ -96,6 +96,7 @@ protected slots:
   void on_fileSaveAction_triggered();
   void on_fileSaveAsAction_triggered();
   void on_fileCloseAction_triggered();
+  void on_fileQuitAction_triggered();
 
   void on_fileExportForSecondLifeAction_triggered();
 /*rbsh  void on_fileLoadPropsAction_triggered();

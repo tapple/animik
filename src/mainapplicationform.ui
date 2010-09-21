@@ -373,7 +373,7 @@
      <normaloff>:/icons/icons/delete.png</normaloff>:/icons/icons/delete.png</iconset>
    </property>
    <property name="text">
-    <string>Close</string>
+    <string>Close file</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+W</string>

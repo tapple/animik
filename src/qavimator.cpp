@@ -21,11 +21,11 @@
 #include <QCloseEvent>
 
 #include "qavimator.h"
-#include "animationview.h"
+/*rbsh #include "animationview.h"
 #include "rotation.h"
 #include "prop.h"
 #include "timeline.h"
-#include "timelineview.h"
+#include "timelineview.h"   */
 #include "settings.h"
 #include "settingsdialog.h"
 
@@ -56,6 +56,8 @@ qavimator::qavimator() //: QMainWindow(0)
   QCoreApplication::setApplicationName("QAvinmator");
 
   setupUi(this);
+  UpdateMenus();
+  UpdateToolbar();
 
   setWindowTitle("Animik");             //sorry Zi
   setAttribute(Qt::WA_DeleteOnClose);
@@ -71,7 +73,9 @@ qavimator::qavimator() //: QMainWindow(0)
   // playback stopped by default
   setPlaystate(PLAYSTATE_STOPPED);      */
 
-  readSettings();
+//rbsh  readSettings();
+
+  resize(Settings::windowWidth(), Settings::windowHeight());
 
 /*rbsh  connect(animationView,SIGNAL(partClicked(BVHNode*,
                                            Rotation,
@@ -175,6 +179,9 @@ void qavimator::OpenNewTab()      //TODO
 //edu:
 void qavimator::UpdateMenus()
 {
+  bool hasTabs = (activeTab() != 0);
+
+  fileExportForSecondLifeAction->setEnabled(hasTabs);
     //TODO
 }
 
@@ -187,6 +194,7 @@ void qavimator::UpdateToolbar()
 
   fileSaveAction->setEnabled(hasTabs);
   fileSaveAsAction->setEnabled(hasTabs);
+  fileCloseAction->setEnabled(hasTabs);
 
   editCutAction->setEnabled(hasTabs);
   editCopyAction->setEnabled(hasTabs);
@@ -209,81 +217,6 @@ AbstractDocumentTab* qavimator::activeTab()
     return 0;
 }
 
-// FIXME:: implement a static Settings:: class                              //TODO: Yes, move it there
-void qavimator::readSettings()
-{
-  QSettings settings;
-  settings.beginGroup("/qavimator");
-
-  // if no settings found, start up with defaults
-  int width=850;
-  int height=600;
-  int figureType=0;
-  bool skeleton=false;
-  bool showTimelinePanel=true;
-
-  jointLimits=true;
-  loop=true;
-  protectFirstFrame=true;
-  lastPath=QString::null;
-
-  // OpenGL presets
-  Settings::setFog(true);
-  Settings::setFloorTranslucency(33);
-
-  // defaults for ease in/ease out
-  Settings::setEaseIn(false);
-  Settings::setEaseOut(false);
-
-  bool settingsFound=settings.value("/settings").toBool();
-  if(settingsFound)
-  {
-    loop=settings.value("/loop").toBool();
-    skeleton=settings.value("/skeleton").toBool();
-    jointLimits=settings.value("/joint_limits").toBool();
-    protectFirstFrame=settings.value("/protect_first_frame").toBool();
-    showTimelinePanel=settings.value("/show_timeline").toBool();
-
-    width=settings.value("/mainwindow_width").toInt();
-    height=settings.value("/mainwindow_height").toInt();
-
-    lastPath=settings.value("/last_path").toString();
-
-    // OpenGL settings
-    Settings::setFog(settings.value("/fog").toBool());
-    Settings::setFloorTranslucency(settings.value("/floor_translucency").toInt());
-
-    // settings for ease in/ease outFrame
-    Settings::setEaseIn(settings.value("/ease_in").toBool());
-    Settings::setEaseOut(settings.value("/ease_out").toBool());
-
-    // sanity
-    if(width<50) width=50;
-    if(height<50) height=50;
-
-    figureType=settings.value("/figure").toInt();
-
-    //TODO: if(figureType > Animation::NUM_FIGURES) throw new ConfigurationException();
-
-    settings.endGroup();
-  }
-
-  resize(width,height);
-
-/*rbsh  optionsLoopAction->setChecked(loop);
-  optionsSkeletonAction->setChecked(skeleton);
-  optionsJointLimitsAction->setChecked(jointLimits);
-  optionsShowTimelineAction->setChecked(showTimelinePanel);
-
-  if(!showTimelinePanel) timelineView->hide();
-  // prevent a signal to be sent to yet uninitialized animation view
-  optionsProtectFirstFrameAction->blockSignals(true);
-  optionsProtectFirstFrameAction->setChecked(protectFirstFrame);
-  optionsProtectFirstFrameAction->blockSignals(false);
-
-  figureCombo->setCurrentIndex(figureType);
-  setAvatarShape( figureType );   */
-}
 
 // slot gets called by AnimationView::mousePressEvent()
 /*rbsh
@@ -1934,6 +1867,12 @@ void qavimator::on_fileExportForSecondLifeAction_triggered()
 {
 //rbsh  fileExportForSecondLife();
   activeTab()->ExportForSecondLife();
+}
+
+void qavimator::on_fileQuitAction_triggered()
+{
+  //TODO: check open tabs for unsaved changes
+  close();
 }
 
 /*rbshvoid qavimator::on_fileLoadPropsAction_triggered()

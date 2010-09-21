@@ -25,22 +25,44 @@
 	@author Zi Ree <Zi Ree @ Second Life>
 */
 
-class Settings
+#include <QString>
+
+
+
+class Settings              //TODO: this doesn't have to be static, rather singleton
 {
-  public:
-    Settings();
-    ~Settings();
+public:
+  Settings();
+  ~Settings();
 
-    static void setFog(bool on);
-    static bool fog();
+  static int m_windowHeight;
+  static int m_windowWidth;
 
-    static void setFloorTranslucency(int value);
-    static int  floorTranslucency();
+  static QString m_lastPath;
 
-    static void setEaseIn(bool on);
-    static bool easeIn();
-    static void setEaseOut(bool on);
-    static bool easeOut();
+  static bool m_fog;
+  static int  m_floorTranslucency;
+
+  static bool m_easeIn;       //TODO: animation
+  static bool m_easeOut;      //      specific?
+
+  static int windowHeight();
+  static int windowWidth();
+
+  static QString lastPath();
+
+  static void readSettings();
+
+//    static void setFog(bool on);
+  static bool fog();
+
+//    static void setFloorTranslucency(int value);
+  static int  floorTranslucency();
+
+//    static void setEaseIn(bool on);
+  static bool easeIn();
+//    static void setEaseOut(bool on);
+  static bool easeOut();
 };
 
 #endif

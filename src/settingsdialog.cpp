@@ -42,10 +42,10 @@ void SettingsDialog::on_applyButton_clicked()
 {
   qDebug("accept()");
 
-  Settings::setFog(useFogCheckbox->isChecked());
+/*TODO!!!!!  Settings::setFog(useFogCheckbox->isChecked());
   Settings::setFloorTranslucency(floorTranslucencySpin->value());
   Settings::setEaseIn(easeInCheckbox->isChecked());
-  Settings::setEaseOut(easeOutCheckbox->isChecked());
+  Settings::setEaseOut(easeOutCheckbox->isChecked());     */
   emit configChanged();
   qApp->processEvents();
 }

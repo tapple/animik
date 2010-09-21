@@ -228,12 +228,8 @@ void KeyFramerTab::onTabActivated()
 //TODO: The actuall load is performed in qavimator class.
 void KeyFramerTab::readSettings()
 {
-  QSettings settings;
-  settings.beginGroup("/qavimator");
 
   // if no settings found, start up with defaults
-  int width=850;
-  int height=600;
   int figureType=0;
   bool skeleton=false;
   bool showTimelinePanel=true;
@@ -242,49 +238,6 @@ void KeyFramerTab::readSettings()
   loop=true;
   protectFirstFrame=true;
   lastPath=QString::null;
-
-  // OpenGL presets
-  Settings::setFog(true);
-  Settings::setFloorTranslucency(33);
-
-  // defaults for ease in/ease out
-  Settings::setEaseIn(false);
-  Settings::setEaseOut(false);
-
-  bool settingsFound=settings.value("/settings").toBool();
-  if(settingsFound)
-  {
-    loop=settings.value("/loop").toBool();
-    skeleton=settings.value("/skeleton").toBool();
-    jointLimits=settings.value("/joint_limits").toBool();
-    protectFirstFrame=settings.value("/protect_first_frame").toBool();
-    showTimelinePanel=settings.value("/show_timeline").toBool();
-
-    width=settings.value("/mainwindow_width").toInt();
-    height=settings.value("/mainwindow_height").toInt();
-
-    lastPath=settings.value("/last_path").toString();
-
-    // OpenGL settings
-    Settings::setFog(settings.value("/fog").toBool());
-    Settings::setFloorTranslucency(settings.value("/floor_translucency").toInt());
-
-    // settings for ease in/ease outFrame
-    Settings::setEaseIn(settings.value("/ease_in").toBool());
-    Settings::setEaseOut(settings.value("/ease_out").toBool());
-
-    // sanity
-    if(width<50) width=50;
-    if(height<50) height=50;
-
-    figureType=settings.value("/figure").toInt();
-
-    //TODO: if(figureType > Animation::NUM_FIGURES) throw new ConfigurationException();
-
-    settings.endGroup();
-  }
-
-  resize(width,height);             //TODO: learn what does this
 
   mainWindow->optionsLoopAction->setChecked(loop);
   mainWindow->optionsSkeletonAction->setChecked(skeleton);
