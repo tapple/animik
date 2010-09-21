@@ -19,9 +19,6 @@
  ***************************************************************************/
 
 #include <QCloseEvent>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QMdiSubWindow>
 
 #include "qavimator.h"
 #include "animationview.h"
@@ -40,6 +37,9 @@
 /*#define PROP_FILTER "Props (*.prp)"
 #define PRECISION   100   */
 
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QMdiSubWindow>
 #define SVN_ID      "$Id$"
 
 qavimator::qavimator() //: QMainWindow(0)
@@ -57,7 +57,7 @@ qavimator::qavimator() //: QMainWindow(0)
 
   setupUi(this);
 
-  setWindowTitle("qavimator");
+  setWindowTitle("Animik");             //sorry Zi
   setAttribute(Qt::WA_DeleteOnClose);
 /*rbsh  frameDataValid=false;
   currentPart=0;

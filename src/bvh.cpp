@@ -237,10 +237,12 @@ void BVH::parseLimFile(BVHNode* root,const QString& limFile) const
   qDebug("BVH::parseLimFile('%s')",limFile.toLatin1().constData());
 
   QFile limit(limFile);
+  QFileInfo debug_(limFile);
 
   if(!limit.open(QIODevice::ReadOnly))
   {
-    QMessageBox::critical(0,QObject::tr("Missing Limits File"),QObject::tr("<qt>Limits file not found at:<br>%1</qt>").arg(limFile));
+    QMessageBox::critical(0,QObject::tr("Missing Limits File"),
+                          QObject::tr("<qt>Limits file not found at:<br>%1</qt>").arg(/*limFile*/debug_.absoluteFilePath()));
     return;
   }
 

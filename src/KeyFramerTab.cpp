@@ -21,9 +21,6 @@
 
 
 
-//TODO: I need to have in touch the ToolBar with it's buttons
-
-
 KeyFramerTab::KeyFramerTab(/*QWidget *parent,*/ qavimator* mainWindow, const QString& fileName)
   : QWidget(/*parent*/ 0), AbstractDocumentTab(mainWindow)
 {
