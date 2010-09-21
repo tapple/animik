@@ -191,8 +191,7 @@ protected:
   void fileAdd(const QString& fileName);      */
 /*rbsh  void fileSave();
   void fileSaveAs();      */
-/*rbsh  void fileExportForSecondLife();
-  void fileLoadProps();
+/*rbsh  void fileLoadProps();
   void fileSaveProps();       */
   void quit();
 

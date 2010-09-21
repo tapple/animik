@@ -17,6 +17,8 @@ class AbstractDocumentTab
 public:
   AbstractDocumentTab(qavimator* mainWindow);
 
+  //current file name
+  QString CurrentFile;
   virtual bool IsUnsaved() = 0;
 
   //Factory methods to return apropriate tab type based on file extension or just demand
@@ -43,8 +45,6 @@ public:
 
 protected:
   qavimator* mainWindow;
-  //current file name
-  QString CurrentFile;
 
   //Constants
   virtual QString UntitledName() const = 0;

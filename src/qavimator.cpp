@@ -1129,21 +1129,6 @@ void qavimator::fileSaveAs()
 }         */
 
 // Menu Action: File / Export For Second Life
-/*rbsh
-void qavimator::fileExportForSecondLife()
-{
-  // FIXME: think of a sensible thing to do when the animation has not been saved
-  //        as .avm yet
-  if(currentFile!=UNTITLED_NAME)
-  {
-    QFileInfo fileInfo(currentFile);
-    QString exportName=fileInfo.path()+"/"+fileInfo.baseName()+".bvh";
-
-    qDebug("qavimator::fileExportForSecondLife(): exporting animation as '%s'.",exportName.toLatin1().constData());
-    animationView->getAnimation()->saveBVH(exportName);
-    QMessageBox::information(this,QObject::tr("Export for Second Life"),QObject::tr("Animation was exported for Second Life as:\n%1").arg(exportName));
-  }
-}       */
 
 // Menu Action: File / Load Props...
 /*rbsh
