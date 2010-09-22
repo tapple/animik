@@ -14,5 +14,3 @@ Features:
   * Rotate/pan of scene doesn't unselect limb/prop. Only simple click on background.
 
 Bugs:
-  * There is a problem opening new/existing .avm file on Win32 platform. The KeyFramerTab doesn't get filled with widgets at all and
-    after losing focus it's disabled.

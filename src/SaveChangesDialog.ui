@@ -55,6 +55,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="dontSaveButton">
+       <property name="toolTip">
+        <string>Discard all unsaved changes</string>
+       </property>
        <property name="text">
         <string>Don't save</string>
        </property>

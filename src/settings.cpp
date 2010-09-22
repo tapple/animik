@@ -20,30 +20,53 @@
 
 #include <iostream>
 #include <QSettings>
+#include <QStringList>
+#include <QCoreApplication>
 
 #include "settings.h"
 
 
+
+Settings* Settings::instance = 0;
+
 Settings::Settings()
 {
-  // should never be accessed
+  m_windowWidth = 850;
+  m_windowHeight = 600;
+
+  m_lastPath = QString::null;
+
+  m_fog = true;
+  m_floorTranslucency = 33;
+
+  m_easeIn = m_easeOut = false;
 }
 
 Settings::~Settings()
 {
-  // should never be accessed
+  while(recentFiles.count() > MaxRecentOpenFiles)
+    recentFiles.removeFirst();
 }
 
 
-// FIXME:: implement a static Settings:: class                              //TODO: Yes, move it there
-void Settings::readSettings()
+Settings* Settings::Instance()
 {
+  if(!instance)
+    instance = new Settings;
+  return instance;
+}
+
+
+void Settings::ReadSettings()
+{
+  QCoreApplication::setOrganizationName("DeZiRee");
+  QCoreApplication::setOrganizationDomain("qavimator.org");
+  QCoreApplication::setApplicationName("QAvinmator");
+
   QSettings settings;
   settings.beginGroup("/qavimator");
 
   // if no settings found, start up with defaults
-  int width=850;
-  int height=600;
 /*rbsh  int figureType=0;
   bool skeleton=false;
   bool showTimelinePanel=true;
@@ -51,19 +74,16 @@ void Settings::readSettings()
   jointLimits=true;
   loop=true;
   protectFirstFrame=true;     */
-  m_lastPath = QString::null;
 
   // OpenGL presets
 /*  Settings::setFog(true);
   Settings::setFloorTranslucency(33);   */
 
-  m_fog = true;
-  m_floorTranslucency = 33;
 
   // defaults for ease in/ease out
 /*  Settings::setEaseIn(false);
   Settings::setEaseOut(false);      */
-  m_easeIn = m_easeOut = false;
+
 
   bool settingsFound=settings.value("/settings").toBool();
   if(settingsFound)
@@ -75,10 +95,11 @@ void Settings::readSettings()
     protectFirstFrame=settings.value("/protect_first_frame").toBool();
     showTimelinePanel=settings.value("/show_timeline").toBool();        */
 
-    width = settings.value("/mainwindow_width").toInt();
-    height = settings.value("/mainwindow_height").toInt();
+    int width = settings.value("/mainwindow_width").toInt();
+    int height = settings.value("/mainwindow_height").toInt();
 
     m_lastPath=settings.value("/last_path").toString();
+    recentFiles = settings.value("/recent_file").toStringList();
 
     // OpenGL settings
 /*rbsh    Settings::setFog(settings.value("/fog").toBool());
@@ -124,21 +145,56 @@ void Settings::readSettings()
   setAvatarShape( figureType );   */
 }
 
+void Settings::WriteSettings()
+{
+  QSettings settings;
+  settings.beginGroup("/qavimator");
+
+  // make sure we know next time, that there actually was a settings file
+  settings.setValue("/settings",true);
+
+/*  settings.setValue("/loop",loop);
+  settings.setValue("/skeleton",optionsSkeletonAction->isChecked());
+  settings.setValue("/joint_limits",optionsJointLimitsAction->isChecked());
+  settings.setValue("/protect_first_frame",optionsProtectFirstFrameAction->isChecked());
+  settings.setValue("/show_timeline",optionsShowTimelineAction->isChecked());   */
+
+//rbsh  settings.setValue("/figure",figureCombo->currentIndex());
+  settings.setValue("/mainwindow_width", m_windowWidth);
+  settings.setValue("/mainwindow_height", m_windowHeight);
+
+  settings.setValue("/recent_files", recentFiles);
+//  settings.setValue("/last_path",lastPath);
+
+  // OpenGL settings
+  settings.setValue("/fog", m_fog);
+  settings.setValue("/floor_translucency", m_floorTranslucency);
+
+  // settings for ease in/ease outFrame
+  settings.setValue("/ease_in", m_easeIn);
+  settings.setValue("/ease_out", m_easeOut);
+
+  settings.endGroup();
+}
+
 
 //void Settings::setWindowHeight(int height)     { m_windowHeight=height; }
-int Settings::windowHeight()                   { return m_windowHeight; }
+int Settings::windowHeight() const                { return m_windowHeight; }
+void Settings::setWindowHeight(int height)        { m_windowHeight = height; }
 //void Settings::setWindowWidth(int width)       { m_windowHeight=width; }
-int Settings::windowWidth()                    { return m_windowWidth; }
+int Settings::windowWidth() const                 { return m_windowWidth; }
+void Settings::setWindowWidth(int width)          { m_windowWidth = width; }
 
-QString Settings::lastPath()                   { return m_lastPath; }
+const QStringList Settings::RecentFiles() const   { return recentFiles; }
+QString Settings::lastPath() const                { return m_lastPath; }
 
-//void Settings::setFog(bool on)                 { m_fog=on; }
-bool Settings::fog()                           { return m_fog; }
+void Settings::setFog(bool on)                    { m_fog=on; }
+bool Settings::fog() const                        { return m_fog; }
 
-//void Settings::setFloorTranslucency(int value) { m_floorTranslucency=value; }
-int  Settings::floorTranslucency()             { return m_floorTranslucency; }
+void Settings::setFloorTranslucency(int value)    { m_floorTranslucency=value; }
+int  Settings::floorTranslucency() const          { return m_floorTranslucency; }
 
 //void Settings::setEaseIn(bool on)              { m_easeIn=on; }
-bool Settings::easeIn()                        { return m_easeIn; }
+bool Settings::easeIn() const                     { return m_easeIn; }
 //void Settings::setEaseOut(bool on)             { m_easeOut=on; }
-bool Settings::easeOut()                       { return m_easeOut; }
+bool Settings::easeOut() const                    { return m_easeOut; }

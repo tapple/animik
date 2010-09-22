@@ -148,7 +148,7 @@ void AnimationView::setAnimation(Animation* anim)
 
 void AnimationView::drawFloor()
 {
-  float alpha=(100-Settings::floorTranslucency())/100.0;
+  float alpha=(100-Settings::Instance()->floorTranslucency())/100.0;
 
   glEnable(GL_DEPTH_TEST);
   glBegin(GL_QUADS);
@@ -391,7 +391,7 @@ void AnimationView::draw()
 {
   if(!isValid()) initializeGL();
 
-  if(Settings::fog())
+  if(Settings::Instance()->fog())
   {
     glEnable(GL_FOG);
     {

@@ -19,10 +19,15 @@
  ***************************************************************************/
 
 #include "qavimator.h"
+#include "settings.h"
+
+
 
 int main( int argc, char ** argv )
 {
     QApplication a(argc,argv);
+
+    Settings::Instance()->ReadSettings();
     qavimator* mw=new qavimator();
     mw->show();
     a.connect(&a,SIGNAL(lastWindowClosed()),&a,SLOT(quit()));

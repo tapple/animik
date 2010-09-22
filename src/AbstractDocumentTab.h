@@ -12,7 +12,7 @@ class qavimator;
   Abstract base class for all document tabs. Ensures all common actions like
   saving a document, copy/paste etc. Offers implementation of some really common.
   */
-class AbstractDocumentTab
+class AbstractDocumentTab : public QVariant
 {
 public:
   AbstractDocumentTab(qavimator* mainWindow);

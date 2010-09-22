@@ -26,43 +26,57 @@
 */
 
 #include <QString>
+#include <QStringList>
 
 
 
-class Settings              //TODO: this doesn't have to be static, rather singleton
+class Settings
 {
 public:
+  static Settings* Instance();
+
+  static const int MaxRecentOpenFiles = 15;
+
+  int windowHeight() const;
+  void setWindowHeight(int height);
+  int windowWidth() const;
+  void setWindowWidth(int widht);
+
+  const QStringList RecentFiles() const;
+  QString lastPath() const;
+
+  void ReadSettings();
+  void WriteSettings();
+
+  void setFog(bool on);
+  bool fog() const;
+
+  void setFloorTranslucency(int value);
+  int floorTranslucency() const;
+
+//    static void setEaseIn(bool on);
+  bool easeIn() const;
+//    static void setEaseOut(bool on);
+  bool easeOut() const;
+
+
+private:
   Settings();
   ~Settings();
 
-  static int m_windowHeight;
-  static int m_windowWidth;
+  static Settings* instance;
 
-  static QString m_lastPath;
+  int m_windowHeight;
+  int m_windowWidth;
 
-  static bool m_fog;
-  static int  m_floorTranslucency;
+  QStringList recentFiles;
+  QString m_lastPath;
 
-  static bool m_easeIn;       //TODO: animation
-  static bool m_easeOut;      //      specific?
+  bool m_fog;
+  int  m_floorTranslucency;
 
-  static int windowHeight();
-  static int windowWidth();
-
-  static QString lastPath();
-
-  static void readSettings();
-
-//    static void setFog(bool on);
-  static bool fog();
-
-//    static void setFloorTranslucency(int value);
-  static int  floorTranslucency();
-
-//    static void setEaseIn(bool on);
-  static bool easeIn();
-//    static void setEaseOut(bool on);
-  static bool easeOut();
+  bool m_easeIn;       //TODO: animation
+  bool m_easeOut;      //      specific?
 };
 
 #endif

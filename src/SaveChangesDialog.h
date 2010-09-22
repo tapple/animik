@@ -3,7 +3,9 @@
 
 #include <QDialog>
 #include <QList>
+#include <QMap>
 
+class QModelIndex;
 class AbstractDocumentTab;
 
 
@@ -16,17 +18,19 @@ namespace Ui {
 class SaveChangesDialog : public QDialog {
     Q_OBJECT
 public:
-    SaveChangesDialog(QWidget *parent, QList<AbstractDocumentTab*> tabs);
-    ~SaveChangesDialog();
+  SaveChangesDialog(QWidget *parent, QList<AbstractDocumentTab*> tabs);       //TODO: is the 'tabs' param necessary?
+  ~SaveChangesDialog();
 
 private:
-    Ui::SaveChangesDialog *ui;
-    QList<AbstractDocumentTab*> unsavedTabs;
+  Ui::SaveChangesDialog *ui;
+
+  //Key = full path of an animation file. Value = respective tab
+  QMap<QString, AbstractDocumentTab*> map;
 
 private slots:
-    void onSelectionChanged();
-    void on_dontSaveButton_clicked();
-    void on_saveButton_clicked();
+  void onSelectionChanged();
+  void on_dontSaveButton_clicked();
+  void on_saveButton_clicked();
 };
 
 #endif // SAVECHANGESDIALOG_H

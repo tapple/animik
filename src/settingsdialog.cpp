@@ -27,10 +27,10 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent)
 
   setupUi(this);
 
-  useFogCheckbox->setChecked(Settings::fog());
-  floorTranslucencySpin->setValue(Settings::floorTranslucency());
-  easeInCheckbox->setChecked(Settings::easeIn());
-  easeOutCheckbox->setChecked(Settings::easeOut());
+  useFogCheckbox->setChecked(Settings::Instance()->fog());
+  floorTranslucencySpin->setValue(Settings::Instance()->floorTranslucency());
+  easeInCheckbox->setChecked(Settings::Instance()->easeIn());
+  easeOutCheckbox->setChecked(Settings::Instance()->easeOut());
 }
 
 SettingsDialog::~SettingsDialog()
@@ -42,10 +42,13 @@ void SettingsDialog::on_applyButton_clicked()
 {
   qDebug("accept()");
 
-/*TODO!!!!!  Settings::setFog(useFogCheckbox->isChecked());
-  Settings::setFloorTranslucency(floorTranslucencySpin->value());
-  Settings::setEaseIn(easeInCheckbox->isChecked());
+  Settings::Instance()->setFog(useFogCheckbox->isChecked());
+  Settings::Instance()->setFloorTranslucency(floorTranslucencySpin->value());
+/*TODO  Settings::setEaseIn(easeInCheckbox->isChecked());
   Settings::setEaseOut(easeOutCheckbox->isChecked());     */
+
+  Settings::Instance()->WriteSettings();
+
   emit configChanged();
   qApp->processEvents();
 }

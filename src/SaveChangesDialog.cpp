@@ -1,30 +1,27 @@
-#include <QAbstractItemModel>
+#include <QAbstractListModel>
+#include <QStringListModel>
 
 #include "SaveChangesDialog.h"
 #include "ui_SaveChangesDialog.h"
 
 #include "AbstractDocumentTab.h"
 
-//TODO: It's impossible without model
-
-class UnsavedFilesModel : QAbstractItemModel
-{
-public:
-  UnsavedFilesModel(){};
-  ~UnsavedFilesModel(){};
-};
-
 
 SaveChangesDialog::SaveChangesDialog(QWidget *parent, QList<AbstractDocumentTab*> tabs) :
     QDialog(parent), ui(new Ui::SaveChangesDialog)
 {
-  unsavedTabs = tabs;
+  QStringList list;
+
+  foreach(AbstractDocumentTab* tab, tabs)
+  {
+    map.insert(tab->CurrentFile, tab);
+    list.append(tab->CurrentFile);
+  }
+
   ui->setupUi(this);
+  ui->listView->setModel(new QStringListModel(list));
 
-//  UnsavedFilesModel* model = new UnsavedFilesModel();
-//  ui->listView->setModel(model);
-
-  connect(ui->listView, SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(onSelectionChanged()));
+  connect(ui->listView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onSelectionChanged()));
 }
 
 SaveChangesDialog::~SaveChangesDialog()
@@ -32,27 +29,26 @@ SaveChangesDialog::~SaveChangesDialog()
   delete ui;
 }
 
+
 void SaveChangesDialog::onSelectionChanged()
 {
-//  ui->saveButton->setEnabled(ui->listView->selectedIndexes().count());
+  ui->saveButton->setEnabled(ui->listView->selectionModel()->selectedRows(0).count());
 }
 
 void SaveChangesDialog::on_saveButton_clicked()
 {
-  /*TDOO: make it at least buildable
-
-  for(int i = 0; i< ui->listView->model()->rowCount(); i++)
+  QModelIndexList sel = ui->listView->selectionModel()->selectedRows(0);
+  for(int i = 0; i< sel.count(); i++)
   {
-    tab = ui->listView->model()->itemData(i);
-
-    static_cast<AbstractDocumentTab*>(tab)->Save();       //TODO: what if it's new file not saved yet?
-                                                          //      The full path probably needs to be specified at creation.
-                                                          //      Remake the NewFileDialog to 2 pages widget.
-    ui->listView->model()->removeRow()
+    QString path = sel.at(i).data(Qt::DisplayRole).toString();
+    map[path]->Save();      //TODO: what if it's new file not saved yet?
+                            //      The full path probably needs to be specified at creation.
+                            //      Remake the NewFileDialog to contain LineEdit & OpenFileDialog button
+    ui->listView->model()->removeRows(sel.at(i).row(), 1);
   }
 
-  if(ui->listWidget->count() < 1)
-    accept();           */
+  if(ui->listView->model()->rowCount() < 1)
+    accept();
 }
 
 void SaveChangesDialog::on_dontSaveButton_clicked()

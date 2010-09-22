@@ -499,8 +499,8 @@ void Animation::setRotation(BVHNode* node,double x,double y,double z)
     else
     {
       node->addKeyframe(frame,node->frameData(frame).position(),Rotation(x,y,z));
-      setEaseIn(node,frame,Settings::easeIn());
-      setEaseOut(node,frame,Settings::easeOut());
+      setEaseIn(node,frame,Settings::Instance()->easeIn());
+      setEaseOut(node,frame,Settings::Instance()->easeOut());
     }
 
     //      node->dumpKeyframes();
@@ -513,8 +513,8 @@ void Animation::setRotation(BVHNode* node,double x,double y,double z)
       else
       {
         mirrorNode->addKeyframe(frame,node->frameData(frame).position(),Rotation(x,-y,-z));
-        setEaseIn(mirrorNode,frame,Settings::easeIn());
-        setEaseOut(mirrorNode,frame,Settings::easeOut());
+        setEaseIn(mirrorNode,frame,Settings::Instance()->easeIn());
+        setEaseOut(mirrorNode,frame,Settings::Instance()->easeOut());
       }
 
       // tell timeline that this mirrored keyframe has changed (added or changed is the same here)
@@ -602,8 +602,8 @@ void Animation::setPosition(double x,double y,double z)
   else
   {
     positionNode->addKeyframe(frame,Position(x,y,z),Rotation());
-    setEaseIn(positionNode,frame,Settings::easeIn());
-    setEaseOut(positionNode,frame,Settings::easeOut());
+    setEaseIn(positionNode,frame,Settings::Instance()->easeIn());
+    setEaseOut(positionNode,frame,Settings::Instance()->easeOut());
   }
   setDirty(true);
   // tell timeline that this keyframe has changed (added or changed is the same here)
@@ -665,8 +665,8 @@ void Animation::addKeyFrame(BVHNode* joint)
 {
   joint->addKeyframe(frame,getPosition(),getRotation(joint));
 
-  setEaseIn(joint,frame,Settings::easeIn());
-  setEaseOut(joint,frame,Settings::easeOut());
+  setEaseIn(joint,frame,Settings::Instance()->easeIn());
+  setEaseOut(joint,frame,Settings::Instance()->easeOut());
 
   setDirty(true);
 

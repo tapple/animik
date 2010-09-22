@@ -1241,12 +1241,12 @@ void KeyFramerTab::fileExit()
   settings.setValue("/last_path",lastPath);
 
   // OpenGL settings
-  settings.setValue("/fog",Settings::fog());
-  settings.setValue("/floor_translucency",Settings::floorTranslucency());
+  settings.setValue("/fog",Settings::Instance()->fog());
+  settings.setValue("/floor_translucency",Settings::Instance()->floorTranslucency());
 
   // settings for ease in/ease outFrame
-  settings.setValue("/ease_in",Settings::easeIn());
-  settings.setValue("/ease_out",Settings::easeOut());
+  settings.setValue("/ease_in",Settings::Instance()->easeIn());
+  settings.setValue("/ease_out",Settings::Instance()->easeOut());
 
   settings.endGroup();
 

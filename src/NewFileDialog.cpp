@@ -15,15 +15,11 @@ NewFileDialog::NewFileDialog(QWidget *parent)
   QStringList list;
   list << "AVM" << "AVBL (TODO)";
   ui->listView->setModel(new QStringListModel(list));
-/*  QList<NewFileDialog::ProjectType> list;
-  list << NewFileDialog::AVM << NewFileDialog::AVBL;
-  ui->listView->setModel(new QList<NewFileDialog::ProjectType>);  */
 
   ui->buttonBox->buttons().at(0)->setEnabled(false);    //OK button disabled
 
   connect(ui->buttonBox->buttons().at(0), SIGNAL(clicked()), this, SLOT(accept()));
   connect(ui->buttonBox->buttons().at(1), SIGNAL(clicked()), this, SLOT(reject()));
-
 }
 
 NewFileDialog::~NewFileDialog()

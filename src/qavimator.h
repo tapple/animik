@@ -69,7 +69,7 @@ signals:
 
 protected slots:
 
-  void readSettings();
+//  void readSettings();
   void configChanged();
 
 /*rbsh  void partClicked(BVHNode* node,Rotation rot,RotationLimits rotLimits,Position pos);

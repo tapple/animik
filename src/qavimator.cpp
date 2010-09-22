@@ -29,6 +29,8 @@
 #include "settings.h"
 #include "settingsdialog.h"
 
+#include "SaveChangesDialog.h"
+
 //edu
 #include "KeyFramerTab.h"
 #include "NewFileDialog.h"
@@ -51,10 +53,6 @@ qavimator::qavimator() //: QMainWindow(0)
               << 17 << 18 << 19
               << 21 << 22 << 23;      */
 
-  QCoreApplication::setOrganizationName("DeZiRee");
-  QCoreApplication::setOrganizationDomain("qavimator.org");
-  QCoreApplication::setApplicationName("QAvinmator");
-
   setupUi(this);
   UpdateMenus();
   UpdateToolbar();
@@ -75,7 +73,7 @@ qavimator::qavimator() //: QMainWindow(0)
 
 //rbsh  readSettings();
 
-  resize(Settings::windowWidth(), Settings::windowHeight());
+  resize(Settings::Instance()->windowWidth(), Settings::Instance()->windowHeight());
 
 /*rbsh  connect(animationView,SIGNAL(partClicked(BVHNode*,
                                            Rotation,
@@ -1182,35 +1180,9 @@ void qavimator::quit()
 //rbsh  if(!clearOpenFiles())           //TODO: inspect unsaved tabs
 //rbsh    return;
 
-  QSettings settings;
-  settings.beginGroup("/qavimator");
-
-  // make sure we know next time, that there actually was a settings file
-  settings.setValue("/settings",true);
-
-  settings.setValue("/loop",loop);
-  settings.setValue("/skeleton",optionsSkeletonAction->isChecked());
-  settings.setValue("/joint_limits",optionsJointLimitsAction->isChecked());
-  settings.setValue("/protect_first_frame",optionsProtectFirstFrameAction->isChecked());
-  settings.setValue("/show_timeline",optionsShowTimelineAction->isChecked());
-
-//rbsh  settings.setValue("/figure",figureCombo->currentIndex());
-  settings.setValue("/mainwindow_width",size().width());
-  settings.setValue("/mainwindow_height",size().height());
-
-  settings.setValue("/last_path",lastPath);
-
-  // OpenGL settings
-  settings.setValue("/fog",Settings::fog());
-  settings.setValue("/floor_translucency",Settings::floorTranslucency());
-
-  // settings for ease in/ease outFrame
-  settings.setValue("/ease_in",Settings::easeIn());
-  settings.setValue("/ease_out",Settings::easeOut());
-
-  settings.endGroup();
-
-  // remove all widgets and close the main form
+  Settings::Instance()->WriteSettings();
+  
+    // remove all widgets and close the main form
   qApp->exit(0);
 }
 
@@ -1872,7 +1844,23 @@ void qavimator::on_fileExportForSecondLifeAction_triggered()
 void qavimator::on_fileQuitAction_triggered()
 {
   //TODO: check open tabs for unsaved changes
-  close();
+
+  QList<AbstractDocumentTab*> debug;
+  foreach(QMdiSubWindow* subWindow, mdiArea->subWindowList())
+  {
+    AbstractDocumentTab* tab = dynamic_cast<AbstractDocumentTab*>(subWindow->widget());
+    debug.append(tab);
+  }
+
+  SaveChangesDialog* dialog = new SaveChangesDialog(this, debug);
+  dialog->exec();
+
+  if(dialog->result() == QDialog::Accepted)
+  {
+    delete dialog;
+
+    close();
+  }
 }
 
 /*rbshvoid qavimator::on_fileLoadPropsAction_triggered()
