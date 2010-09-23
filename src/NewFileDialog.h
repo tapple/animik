@@ -4,11 +4,12 @@
 #include <QDialog>
 #include <QModelIndex>
 
+#include "ui_NewFileDialog.h"
 
 
-namespace Ui {
+/*namespace Ui {
     class NewFileDialog;
-}
+}*/
 
 class NewFileDialog : public QDialog {
     Q_OBJECT
@@ -26,6 +27,13 @@ protected slots:
 private:
     Ui::NewFileDialog *ui;
     NewFileDialog::ProjectType selectedItem;
+
+    void setOkButtonEnabled(bool enabled);
+    bool validFileName(QString location, QString name, QString* outMessage);
+
+private slots:
+    void on_nameLineEdit_textChanged(QString );
+    void on_pushButton_clicked();
 };
 
 #endif // NEWFILEDIALOG_H

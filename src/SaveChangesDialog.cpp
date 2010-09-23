@@ -32,7 +32,8 @@ SaveChangesDialog::~SaveChangesDialog()
 
 void SaveChangesDialog::onSelectionChanged()
 {
-  ui->saveButton->setEnabled(ui->listView->selectionModel()->selectedRows(0).count());
+  bool selected = (ui->listView->selectionModel()->selectedRows(0).count() > 0);
+  ui->saveButton->setEnabled(selected);
 }
 
 void SaveChangesDialog::on_saveButton_clicked()
