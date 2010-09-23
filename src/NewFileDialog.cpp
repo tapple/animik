@@ -104,6 +104,14 @@ bool NewFileDialog::validFileName(QString location, QString name, QString* outMe
     return false;
   }
 
+  char array[9] = {'\\', '/', ':', '*', '?', '"', '<', '>', '|'};
+  for(int i = 0; i < 9; i++)
+    if(name.contains(array[i]))
+    {
+      outMessage = "Invalid character in file name: " + QString(array[i]);
+      return false;
+    }
+
   //'\', '/', ':', '*', '?', '"', '<', '>', '|'
   QRegExp re("\\\\/:\\*\\?\\\"<>\\|");          //TODO: needs heavy testing
   if(name.contains(re))
