@@ -14,3 +14,4 @@ Features:
   * Rotate/pan of scene doesn't unselect limb/prop. Only simple click on background.
 
 Bugs:
+  * When only change is figure (gender) change, it's not saved

@@ -3,6 +3,7 @@
 #include <QSlider>
 #include <QLineEdit>
 #include <QCloseEvent>
+#include <QTabBar>
 
 #include "KeyFramerTab.h"
 #include "ui_KeyFramerTab.h"
@@ -32,6 +33,10 @@ KeyFramerTab::KeyFramerTab(qavimator* mainWindow, const QString& fileName, bool 
               << 21 << 22 << 23;
 
   setupUi(this);
+
+  //tabs in here must be protected from the hacks done higher in the UI hierarchy
+  foreach(QTabBar* sideTab, this->findChildren<QTabBar*>())
+    sideTab->setObjectName("excludeFromClosableTabs");
 
   setAttribute(Qt::WA_DeleteOnClose);
   frameDataValid=false;

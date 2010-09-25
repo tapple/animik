@@ -19,7 +19,7 @@ public:
 
   //current file name
   QString CurrentFile;
-  virtual bool IsUnsaved() = 0;
+  virtual bool IsUnsaved() = 0;       //TODO: thing of the negative?
 
 //public slots:
   virtual void Save() = 0;
