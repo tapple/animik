@@ -44,6 +44,7 @@ public:
 
   const QStringList RecentFiles() const;
   QString lastPath() const;
+  void setLastPath(QString dir);
 
   void ReadSettings();
   void WriteSettings();

@@ -21,101 +21,105 @@
 
 
 
-KeyFramerTab::KeyFramerTab(/*QWidget *parent,*/ qavimator* mainWindow, const QString& fileName)
-  : QWidget(/*parent*/ 0), AbstractDocumentTab(mainWindow)
+KeyFramerTab::KeyFramerTab(qavimator* mainWindow, const QString& fileName, bool createFile)
+  : QWidget(0), AbstractDocumentTab(mainWindow)
 {
     nodeMapping <<  0                             //edu: position
-                <<  1 <<  2 <<  3 <<  4 << 5      //edu: hip, abdomen, chest, neck, head
-                <<  7 <<  8 <<  9 << 10           //edu: (left) collar, shoulder, fore-arm, hand
-                << 12 << 13 << 14 << 15           //edu: ...
-                << 17 << 18 << 19
-                << 21 << 22 << 23;
+              <<  1 <<  2 <<  3 <<  4 << 5      //edu: hip, abdomen, chest, neck, head
+              <<  7 <<  8 <<  9 << 10           //edu: (left) collar, shoulder, fore-arm, hand
+              << 12 << 13 << 14 << 15           //edu: ...
+              << 17 << 18 << 19
+              << 21 << 22 << 23;
 
-    setupUi(this);
+  setupUi(this);
 
-    setAttribute(Qt::WA_DeleteOnClose);
-    frameDataValid=false;
-    currentPart=0;
-    longestRunningTime=0.0;
+  setAttribute(Qt::WA_DeleteOnClose);
+  frameDataValid=false;
+  currentPart=0;
+  longestRunningTime=0.0;
 
-    // prepare play button icons
-    stopIcon=QIcon(":/icons/icons/stop.png");
-    playIcon=QIcon(":/icons/icons/play.png");
-    loopIcon=QIcon(":/icons/icons/loop.png");
+  // prepare play button icons
+  stopIcon=QIcon(":/icons/icons/stop.png");
+  playIcon=QIcon(":/icons/icons/play.png");
+  loopIcon=QIcon(":/icons/icons/loop.png");
 
-    // playback stopped by default
-    setPlaystate(PLAYSTATE_STOPPED);
+  // playback stopped by default
+  setPlaystate(PLAYSTATE_STOPPED);
 
-    readSettings();                                 //TOTO: need to take values from Settings (read in qavimator.cpp)
+  readSettings();                                 //TOTO: need to take values from Settings (read in qavimator.cpp)
 
-    bindMenuActions();
-    bindToolbarActions();
+  bindMenuActions();
+  bindToolbarActions();
 
-    connect(animationView,SIGNAL(partClicked(BVHNode*,
-                                             Rotation,
-                                             RotationLimits,
-                                             Position)),
-                       this,SLOT(partClicked(BVHNode*,
-                                             Rotation,
-                                             RotationLimits,
-                                             Position)));
+  connect(animationView,SIGNAL(partClicked(BVHNode*,
+                                           Rotation,
+                                           RotationLimits,
+                                           Position)),
+                     this,SLOT(partClicked(BVHNode*,
+                                           Rotation,
+                                           RotationLimits,
+                                           Position)));
 
-    connect(animationView,SIGNAL(partDragged(BVHNode*,double,double,double)),
-                       this,SLOT(partDragged(BVHNode*,double,double,double)));
+  connect(animationView,SIGNAL(partDragged(BVHNode*,double,double,double)),
+                     this,SLOT(partDragged(BVHNode*,double,double,double)));
 
-    connect(animationView,SIGNAL(propClicked(Prop*)),this,SLOT(propClicked(Prop*)));
+  connect(animationView,SIGNAL(propClicked(Prop*)),this,SLOT(propClicked(Prop*)));
 
-    connect(animationView,SIGNAL(propDragged(Prop*,double,double,double)),
-                       this,SLOT(propDragged(Prop*,double,double,double)));
+  connect(animationView,SIGNAL(propDragged(Prop*,double,double,double)),
+                     this,SLOT(propDragged(Prop*,double,double,double)));
 
-    connect(animationView,SIGNAL(propScaled(Prop*,double,double,double)),
-                       this,SLOT(propScaled(Prop*,double,double,double)));
+  connect(animationView,SIGNAL(propScaled(Prop*,double,double,double)),
+                     this,SLOT(propScaled(Prop*,double,double,double)));
 
-    connect(animationView,SIGNAL(propRotated(Prop*,double,double,double)),
-                       this,SLOT(propRotated(Prop*,double,double,double)));
+  connect(animationView,SIGNAL(propRotated(Prop*,double,double,double)),
+                     this,SLOT(propRotated(Prop*,double,double,double)));
 
-    connect(animationView,SIGNAL(backgroundClicked()),this,SLOT(backgroundClicked()));
-    connect(animationView,SIGNAL(animationSelected(Animation*)),this,SLOT(selectAnimation(Animation*)));
+  connect(animationView,SIGNAL(backgroundClicked()),this,SLOT(backgroundClicked()));
+  connect(animationView,SIGNAL(animationSelected(Animation*)),this,SLOT(selectAnimation(Animation*)));
 
-    connect(this,SIGNAL(enablePosition(bool)),positionGroupBox,SLOT(setEnabled(bool)));
-    connect(this,SIGNAL(enableRotation(bool)),rotationGroupBox,SLOT(setEnabled(bool)));
+  connect(this,SIGNAL(enablePosition(bool)),positionGroupBox,SLOT(setEnabled(bool)));
+  connect(this,SIGNAL(enableRotation(bool)),rotationGroupBox,SLOT(setEnabled(bool)));
 
-    connect(this,SIGNAL(enableProps(bool)),propPositionGroup,SLOT(setEnabled(bool)));
-    connect(this,SIGNAL(enableProps(bool)),propScaleGroup,SLOT(setEnabled(bool)));
-    connect(this,SIGNAL(enableProps(bool)),propRotationGroup,SLOT(setEnabled(bool)));
+  connect(this,SIGNAL(enableProps(bool)),propPositionGroup,SLOT(setEnabled(bool)));
+  connect(this,SIGNAL(enableProps(bool)),propScaleGroup,SLOT(setEnabled(bool)));
+  connect(this,SIGNAL(enableProps(bool)),propRotationGroup,SLOT(setEnabled(bool)));
 
-    connect(this,SIGNAL(enableProps(bool)),attachToLabel,SLOT(setEnabled(bool)));
-    connect(this,SIGNAL(enableProps(bool)),attachToComboBox,SLOT(setEnabled(bool)));
+  connect(this,SIGNAL(enableProps(bool)),attachToLabel,SLOT(setEnabled(bool)));
+  connect(this,SIGNAL(enableProps(bool)),attachToComboBox,SLOT(setEnabled(bool)));
 
-    connect(this,SIGNAL(enableEaseInOut(bool)),easeInOutGroup,SLOT(setEnabled(bool)));
+  connect(this,SIGNAL(enableEaseInOut(bool)),easeInOutGroup,SLOT(setEnabled(bool)));
 
-    connect(&timer,SIGNAL(timeout()),this,SLOT(frameTimeout()));
+  connect(&timer,SIGNAL(timeout()),this,SLOT(frameTimeout()));
 
-    connect(this,SIGNAL(resetCamera()),animationView,SLOT(resetCamera()));
-    connect(this,SIGNAL(protectFrame(bool)),animationView,SLOT(protectFrame(bool)));
+  connect(this,SIGNAL(resetCamera()),animationView,SLOT(resetCamera()));
+  connect(this,SIGNAL(protectFrame(bool)),animationView,SLOT(protectFrame(bool)));
 
-    connect(animationView,SIGNAL(partClicked(int)),timelineView,SLOT(selectTrack(int)));
-    connect(animationView,SIGNAL(backgroundClicked()),timelineView,SLOT(backgroundClicked()));
+  connect(animationView,SIGNAL(partClicked(int)),timelineView,SLOT(selectTrack(int)));
+  connect(animationView,SIGNAL(backgroundClicked()),timelineView,SLOT(backgroundClicked()));
 
-    timeline=timelineView->getTimeline();
-    connect(timeline,SIGNAL(positionCenter(int)),timelineView,SLOT(scrollTo(int)));
-    connect(timeline,SIGNAL(trackClicked(int)),animationView,SLOT(selectPart(int)));
+  timeline=timelineView->getTimeline();
+  connect(timeline,SIGNAL(positionCenter(int)),timelineView,SLOT(scrollTo(int)));
+  connect(timeline,SIGNAL(trackClicked(int)),animationView,SLOT(selectPart(int)));
 
-    xRotationSlider->setPageStep(10*PRECISION);
-    yRotationSlider->setPageStep(10*PRECISION);
-    zRotationSlider->setPageStep(10*PRECISION);
-    xPositionSlider->setPageStep(10*PRECISION);
-    yPositionSlider->setPageStep(10*PRECISION);
-    zPositionSlider->setPageStep(10*PRECISION);
+  xRotationSlider->setPageStep(10*PRECISION);
+  yRotationSlider->setPageStep(10*PRECISION);
+  zRotationSlider->setPageStep(10*PRECISION);
+  xPositionSlider->setPageStep(10*PRECISION);
+  yPositionSlider->setPageStep(10*PRECISION);
+  zPositionSlider->setPageStep(10*PRECISION);
 
-    currentFrameSlider->setPageStep(1);
+  currentFrameSlider->setPageStep(1);
 
-    if(fileName.isEmpty())
-      fileNew();
-    else
-      fileOpen(fileName);
+  if(createFile)
+  {
+    CurrentFile = fileName;
+    fileNew();
+    Save();
+  }
+  else
+    fileOpen(fileName);
 
-    updateInputs();
+  updateInputs();
 }
 
 KeyFramerTab::~KeyFramerTab()
@@ -126,7 +130,7 @@ KeyFramerTab::~KeyFramerTab()
 
 void KeyFramerTab::bindMenuActions()
 {
-  //TODO: eliminate the QActions one by one by offering
+  //TODO: eliminate the QActions one by one (really?)
 
 //    connect(mainWindow->fileNewAction, SIGNAL(triggered()), this, SLOT(fileNewAction_triggered()));
 //    connect(mainWindow->fileOpenAction, SIGNAL(triggered()), this, SLOT(Open()));
@@ -166,12 +170,10 @@ bool KeyFramerTab::IsUnsaved()
   return false;
 }
 
+
 void KeyFramerTab::Save()
 {
-  if(CurrentFile==UntitledName())
-    fileSaveAs();
-  else
-    animationView->getAnimation()->saveBVH(CurrentFile);
+  animationView->getAnimation()->saveBVH(CurrentFile);
 }
 
 void KeyFramerTab::SaveAs()
@@ -858,6 +860,7 @@ void KeyFramerTab::easeOutChanged(int change)
 /* TODO: Menu actions slots. But first make the menu populated by buttons dynamically
          based on current doc-tab type */
 
+
 void KeyFramerTab::fileNew()
 {
 /*  clearProps();                     //TODO: no need for this if we have
@@ -876,7 +879,7 @@ void KeyFramerTab::fileNew()
   animationIds.append(anim);
   calculateLongestRunningTime();
   // add new animation to combo box
-  addToOpenFiles(/*UNTITLED_NAME*/UntitledName());
+  addToOpenFiles(/*UntitledName()*/CurrentFile);
 
   anim->useRotationLimits(jointLimits);
 
@@ -959,13 +962,13 @@ void KeyFramerTab::fileOpen(const QString& name)
   if(!file.isEmpty())
   {
     clearProps();
-    if(!clearOpenFiles()) return;
+//oblt    if(!clearOpenFiles()) return;
     fileAdd(file);
   }
 
   // update timeline and animation view with the currently selected body part
   // this helps to sync the visual selections
-  partChoice();
+//DEBUG  partChoice();          //Note: causes UI to freeze for some time
 }
 
 // Menu action: File / Add New Animation ...
@@ -1090,15 +1093,15 @@ void KeyFramerTab::fileExportForSecondLife()
     // FIXME: think of a sensible thing to do when the animation has not been saved
     //        as .avm yet
     //TODO: And also let user choose the export file location
-  if(CurrentFile != /*UNTITLED_NAME*/ UntitledName())
-  {
+//oblt  if(CurrentFile != /*UNTITLED_NAME*/ UntitledName())
+//  {
     QFileInfo fileInfo(CurrentFile);
     QString exportName=fileInfo.path()+"/"+fileInfo.baseName()+".bvh";
 
     qDebug("qavimator::fileExportForSecondLife(): exporting animation as '%s'.",exportName.toLatin1().constData());
     animationView->getAnimation()->saveBVH(exportName);
     QMessageBox::information(this,QObject::tr("Export for Second Life"),QObject::tr("Animation was exported for Second Life as:\n%1").arg(exportName));
-  }
+//oblt  }
 }
 
 
@@ -1495,7 +1498,7 @@ bool KeyFramerTab::clearOpenFiles()
   openFiles.clear();
   selectAnimationCombo->clear();
   animationIds.clear();
-  setCurrentFile(/*UNTITLED_NAME*/ UntitledName());
+  setCurrentFile(/*oblt UntitledName()*/ "");
   longestRunningTime=0.0;
 
   return true;
@@ -1729,7 +1732,7 @@ void KeyFramerTab::selectAnimation(Animation* animation)
 
   // enable export to second life if current file name is not the default untitled name
 
-  mainWindow->fileExportForSecondLifeAction->setEnabled(!(CurrentFile==/*UNTITLED_NAME*/ UntitledName()));
+//oblt  mainWindow->fileExportForSecondLifeAction->setEnabled(!(CurrentFile==/*UNTITLED_NAME*/ UntitledName()));
 }
 
 // set loop in point (user view, so always +1)
@@ -1827,11 +1830,6 @@ double KeyFramerTab::calculateLongestRunningTime()
   fileNew();
 }       */
 
-void KeyFramerTab::Open(const QString& fileName)
-{
-//edu  fileOpen();
-  fileOpen(fileName);
-}
 
 void KeyFramerTab::fileAddAction_triggered()
 {

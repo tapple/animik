@@ -78,7 +78,7 @@
    <item row="2" column="0" colspan="2">
     <widget class="QWidget" name="selectLocationWidget" native="true">
      <property name="enabled">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Maximum">

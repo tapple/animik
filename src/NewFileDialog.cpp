@@ -2,7 +2,6 @@
 #include <QAbstractButton>
 #include <QListData>
 #include <QFileDialog>
-#include <QRegExp>
 
 #include "NewFileDialog.h"
 #include "ui_NewFileDialog.h"
@@ -10,10 +9,15 @@
 
 
 
+const QString NewFileDialog::UntitledName = "Untitled";
+
+
 NewFileDialog::NewFileDialog(QWidget *parent)
   : QDialog(parent), ui(new Ui::NewFileDialog)
 {
   ui->setupUi(this);
+  originalPalette = ui->nameLineEdit->palette();
+  ui->pathLineEdit->setText(Settings::Instance()->lastPath());
 
   QStringList list;
   list << "AVM" << "AVBL (TODO)";
@@ -30,6 +34,14 @@ NewFileDialog::~NewFileDialog()
   delete ui;
 }
 
+void NewFileDialog::accept()
+{
+  Settings::Instance()->setLastPath(ui->pathLineEdit->text());
+  fileName = ui->pathLineEdit->text();
+  fileName += fileName.endsWith('/') ? "" : "/";
+  fileName += ui->nameLineEdit->text();
+  QDialog::accept();
+}
 
 void NewFileDialog::on_listView_clicked(QModelIndex modelIndex)
 {
@@ -39,6 +51,7 @@ void NewFileDialog::on_listView_clicked(QModelIndex modelIndex)
   {
     selectedItem = (ProjectType) modelIndex.row();
     //TODO: some hint to the left?
+    suggestFilename(selectedItem);
 
     ui->selectLocationWidget->setEnabled(true);
   }
@@ -73,23 +86,75 @@ void NewFileDialog::on_nameLineEdit_textChanged(QString )
   QString name = ui->nameLineEdit->text();
   QString path = ui->pathLineEdit->text();
   path += path.endsWith('/') ? "" : "/";
-
   QString* tooltip = new QString();
 
   if(!validFileName(path, name, tooltip))
   {
-    ui->nameLineEdit->setBackgroundRole(QPalette::LinkVisited);
+    QPalette pal = originalPalette;
+    pal.setColor(QPalette::Base, QColor(245, 169, 169));    //light red background
+    ui->nameLineEdit->setPalette(pal);
     ui->nameLineEdit->setToolTip(*tooltip);
     setOkButtonEnabled(false);
   }
+  else
+  {
+    ui->nameLineEdit->setPalette(originalPalette);
+    ui->nameLineEdit->setToolTip(QString::null);
+    setOkButtonEnabled(true);
+  }
 }
 
+void NewFileDialog::on_pathLineEdit_textChanged(QString )
+{
+  QString path = ui->pathLineEdit->text();
+  QString* tooltip = new QString();
+
+  if(!validDirectory(path, tooltip))
+  {
+    QPalette pal = originalPalette;
+    pal.setColor(QPalette::Base, QColor(245, 169, 169));    //light red background
+    ui->pathLineEdit->setPalette(pal);
+    ui->pathLineEdit->setToolTip(*tooltip);
+    setOkButtonEnabled(false);
+  }
+  else
+  {
+    ui->pathLineEdit->setPalette(originalPalette);
+    ui->pathLineEdit->setToolTip(QString::null);
+    setOkButtonEnabled(true);
+  }
+}
 
 void NewFileDialog::setOkButtonEnabled(bool enabled)
 {
   ui->buttonBox->buttons().at(0)->setEnabled(enabled);
 }
 
+void NewFileDialog::suggestFilename(ProjectType type)
+{
+  int num = 1;
+  QString name;
+  QString extension = "";
+  QString dir = ui->pathLineEdit->text();
+  dir += dir.endsWith('/') ? "" : "/";            //TODO: platform dependent?
+
+  switch(type)
+  {
+    case NewFileDialog::AVM : extension = ".avm";
+      break;
+    case NewFileDialog::AVBL : extension = ".avbl";
+      break;
+  }
+
+  name = UntitledName + extension;
+  while(QFile::exists(dir + name))
+    name = UntitledName + QString("%1").arg(++num) + extension;
+
+  ui->nameLineEdit->setText(name);
+}
+
+
+/* =============================== input validations =============================== */
 
 bool NewFileDialog::validFileName(QString location, QString name, QString* outMessage)
 {
@@ -104,21 +169,48 @@ bool NewFileDialog::validFileName(QString location, QString name, QString* outMe
     return false;
   }
 
-  char array[9] = {'\\', '/', ':', '*', '?', '"', '<', '>', '|'};
-  for(int i = 0; i < 9; i++)
+#ifdef Q_OS_WIN32
+  const int size = 9;
+  char array[size] = {'\\', '/', ':', '*', '?', '"', '<', '>', '|'};
+#else
+  const int size = 2;
+  char array[] = {'\\', '/'};
+#endif
+  for(int i = 0; i < size; i++)
     if(name.contains(array[i]))
     {
-      outMessage = "Invalid character in file name: " + QString(array[i]);
+      QString temp = "Invalid character in file name: " + QString(array[i]);
+      *outMessage = temp;
       return false;
     }
 
-  //'\', '/', ':', '*', '?', '"', '<', '>', '|'
-  QRegExp re("\\\\/:\\*\\?\\\"<>\\|");          //TODO: needs heavy testing
-  if(name.contains(re))
+  return true;
+}
+
+bool NewFileDialog::validDirectory(QString location, QString* outMessage)
+{
+  if(location.isEmpty())
   {
-    outMessage = new QString("Invalid character in file name");
+    outMessage = new QString("Specify existing directory");
+    return false;
+  }
+  if(!(new QDir(location))->exists())
+  {
+    outMessage = new QString("Invalid location");
     return false;
   }
 
+#ifdef Q_OS_WIN32
+  const int size = 7;
+  char array[size] = {':', '*', '?', '"', '<', '>', '|'};
+
+  for(int i = 0; i < size; i++)
+    if(location.contains(array[i]))
+    {
+      QString temp = "Invalid character in file name: " + QString(array[i]);
+      *outMessage = temp;
+      return false;
+    }
+#endif
   return true;
 }

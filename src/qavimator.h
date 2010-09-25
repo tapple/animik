@@ -179,12 +179,12 @@ protected:
   virtual void closeEvent(QCloseEvent* event);
 
 
-  void OpenNewTab();
+  void OpenNewTab(NewFileDialog::ProjectType fileType, const QString& filename, bool newFile);
   AbstractDocumentTab* activeTab();
   void UpdateMenus();
   void UpdateToolbar();
 
-  void fileNew(NewFileDialog::ProjectType fileType);       //TODO: place the enum elsewhere
+//rbsh  void fileNew(NewFileDialog::ProjectType fileType);       //TODO: place the enum elsewhere
 /*rbsh  void fileOpen();
   void fileOpen(const QString& fileName);
   // "add" a new file without clearing the old one(s)

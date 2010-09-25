@@ -22,6 +22,7 @@
 #include <QSettings>
 #include <QStringList>
 #include <QCoreApplication>
+#include <QDir>
 
 #include "settings.h"
 
@@ -34,7 +35,7 @@ Settings::Settings()
   m_windowWidth = 850;
   m_windowHeight = 600;
 
-  m_lastPath = QString::null;
+  m_lastPath = QDir::currentPath();
 
   m_fog = true;
   m_floorTranslucency = 33;
@@ -164,7 +165,7 @@ void Settings::WriteSettings()
   settings.setValue("/mainwindow_height", m_windowHeight);
 
   settings.setValue("/recent_files", recentFiles);
-//  settings.setValue("/last_path",lastPath);
+  settings.setValue("/last_path", m_lastPath);
 
   // OpenGL settings
   settings.setValue("/fog", m_fog);
@@ -187,6 +188,7 @@ void Settings::setWindowWidth(int width)          { m_windowWidth = width; }
 
 const QStringList Settings::RecentFiles() const   { return recentFiles; }
 QString Settings::lastPath() const                { return m_lastPath; }
+void Settings::setLastPath(QString dir)           { m_lastPath = dir; }
 
 void Settings::setFog(bool on)                    { m_fog=on; }
 bool Settings::fog() const                        { return m_fog; }

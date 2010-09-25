@@ -35,9 +35,12 @@ class KeyFramerTab : public QWidget, public Ui::KeyFramerTab, public AbstractDoc
     Q_OBJECT
 public:
     /**
-      Main window is passed to access some menu and toolbar actions
+      Main window is passed to access some menu and toolbar actions.
+
+      @param createFile if true, the file is actually being created
+             and must be written first.
     */
-  KeyFramerTab(/*QWidget *parent = 0, */qavimator* mainWindow, const QString& fileName);
+  KeyFramerTab(qavimator* mainWindow, const QString& fileName, bool createFile);
   ~KeyFramerTab();
 
   virtual void Save();
@@ -60,7 +63,6 @@ signals:
     void protectFrame(bool state);
 
 public slots:
-    virtual void Open(const QString& fileName);
     virtual void onTabActivated();
 
 protected slots:
@@ -255,8 +257,6 @@ protected:
     float getZPos();
 
 //edu: went to ADT    QString CurrentFile;
-    //edu so far
-    virtual QString UntitledName() const {return "Untitled.avm";}
 
     QStringList openFiles;
     // last path used for open or save
