@@ -1074,7 +1074,10 @@ void Animation::setFigureType(FigureType type)
 {
   // safety check if figure is valid
   if(type>=0 && type<NUM_FIGURES)
+  {
     figureType=type;
+    setDirty(true);
+  }
 }
 
 void Animation::nextPlaystate()

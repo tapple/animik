@@ -32,6 +32,8 @@ class QScrollArea;
 class Timeline;
 class Animation;
 
+
+/** Left side header of the TimeLineView. Contains names of limbs. */
 class TimelineTracks : public QWidget
 {
   Q_OBJECT
@@ -53,6 +55,7 @@ class TimelineTracks : public QWidget
 
     int selectedTrack;
 };
+
 
 class TimelineView : public QFrame
 {

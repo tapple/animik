@@ -145,7 +145,7 @@ void KeyFramerTab::bindMenuActions()
 //    connect(mainWindow->fileExportForSecondLifeAction, SIGNAL(triggered()), this, SLOT(fileExportForSecondLife()));
     connect(mainWindow->fileLoadPropsAction, SIGNAL(triggered()), this, SLOT(fileLoadPropsAction_triggered()));
     connect(mainWindow->fileSavePropsAction, SIGNAL(triggered()), this, SLOT(fileSavePropsAction_triggered()));
-    connect(mainWindow->fileQuitAction, SIGNAL(triggered()), this, SLOT(fileExitAction_triggered()));
+//TODO: delete    connect(mainWindow->fileQuitAction, SIGNAL(triggered()), this, SLOT(fileQuitAction_triggered()));
 
     connect(mainWindow->toolsOptimizeBVHAction, SIGNAL(triggered()), this, SLOT(toolsOptimizeBVHAction_triggered()));
     connect(mainWindow->toolsMirrorAction, SIGNAL(triggered()), this, SLOT(toolsMirrorAction_triggered()));
@@ -1224,44 +1224,6 @@ void KeyFramerTab::fileSaveProps()
 }
 
 
-// Menu Action: File / Exit
-void KeyFramerTab::fileExit()
-{
-    if(!clearOpenFiles())
-        return;
-
-  QSettings settings;
-  settings.beginGroup("/qavimator");
-
-  // make sure we know next time, that there actually was a settings file
-  settings.setValue("/settings",true);
-
-  settings.setValue("/loop",loop);
-  settings.setValue("/skeleton",mainWindow->optionsSkeletonAction->isChecked());
-  settings.setValue("/joint_limits",mainWindow->optionsJointLimitsAction->isChecked());
-  settings.setValue("/protect_first_frame",mainWindow->optionsProtectFirstFrameAction->isChecked());
-  settings.setValue("/show_timeline",mainWindow->optionsShowTimelineAction->isChecked());
-
-  settings.setValue("/figure",figureCombo->currentIndex());
-  settings.setValue("/mainwindow_width",size().width());
-  settings.setValue("/mainwindow_height",size().height());
-
-  settings.setValue("/last_path",lastPath);
-
-  // OpenGL settings
-  settings.setValue("/fog",Settings::Instance()->fog());
-  settings.setValue("/floor_translucency",Settings::Instance()->floorTranslucency());
-
-  // settings for ease in/ease outFrame
-  settings.setValue("/ease_in",Settings::Instance()->easeIn());
-  settings.setValue("/ease_out",Settings::Instance()->easeOut());
-
-  settings.endGroup();
-
-  // remove all widgets and close the main form
-//edu: Oh yeaaas?!   qApp->exit(0);
-}
-
 // Menu Action: Edit / Cut
 void KeyFramerTab::editCut()
 {
@@ -1463,29 +1425,48 @@ void KeyFramerTab::updateFps()
 
 
 // Adds a file to the open files list, and adds the entry in the combo box
-void KeyFramerTab::addToOpenFiles(const QString& fileName)
+void KeyFramerTab::addToOpenFiles(const QString& fileName)          //TODO: will make sense with aux animations
 {
-    openFiles.append(fileName);
-
-    QString fixedName=fileName;
-    QRegExp pattern(".*/");
-    fixedName.remove(pattern);
-    pattern.setPattern("(\\.bvh|\\.avm)");
-    fixedName.remove(pattern);
-
-    selectAnimationCombo->addItem(fixedName);
+  openFiles.append(fileName);
+  QFileInfo fi(fileName);
+//  QString fixedName =  fileName;
+//  QRegExp pattern(".*/");
+//  fixedName.remove(pattern);
+//  pattern.setPattern("(\\.bvh|\\.avm)");
+//  fixedName.remove(pattern);
+  selectAnimationCombo->addItem(/*fixedName*/ fi.baseName());
 }
 
-void KeyFramerTab::removeFromOpenFiles(unsigned int which)
+
+void KeyFramerTab::removeFromOpenFiles(unsigned int which)          //TODO: will make sense with aux animations
 {
   if(which>= (unsigned int) openFiles.count()) return;
   openFiles.removeAt(which);
   selectAnimationCombo->removeItem(which);
 }
 
-// empty out the open files list
-bool KeyFramerTab::clearOpenFiles()
+bool KeyFramerTab::resolveUnsavedChanges()
 {
+  if(animationView->getAnimation(0)->dirty())
+  {
+    QMessageBox saveMessage;
+    saveMessage.setText(tr("The file %1 has been modified. Do you want to save it?").arg(CurrentFile));
+    saveMessage.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    saveMessage.setDefaultButton(QMessageBox::Save);
+    int answer = saveMessage.exec();
+    if(answer==QMessageBox::Save)
+      Save();
+    else if(answer==QMessageBox::Cancel)
+      return false;
+  }
+
+  return true;
+}
+
+// empty out the open files list
+bool KeyFramerTab::clearOpenFiles()         //TODO: will make sense with aux animations
+{
+/*TODO: delete
   for(unsigned int index=0;index< (unsigned int) animationIds.count();index++)
   {
     if(animationIds.at(index)->dirty())
@@ -1496,14 +1477,14 @@ bool KeyFramerTab::clearOpenFiles()
       else
         break;
     }
-  }
+  }     */
 
   timeline->setAnimation(0);
   animationView->clear();
   openFiles.clear();
   selectAnimationCombo->clear();
   animationIds.clear();
-  setCurrentFile(/*oblt UntitledName()*/ "");
+//  setCurrentFile(/*oblt UntitledName()*/ "");
   longestRunningTime=0.0;
 
   return true;
@@ -1514,8 +1495,9 @@ bool KeyFramerTab::clearOpenFiles()
 void KeyFramerTab::setCurrentFile(const QString& fileName)
 {
   CurrentFile=fileName;
-  mainWindow->setWindowTitle("qavimator ["+CurrentFile+"]");
-  setWindowTitle(CurrentFile);            //TODO: shorten file name (no path)
+  mainWindow->setWindowTitle("Animik ["+CurrentFile+"]");
+  QFileInfo fileInfo(fileName);
+  setWindowTitle(fileInfo.fileName());
 }
 
 // this slot gets called from Animation::setFrame(int)
@@ -1803,7 +1785,7 @@ void KeyFramerTab::setPlaystate(PlayState state)
 // prevent closing of main window if there are unsaved changes
 void KeyFramerTab::closeEvent(QCloseEvent* event)
 {
-  if(!clearOpenFiles())
+  if(/*!clearOpenFiles()*/ !resolveUnsavedChanges())
     event->ignore();
   else
     event->accept();
@@ -1827,14 +1809,7 @@ double KeyFramerTab::calculateLongestRunningTime()
 
 
 // -------------------------------------------------------------------------
-// ------- Menu Actions slots -------
-
-
-/*void KeyFramerTab::fileNewAction_triggered()
-{
-  fileNew();
-}       */
-
+// ------- Menu Actions slots (connected in MainWindow) -------
 
 void KeyFramerTab::fileAddAction_triggered()
 {
@@ -1860,11 +1835,6 @@ void KeyFramerTab::fileLoadPropsAction_triggered()
 void KeyFramerTab::fileSavePropsAction_triggered()
 {
   fileSaveProps();
-}
-
-void KeyFramerTab::fileExitAction_triggered()
-{
-  fileExit();
 }
 
 void KeyFramerTab::toolsOptimizeBVHAction_triggered()

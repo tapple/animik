@@ -66,19 +66,16 @@ signals:
 
 protected slots:
   void configChanged();
-
   void closeTab(int);
 
   // autoconnection from designer UI
   // ------- Menu Action Slots --------
   void on_fileNewAction_triggered();
   void on_fileOpenAction_triggered();
-//rbsh  void on_fileAddAction_triggered();
   void on_fileSaveAction_triggered();
   void on_fileSaveAsAction_triggered();
   void on_fileCloseAction_triggered();
   void on_fileQuitAction_triggered();
-
   void on_fileExportForSecondLifeAction_triggered();
 
 /*rbsh  void on_editCutAction_triggered();
@@ -86,7 +83,6 @@ protected slots:
   void on_editPasteAction_triggered();      */
 
   void on_optionsConfigureQAvimatorAction_triggered();
-
   void on_helpAboutAction_triggered();
 
   // ------- UI Element Slots --------
@@ -98,6 +94,8 @@ protected:
   virtual void closeEvent(QCloseEvent* event);
 
   void addTabsCloseButtons();
+  /** Save or discard content of tabs with unsaved changes */
+  bool resolveUnsavedTabs();
 
   /** Open new tab and load given file (or create new) */
   void OpenNewTab(NewFileDialog::ProjectType fileType, const QString& filename, bool newFile);
@@ -105,12 +103,7 @@ protected:
   void UpdateMenus();
   void UpdateToolbar();
 
-//rbsh  void fileNew(NewFileDialog::ProjectType fileType);       //TODO: place the enum elsewhere
-//rbsh  void fileOpen();
   void fileOpen(const QString& name);
-/*rbsh  // "add" a new file without clearing the old one(s)
-  void fileAdd();
-  void fileAdd(const QString& fileName);      */
   void quit();
 
 /*rbsh
@@ -122,17 +115,9 @@ protected:
   void helpAbout();
 
   QString selectFileToOpen(const QString& caption);
-/*rbsh  void addToOpenFiles(const QString& fileName);
-  void removeFromOpenFiles(unsigned int which);     */
-  bool clearOpenFiles();
-
 
   bool checkFileOverwrite(const QFileInfo& fileInfo);
   void setCurrentFile(const QString& fileName);
-
-//rbsh  QStringList openFiles;
-  // list of animation ids mapped to combo box indexes
-//rbsh  QList<Animation*> animationIds;
 
   bool loop;
   bool jointLimits;

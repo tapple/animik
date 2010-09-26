@@ -54,5 +54,5 @@ void SaveChangesDialog::on_saveButton_clicked()
 
 void SaveChangesDialog::on_dontSaveButton_clicked()
 {
-
+  accept();     //lose unsaved changes
 }

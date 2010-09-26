@@ -98,6 +98,8 @@ class AnimationView : public QGLWidget
 
     // getAnimation returns the *current* animation
     Animation* getAnimation() { return animation; }
+
+    //edu: TODO: it should be that one is primary and other auxiliary
     Animation* getAnimation(unsigned int index) { return animList.at(index); }
     Animation* getLastAnimation() { return animList.last(); }
     bool isSkeletonOn() { return skeleton; }

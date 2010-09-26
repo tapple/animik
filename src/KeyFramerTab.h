@@ -94,7 +94,7 @@ protected slots:
     void fileExportForSecondLifeAction_triggered();
     void fileLoadPropsAction_triggered();
     void fileSavePropsAction_triggered();
-    void fileExitAction_triggered();
+//done in qavimator    void fileQuitAction_triggered();
 
     void toolsOptimizeBVHAction_triggered();
     void toolsMirrorAction_triggered();
@@ -176,7 +176,8 @@ protected:
     void fileExportForSecondLife();
     void fileLoadProps();
     void fileSaveProps();
-    void fileExit();
+//    void fileExit();
+    bool resolveUnsavedChanges();
 
     void editCut();
     void editCopy();

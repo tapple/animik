@@ -15,3 +15,6 @@ Features:
 
 Bugs:
   * When only change is figure (gender) change, it's not saved
+
+Next task:
+  * Update main menu/toolbar depending on current tab

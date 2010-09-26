@@ -55,9 +55,7 @@ qavimator::qavimator() //: QMainWindow(0)
 }
 
 qavimator::~qavimator()
-{
-  quit();
-}
+{}
 
 
 
@@ -142,6 +140,7 @@ QString qavimator::selectFileToOpen(const QString& caption)
 {
    //// For some unknown reason passing "this" locks up the OSX qavimator window. Possibly a QT4 bug, needs investigation
 #ifdef __APPLE__
+  //  quit();
   QString file=QFileDialog::getOpenFileName(NULL, caption, Settings::Instance()->lastPath(), ANIM_FILTER);
 #else
    QString file=QFileDialog::getOpenFileName(this, caption, Settings::Instance()->lastPath(), ANIM_FILTER);
@@ -181,95 +180,48 @@ void qavimator::fileOpen(const QString& name)
   }
 }
 
-// Menu action: File / Add New Animation ...
-/*void qavimator::fileAdd()
-{
-  fileAdd(QString::null);
-}
-
-void qavimator::fileAdd(const QString& name)
-{
-  QString file=name;
-
-  if(file.isEmpty())
-    file=selectFileToOpen(tr("Select Animation File to Add"));
-
-  if(!file.isEmpty())
-  {
-    // handling of non-existant file names
-    if(!QFile::exists(file))
-    {
-      QMessageBox::warning(this,QObject::tr("Load Animation File"),QObject::tr("<qt>Animation file not found:<br />%1</qt>").arg(file));
-      return;
-    }
-
-    addToOpenFiles(file);
-    Animation* anim=new Animation(animationView->getBVH(),file);
-    animationIds.append(anim);
-    calculateLongestRunningTime();
-
-    setCurrentFile(file);
-
-    animationView->addAnimation(anim);
-    timeline->setAnimation(anim);
-    selectAnimation(anim);
-    anim->useRotationLimits(jointLimits);
-
-//    qDebug("qavimator::fileAdd(): checking for loop points");
-    // no loop in point? must be a BVH or an older avm. set a sane default
-    if(anim->getLoopInPoint()==-1)
-    {
-//      qDebug("qavimator::fileAdd(): no loop points, adding new");
-      // first set loop out point to avoid clamping of loop in point
-      setLoopOutPoint(anim->getNumberOfFrames());
-
-      if(protectFirstFrame)
-      {
-//        qDebug("qavimator::fileAdd(): adding loop points for protected frame 1 animation");
-        anim->setFrame(1);
-        setCurrentFrame(1);
-        setLoopInPoint(2);
-      }
-      else
-      {
-//        qDebug("qavimator::fileAdd(): adding loop points for unprotected frame 1 animation");
-        anim->setFrame(0);
-        setCurrentFrame(0);
-        setLoopInPoint(1);
-      }
-    }
-    else
-    {
-//      qDebug("qavimator::fileAdd(): reading saved loop points");
-      setLoopInPoint(anim->getLoopInPoint()+1);
-      setLoopOutPoint(anim->getLoopOutPoint()+1);
-    }
-
-    // FIXME: code duplication
-    connect(anim,SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
-
-    animationView->selectPart(nodeMapping[editPartCombo->currentIndex()]);
-    updateInputs();
-    updateFps();
-    anim->setDirty(false);
-
-// makeshift tool for new independant playback testing
-// anim->setPlaystate(PLAYSTATE_LOOPING);
-
-  }
-}       */
-
 
 // Menu Action: File / Quit
 void qavimator::quit()
 {
-//  if(!clearOpenFiles())           //TODO: inspect unsaved tabs
+//  if(!clearOpenFiles())
 //    return;
+
+  if(!resolveUnsavedTabs())
+    return;
 
   Settings::Instance()->WriteSettings();
   
   // remove all widgets and close the main form
   qApp->exit(0);
+}
+
+
+bool qavimator::resolveUnsavedTabs()
+{
+  QList<AbstractDocumentTab*> unsaved;
+  foreach(QMdiSubWindow* subWindow, mdiArea->subWindowList())
+  {
+    AbstractDocumentTab* tab = dynamic_cast<AbstractDocumentTab*>(subWindow->widget());
+    if(tab->IsUnsaved())
+      unsaved.append(tab);
+  }
+
+  if(unsaved.count())
+  {
+    SaveChangesDialog* dialog = new SaveChangesDialog(this, unsaved);
+    dialog->exec();
+
+    if(dialog->result() == QDialog::Accepted)
+    {
+      delete dialog;
+      return true;
+    }
+
+    return false;
+  }
+  else
+    return true;     //no unsaved changes
 }
 
 // Menu Action: Edit / Cut
@@ -362,38 +314,10 @@ void qavimator::removeFromOpenFiles(unsigned int which)
   selectAnimationCombo->removeItem(which);
 }         */
 
-// empty out the open files list
-bool qavimator::clearOpenFiles()
-{
-  for(unsigned int index=0;index< (unsigned int) /*animationIds.count()*/mdiArea->subWindowList().count();index++)
-  {
-    if(/*animationIds.at(index)->dirty()*/dynamic_cast<AbstractDocumentTab* >(mdiArea->subWindowList().at(index)->widget())->IsUnsaved())     //TODO: more conveniet way
-    {
-      int answer=QMessageBox::question(this,tr("Unsaved Changes"),
-                                       tr("There are some unsaved changes. Are you sure you want to continue and lose all unsaved data?"),        //TODO: invert the question
-                                       QMessageBox::Yes, QMessageBox::No, QMessageBox::NoButton);
-      if(answer==QMessageBox::No)
-        return false;
-      else
-        break;
-    }
-  }
-
-/*  timeline->setAnimation(0);
-  animationView->clear();
-  openFiles.clear();
-  selectAnimationCombo->clear();
-  animationIds.clear();
-  setCurrentFile(UNTITLED_NAME);
-  longestRunningTime=0.0;         */
-
-  return true;
-}
 
 // convenience function to set window title in a defined way
 void qavimator::setCurrentFile(const QString& fileName)           //TODO: to setWindowTitle
 {
-//  currentFile=fileName;
   setWindowTitle("qavimator ["+fileName+"]");
 }
 
@@ -402,25 +326,21 @@ void qavimator::setCurrentFile(const QString& fileName)           //TODO: to set
 // prevent closing of main window if there are unsaved changes
 void qavimator::closeEvent(QCloseEvent* event)
 {
-  if(!clearOpenFiles())
+  if(/*!clearOpenFiles()*/ !resolveUnsavedTabs())
     event->ignore();
   else
     event->accept();
 }
 
 
+//slot called by AbstractDocumentTab's inner QTabBar that wishes to be closed
 void qavimator::closeTab(int i)
 {
-  int debug = mdiArea->subWindowList().count();
-
-  if(debug<100){
-  QMdiSubWindow *sub = mdiArea->subWindowList()[i];
-  QWidget *tab = sub->widget();          //TODO: do I
-  tab->close();                          //      need this?
+  QMdiSubWindow* sub = mdiArea->subWindowList()[i];
   mdiArea->setActiveSubWindow(sub);
   mdiArea->closeActiveSubWindow();
-  }//eod
 }
+
 
 // -------------------------------------------------------------------------
 // autoconnection from designer UI
@@ -447,15 +367,8 @@ void qavimator::on_fileOpenAction_triggered()
   fileOpen(file);
 }
 
-/*rbsh
-void qavimator::on_fileAddAction_triggered()
-{
-  fileAdd();
-}   */
-
 void qavimator::on_fileSaveAction_triggered()
 {
-
   activeTab()->Save();
 }
 
@@ -476,24 +389,7 @@ void qavimator::on_fileExportForSecondLifeAction_triggered()
 
 void qavimator::on_fileQuitAction_triggered()
 {
-  //TODO: check open tabs for unsaved changes
-
-  QList<AbstractDocumentTab*> unsaved;
-  foreach(QMdiSubWindow* subWindow, mdiArea->subWindowList())
-  {
-    AbstractDocumentTab* tab = dynamic_cast<AbstractDocumentTab*>(subWindow->widget());
-    if(tab->IsUnsaved())
-      unsaved.append(tab);
-  }
-
-  SaveChangesDialog* dialog = new SaveChangesDialog(this, unsaved);
-  dialog->exec();
-
-  if(dialog->result() == QDialog::Accepted)
-  {
-    delete dialog;
-    close();
-  }
+  quit();
 }
 
 /*rbsh
