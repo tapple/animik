@@ -506,7 +506,7 @@ void KeyFramerTab::rotationSlider(const QObject* slider)                //TODO: 
 }
 
 // gets called whenever a body part rotation value field gets changed
-void KeyFramerTab::rotationValue()                                          //TODO: rename to rotationValueChanged
+void KeyFramerTab::relativeRotationValue()                                          //TODO: rename to rotationValueChanged
 {
   double x=xRotationEdit->text().toDouble();
   double y=yRotationEdit->text().toDouble();
@@ -549,6 +549,33 @@ void KeyFramerTab::rotationValue()                                          //TO
   updateKeyBtn();
 }
 
+
+//Note: dirty trick here. The difference between previous and current global
+//value is added to relative value and relative value change is fired.
+//It's to ensure joint limits which are meaningfull only in relative system.
+void KeyFramerTab::globalRotationValue()
+{
+  double oldRelativeX = xRotationEdit->text().toDouble();
+  double oldRelativeY = yRotationEdit->text().toDouble();
+  double oldRelativeZ = zRotationEdit->text().toDouble();
+
+  //calculate old global rotation from still active relative ones
+  Animation* anim = animationView->getAnimation();
+  Rotation globalRotation = anim->getGlobalRotation(animationView->getSelectedPart());
+  double oldGlobalX = globalRotation.x;
+  double oldGlobalY = globalRotation.y;
+  double oldGlobalZ = globalRotation.z;
+
+  double newGlobalX = xGlobalRotationEdit->text().toDouble();
+  double newGlobalY = yGlobalRotationEdit->text().toDouble();
+  double newGlobalZ = zGlobalRotationEdit->text().toDouble();
+
+  xRotationEdit->setText(QString::number(oldRelativeX + (newGlobalX - oldGlobalX)));
+  yRotationEdit->setText(QString::number(oldRelativeY + (newGlobalY - oldGlobalY)));
+  zRotationEdit->setText(QString::number(oldRelativeZ + (newGlobalZ - oldGlobalZ)));
+
+  relativeRotationValue();      //relative values validation
+}
 
 
 void KeyFramerTab::positionSlider(const QObject* slider)
@@ -1972,12 +1999,22 @@ void KeyFramerTab::on_editPartCombo_activated(int)
 
 void KeyFramerTab::on_xRotationEdit_returnPressed()
 {
-  rotationValue();
+  relativeRotationValue();
 }
 
 void KeyFramerTab::on_xRotationEdit_lostFocus()
 {
-  rotationValue();
+  relativeRotationValue();
+}
+
+void KeyFramerTab::on_xGlobalRotationEdit_returnPressed()
+{
+  globalRotationValue();
+}
+
+void KeyFramerTab::on_xGlobalRotationEdit_lostFocus()
+{
+  globalRotationValue();
 }
 
 void KeyFramerTab::on_xRotationSlider_valueChanged(int)
@@ -1987,12 +2024,22 @@ void KeyFramerTab::on_xRotationSlider_valueChanged(int)
 
 void KeyFramerTab::on_yRotationEdit_returnPressed()
 {
-  rotationValue();
+  relativeRotationValue();
 }
 
 void KeyFramerTab::on_yRotationEdit_lostFocus()
 {
-  rotationValue();
+  relativeRotationValue();
+}
+
+void KeyFramerTab::on_yGlobalRotationEdit_returnPressed()
+{
+  globalRotationValue();
+}
+
+void KeyFramerTab::on_yGlobalRotationEdit_lostFocus()
+{
+  globalRotationValue();
 }
 
 void KeyFramerTab::on_yRotationSlider_valueChanged(int)
@@ -2002,12 +2049,22 @@ void KeyFramerTab::on_yRotationSlider_valueChanged(int)
 
 void KeyFramerTab::on_zRotationEdit_returnPressed()
 {
-  rotationValue();
+  relativeRotationValue();
 }
 
 void KeyFramerTab::on_zRotationEdit_lostFocus()
 {
-  rotationValue();
+  relativeRotationValue();
+}
+
+void KeyFramerTab::on_zGlobalRotationEdit_returnPressed()
+{
+  globalRotationValue();
+}
+
+void KeyFramerTab::on_zGlobalRotationEdit_lostFocus()
+{
+  globalRotationValue();
 }
 
 void KeyFramerTab::on_zRotationSlider_valueChanged(int)

@@ -115,13 +115,19 @@ protected slots:
     void on_scaleSpin_valueChanged(int newValue);
     void on_editPartCombo_activated(int);
     void on_xRotationEdit_returnPressed();
+    void on_xGlobalRotationEdit_returnPressed();
     void on_xRotationEdit_lostFocus();
+    void on_xGlobalRotationEdit_lostFocus();
     void on_xRotationSlider_valueChanged(int);
     void on_yRotationEdit_returnPressed();
+    void on_yGlobalRotationEdit_returnPressed();
     void on_yRotationEdit_lostFocus();
+    void on_yGlobalRotationEdit_lostFocus();
     void on_yRotationSlider_valueChanged(int);
     void on_zRotationEdit_returnPressed();
+    void on_zGlobalRotationEdit_returnPressed();
     void on_zRotationEdit_lostFocus();
+    void on_zGlobalRotationEdit_lostFocus();
     void on_zRotationSlider_valueChanged(int);
     void on_xPositionEdit_returnPressed();
     void on_xPositionEdit_lostFocus();
@@ -196,7 +202,11 @@ protected:
     void setAvatarShape(int shape);
     void setAvatarScale(int percent);
     void partChoice();
-    void rotationValue();
+    void relativeRotationValue();
+
+    //edu
+    void globalRotationValue();
+
     void rotationSlider(const QObject* slider);
     void positionValue();
     void positionSlider(const QObject* slider);
