@@ -258,6 +258,18 @@ const FrameData BVHNode::frameData(int frame) const
   iRot.y=interpolate(rotBefore.y,rotAfter.y,frameAfter-frameBefore,frame-frameBefore,before.easeOut(),after.easeIn());
   iRot.z=interpolate(rotBefore.z,rotAfter.z,frameAfter-frameBefore,frame-frameBefore,before.easeOut(),after.easeIn());
 
+  //edu
+  iRot.globalX = interpolate(rotBefore.globalX, rotAfter.globalX,
+                             frameAfter-frameBefore, frame-frameBefore,
+                             before.easeOut(), after.easeIn());
+  iRot.globalY = interpolate(rotBefore.globalY, rotAfter.globalY,
+                             frameAfter-frameBefore, frame-frameBefore,
+                             before.easeOut(), after.easeIn());
+  iRot.globalZ = interpolate(rotBefore.globalZ, rotAfter.globalZ,
+                             frameAfter-frameBefore, frame-frameBefore,
+                             before.easeOut(), after.easeIn());
+
+
   iPos.x=interpolate(posBefore.x,posAfter.x,frameAfter-frameBefore,frame-frameBefore,before.easeOut(),after.easeIn());
   iPos.y=interpolate(posBefore.y,posAfter.y,frameAfter-frameBefore,frame-frameBefore,before.easeOut(),after.easeIn());
   iPos.z=interpolate(posBefore.z,posAfter.z,frameAfter-frameBefore,frame-frameBefore,before.easeOut(),after.easeIn());
@@ -647,15 +659,21 @@ void FrameData::setPosition(const Position& pos)
   m_position=pos;
 }
 
-void FrameData::setRotation(const Rotation& rot)
+void FrameData::setRotation(const Rotation& newRot)
 {
+  //edu
+  m_rotation.globalX += (newRot.x - m_rotation.x);
+  m_rotation.globalY += (newRot.y - m_rotation.y);
+  m_rotation.globalZ += (newRot.z - m_rotation.z);
+
+
 //  qDebug(QString("FrameData::setRotation(<%1,%2,%3>)").arg(m_rotation.x).arg(m_rotation.y).arg(m_rotation.z));
-//  qDebug(QString("FrameData::setRotation(<%1,%2,%3>)").arg(rot.x).arg(rot.y).arg(rot.z));
-  m_rotation.x=rot.x;
-  m_rotation.y=rot.y;
-  m_rotation.z=rot.z;
+//  qDebug(QString("FrameData::setRotation(<%1,%2,%3>)").arg(newRot.x).arg(newRot.y).arg(newRot.z));
+  m_rotation.x=newRot.x;
+  m_rotation.y=newRot.y;
+  m_rotation.z=newRot.z;
 //  qDebug(QString("FrameData::setRotation(<%1,%2,%3>)").arg(m_rotation.x).arg(m_rotation.y).arg(m_rotation.z));
-//  m_rotation=rot;
+//  m_rotation=newRot;
 }
 
 // debugging

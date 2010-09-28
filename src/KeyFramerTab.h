@@ -245,6 +245,10 @@ protected:
     void setY(float y);
     void setZ(float z);
 
+    void setGlobalX(float gx);
+    void setGlobalY(float gy);
+    void setGlobalZ(float gz);
+
     float getX();
     float getY();
     float getZ();

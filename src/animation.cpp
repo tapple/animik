@@ -495,12 +495,14 @@ void Animation::setRotation(BVHNode* node,double x,double y,double z)
     }
 
     if(node->isKeyframe(frame))
-      node->setKeyframeRotation(frame,Rotation(x,y,z));
+    {
+      node->setKeyframeRotation(frame, Rotation(x,y,z));
+    }
     else
     {
-      node->addKeyframe(frame,node->frameData(frame).position(),Rotation(x,y,z));
-      setEaseIn(node,frame,Settings::Instance()->easeIn());
-      setEaseOut(node,frame,Settings::Instance()->easeOut());
+      node->addKeyframe(frame, node->frameData(frame).position(), Rotation(x,y,z));
+      setEaseIn(node, frame, Settings::Instance()->easeIn());
+      setEaseOut(node, frame, Settings::Instance()->easeOut());
     }
 
     //      node->dumpKeyframes();
@@ -915,11 +917,12 @@ bool Animation::compareFrames(const BVHNode* node,int key1,int key2) const
   return false;
 }
 
+/*edu: Is this ever used?
 const FrameData Animation::keyframeDataByIndex(int jointNumber,int index)
 {
   BVHNode* joint=getNode(jointNumber);
   return joint->keyframeDataByIndex(index);
-}
+}     */
 
 BVHNode* Animation::getNode(int jointNumber)
 {

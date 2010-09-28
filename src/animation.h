@@ -109,7 +109,7 @@ class Animation : public QObject
     void nextPlaystate();
     void setPlaystate(PlayState state);
 
-    const FrameData keyframeDataByIndex(int jointNumber,int index);
+//edu:    const FrameData keyframeDataByIndex(int jointNumber,int index);
 
     void setRotation(BVHNode* node,double x,double y,double z);
     Rotation getRotation(BVHNode* node);

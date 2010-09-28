@@ -312,6 +312,11 @@ void KeyFramerTab::partClicked(BVHNode* node,Rotation rot,RotationLimits limits,
     setY(rot.y);
     setZ(rot.z);
 
+    //edu
+    setGlobalX(rot.globalX);
+    setGlobalY(rot.globalY);
+    setGlobalZ(rot.globalZ);
+
 //    emit enablePosition(!protect);
     if(node->type==BVH_POS)
       emit enableRotation(false);
@@ -1351,6 +1356,28 @@ void KeyFramerTab::setZ(float z)
 {
   setSliderValue(zRotationSlider, zRotationEdit, z);
 }
+
+
+//edu
+void KeyFramerTab::setGlobalX(float gx)
+{
+  xGlobalRotationEdit->blockSignals(true);
+  xGlobalRotationEdit->setText(QString::number(gx));
+  xGlobalRotationEdit->blockSignals(false);
+}
+void KeyFramerTab::setGlobalY(float gy)
+{
+  yGlobalRotationEdit->blockSignals(true);
+  yGlobalRotationEdit->setText(QString::number(gy));
+  yGlobalRotationEdit->blockSignals(false);
+}
+void KeyFramerTab::setGlobalZ(float gz)
+{
+  zGlobalRotationEdit->blockSignals(true);
+  zGlobalRotationEdit->setText(QString::number(gz));
+  zGlobalRotationEdit->blockSignals(false);
+}
+
 
 float KeyFramerTab::getX()
 {

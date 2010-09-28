@@ -199,18 +199,5 @@ bool NewFileDialog::validDirectory(QString location, QString* outMessage)
     outMessage = new QString("Invalid location");
     return false;
   }
-
-#ifdef Q_OS_WIN32
-  const int size = 7;
-  char array[size] = {':', '*', '?', '"', '<', '>', '|'};
-
-  for(int i = 0; i < size; i++)
-    if(location.contains(array[i]))
-    {
-      QString temp = "Invalid character in file name: " + QString(array[i]);
-      *outMessage = temp;
-      return false;
-    }
-#endif
   return true;
 }
