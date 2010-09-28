@@ -68,7 +68,7 @@ public slots:
 protected slots:
     void readSettings();
 
-    void partClicked(BVHNode* node,Rotation rot,RotationLimits rotLimits,Position pos);
+    void partClicked(BVHNode* node, Rotation rot, Rotation globRot, RotationLimits rotLimits, Position pos);
     void partDragged(BVHNode* node,double changeX,double changeY,double changeZ);
     void propClicked(Prop* prop);
     void propDragged(Prop* prop,double x,double y,double z);

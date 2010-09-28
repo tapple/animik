@@ -97,7 +97,7 @@ class AnimationView : public QGLWidget
     void setFPS(int fps);
 
     // getAnimation returns the *current* animation
-    Animation* getAnimation() { return animation; }
+    Animation* getAnimation() { return currentAnimation; }
 
     //edu: TODO: it should be that one is primary and other auxiliary
     Animation* getAnimation(unsigned int index) { return animList.at(index); }
@@ -119,7 +119,7 @@ class AnimationView : public QGLWidget
     Prop* getPropById(unsigned int id);
 
   signals:
-    void partClicked(BVHNode* node,Rotation rot,RotationLimits rotLimit,Position pos);
+    void partClicked(BVHNode* node, Rotation rot, Rotation globRot, RotationLimits rotLimit, Position pos);
     void partClicked(int part);
     void propClicked(Prop* prop);
 
@@ -187,7 +187,7 @@ class AnimationView : public QGLWidget
     QStringList figureFiles;   // holds the names of the BVH files for male/female skeleton models
 
     QList<Animation*> animList;
-    Animation* animation; // this is the "currently selected" animation
+    Animation* currentAnimation; // this is the "currently selected" animation
     Camera camera;
     double changeX, changeY, changeZ;
     BVHNode* joints[Animation::NUM_FIGURES];

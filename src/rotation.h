@@ -39,13 +39,6 @@ class Rotation
     double x;
     double y;
     double z;
-
-    //edu
-    double globalX;
-    double globalY;
-    double globalZ;
-
-    void setGlogalRotation(double globX, double globY, double globZ);
 };
 
 class RotationLimits

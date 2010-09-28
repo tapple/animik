@@ -22,10 +22,12 @@
 
 #include "bvhnode.h"
 
-BVHNode::BVHNode(const QString& name)
+BVHNode::BVHNode(const QString& name, /*edu*/BVHNode* parent)
 {
 //  qDebug(QString("BVHNode::BVHNode(%1)").arg(name));
   setName(name);
+
+  this->parent = parent;      //edu
 
   // clean out lists
   keyframes.clear();
@@ -128,6 +130,7 @@ void BVHNode::deleteKeyframe(int frame)
   keyframes.remove(frame);
 }
 
+/*edu: never used?
 void BVHNode::insertFrame(int frame)
 {
   QMap<int,FrameData>::iterator itCurrent;
@@ -165,6 +168,8 @@ void BVHNode::insertFrame(int frame)
     keyframes.remove(frame);
   } while(itLook!=itCurrent);
 }
+        */
+
 
 // delete a frame and move all keys back one frame
 void BVHNode::deleteFrame(int frame)
@@ -258,18 +263,6 @@ const FrameData BVHNode::frameData(int frame) const
   iRot.y=interpolate(rotBefore.y,rotAfter.y,frameAfter-frameBefore,frame-frameBefore,before.easeOut(),after.easeIn());
   iRot.z=interpolate(rotBefore.z,rotAfter.z,frameAfter-frameBefore,frame-frameBefore,before.easeOut(),after.easeIn());
 
-  //edu
-  iRot.globalX = interpolate(rotBefore.globalX, rotAfter.globalX,
-                             frameAfter-frameBefore, frame-frameBefore,
-                             before.easeOut(), after.easeIn());
-  iRot.globalY = interpolate(rotBefore.globalY, rotAfter.globalY,
-                             frameAfter-frameBefore, frame-frameBefore,
-                             before.easeOut(), after.easeIn());
-  iRot.globalZ = interpolate(rotBefore.globalZ, rotAfter.globalZ,
-                             frameAfter-frameBefore, frame-frameBefore,
-                             before.easeOut(), after.easeIn());
-
-
   iPos.x=interpolate(posBefore.x,posAfter.x,frameAfter-frameBefore,frame-frameBefore,before.easeOut(),after.easeIn());
   iPos.y=interpolate(posBefore.y,posAfter.y,frameAfter-frameBefore,frame-frameBefore,before.easeOut(),after.easeIn());
   iPos.z=interpolate(posBefore.z,posAfter.z,frameAfter-frameBefore,frame-frameBefore,before.easeOut(),after.easeIn());
@@ -277,7 +270,7 @@ const FrameData BVHNode::frameData(int frame) const
 // qDebug(QString("iRot.x %1 frame %2: %3").arg(rotBefore.bodyPart).arg(before.frameNumber()).arg(iRot.x));
 
   // return interpolated frame data here
-  return FrameData(frame,iPos,iRot);
+  return FrameData(frame, iPos, iRot);
 }
 
 const FrameData BVHNode::getKeyframeBefore(int frame) const
@@ -661,12 +654,6 @@ void FrameData::setPosition(const Position& pos)
 
 void FrameData::setRotation(const Rotation& newRot)
 {
-  //edu
-  m_rotation.globalX += (newRot.x - m_rotation.x);
-  m_rotation.globalY += (newRot.y - m_rotation.y);
-  m_rotation.globalZ += (newRot.z - m_rotation.z);
-
-
 //  qDebug(QString("FrameData::setRotation(<%1,%2,%3>)").arg(m_rotation.x).arg(m_rotation.y).arg(m_rotation.z));
 //  qDebug(QString("FrameData::setRotation(<%1,%2,%3>)").arg(newRot.x).arg(newRot.y).arg(newRot.z));
   m_rotation.x=newRot.x;
@@ -681,7 +668,7 @@ void FrameData::dump() const
 {
   qDebug("FrameData::dump()");
   qDebug("Frame Number: %d",m_frameNumber);
-  qDebug("Rotation: %lf, %lf, %lf",m_rotation.x,m_rotation.y,m_rotation.z);
+  qDebug("Rotation: %lf, %lf, %lf", m_rotation.x,m_rotation.y,m_rotation.z);
   qDebug("Position: %lf, %lf, %lf",m_position.x,m_position.y,m_position.z);
   qDebug("Ease in/out: %d / %d",m_easeIn,m_easeOut);
 }

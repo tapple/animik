@@ -113,6 +113,10 @@ class Animation : public QObject
 
     void setRotation(BVHNode* node,double x,double y,double z);
     Rotation getRotation(BVHNode* node);
+
+    //edu
+    Rotation getGlobalRotation(BVHNode* node);
+
     void useRotationLimits(bool flag);
     RotationLimits getRotationLimits(BVHNode* node);
     void setPosition(double x,double y,double z);
@@ -148,7 +152,7 @@ class Animation : public QObject
 
   public slots:
     void deleteKeyFrame(int jointNumber,int frame);
-    void insertFrame(int jointNumber,int frame);
+//edu: never used?    void insertFrame(int jointNumber,int frame);
     void deleteFrame(int jointNumber,int frame);
 
     // advances curentPlayTime and sends appropriate currentFrame signals
@@ -194,7 +198,7 @@ class Animation : public QObject
     void recursiveAddKeyFrame(BVHNode* joint);
     bool isKeyFrameHelper(BVHNode* joint);
     void recursiveDeleteKeyFrame(BVHNode* joint);
-    void insertFrameHelper(BVHNode* joint,int frame);
+//edu: never used?    void insertFrameHelper(BVHNode* joint,int frame);
     void deleteFrameHelper(BVHNode* joint,int frame);
     void optimizeHelper(BVHNode* joint);
     void mirrorHelper(BVHNode* joint);

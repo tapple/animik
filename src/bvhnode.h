@@ -72,8 +72,11 @@ struct FrameData
 class BVHNode
 {
   public:
-    BVHNode(const QString& name);
+    BVHNode(const QString& name, /*edu*/BVHNode* parent);
     ~BVHNode();
+
+    //edu
+    BVHNode* Parent()   { return parent; }
 
     const QString& name() const;
     int numChildren() const;
@@ -82,15 +85,17 @@ class BVHNode
     void insertChild(BVHNode* newChild,int index);
     void removeChild(BVHNode* child);
 
+    /** Returns frame data for a given frame number.
+        In case of non-key-frame number, the data are evaluated. */
     const FrameData frameData(int frame) const;
-    const FrameData keyframeDataByIndex(int index) const;
-    const QList<int> keyframeList() const;
+    const FrameData keyframeDataByIndex(int index) const;    //edu: gets n-th key frame (NOT N-TH FRAME!)
+    const QList<int> keyframeList() const;                   //edu: indices of key frames
 
     void addKeyframe(int frame,Position pos,Rotation rot);
     void deleteKeyframe(int frame);
     void setKeyframePosition(int frame,const Position& pos);
     void setKeyframeRotation(int frame,const Rotation& rot);
-    void insertFrame(int frame); // moves all key frames starting at "frame" one frame further
+//edu: never used?    void insertFrame(int frame); // moves all key frames starting at "frame" one frame further
     void deleteFrame(int frame); // removes frame at position and moves all further frames one down
     bool isKeyframe(int frame) const;
     int numKeyframes() const;
@@ -137,6 +142,10 @@ class BVHNode
     double ikWeight;
 
   protected:
+
+    //edu
+    BVHNode* parent;
+
     void setName(const QString& newName);
     double interpolate(double from,double to,int steps,int pos,bool easeOut,bool easeIn) const;
 

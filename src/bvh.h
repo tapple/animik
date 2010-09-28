@@ -102,7 +102,7 @@ class BVH
 
     QString nextToken();
     bool expect_token(const QString& expect);
-    BVHNode* bvhReadNode();
+    BVHNode* bvhReadNode(/*edu*/BVHNode* parent);
 
     void assignChannels(BVHNode* node,int frame);
 

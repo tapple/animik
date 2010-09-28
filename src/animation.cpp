@@ -543,6 +543,23 @@ Rotation Animation::getRotation(BVHNode* node)
   return Rotation();
 }
 
+
+//edu
+/** Global limb rotation as sum of relative rotations of parent
+    limbs up to the root */
+Rotation Animation::getGlobalRotation(BVHNode* node)
+{
+  if(node)
+  {
+    Rotation relRot = node->frameData(frame).rotation();
+    Rotation parentGlobRot = getGlobalRotation(node->Parent());
+    return Rotation(relRot.x+parentGlobRot.x, relRot.y+parentGlobRot.y, relRot.z+parentGlobRot.z);
+  }
+  qDebug("Animation::getGlobalRotation(): node==0! Returning Rotation(0, 0, 0)");
+  return Rotation(0, 0, 0);
+}
+
+
 void Animation::useRotationLimits(bool flag)
 {
   limits=flag;
@@ -933,6 +950,7 @@ BVHNode* Animation::getNode(int jointNumber)
   return bvh->bvhFindNode(frames,getPartName(jointNumber));
 }
 
+/*edu: never used?
 void Animation::insertFrameHelper(BVHNode* joint,int frame)
 {
   joint->insertFrame(frame);
@@ -958,6 +976,7 @@ void Animation::insertFrame(int track,int pos)
   setDirty(true);
   emit frameChanged();
 }
+      */
 
 // recursively remove frames from joint and all its children
 void Animation::deleteFrameHelper(BVHNode* joint,int frame)

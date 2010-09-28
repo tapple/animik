@@ -58,9 +58,11 @@ KeyFramerTab::KeyFramerTab(qavimator* mainWindow, const QString& fileName, bool 
 
   connect(animationView,SIGNAL(partClicked(BVHNode*,
                                            Rotation,
+                                           Rotation,        //edu: global rotation
                                            RotationLimits,
                                            Position)),
                      this,SLOT(partClicked(BVHNode*,
+                                           Rotation,
                                            Rotation,
                                            RotationLimits,
                                            Position)));
@@ -264,7 +266,7 @@ void KeyFramerTab::readSettings()
 /************************************ SLOTS *********************************/
 
 // slot gets called by AnimationView::mousePressEvent()
-void KeyFramerTab::partClicked(BVHNode* node,Rotation rot,RotationLimits limits,Position pos)
+void KeyFramerTab::partClicked(BVHNode* node, Rotation rot, Rotation globRot, RotationLimits limits, Position pos)
 {
   avatarPropsTab->setCurrentIndex(0);
   emit enableProps(false);
@@ -313,9 +315,14 @@ void KeyFramerTab::partClicked(BVHNode* node,Rotation rot,RotationLimits limits,
     setZ(rot.z);
 
     //edu
-    setGlobalX(rot.globalX);
-    setGlobalY(rot.globalY);
-    setGlobalZ(rot.globalZ);
+    setGlobalX(globRot.x);
+    setGlobalY(globRot.y);
+    setGlobalZ(globRot.z);
+    if(node && node->Parent())
+      DebugLabel->setText("DEBUG: parent = " + node->Parent()->name());
+    else
+      DebugLabel->setText("DEBUG: parent = NULL");
+
 
 //    emit enablePosition(!protect);
     if(node->type==BVH_POS)
@@ -373,6 +380,14 @@ void KeyFramerTab::partDragged(BVHNode* node,double x,double y,double z)
 
       animationView->getAnimation()->setRotation(node,newX,newY,newZ);
       animationView->repaint();
+
+
+      //edu
+      Rotation globRot = anim->getGlobalRotation(animationView->getSelectedPart());
+      setGlobalX(globRot.x);
+      setGlobalY(globRot.y);
+      setGlobalZ(globRot.z);
+
 
       updateKeyBtn();
     }
@@ -460,16 +475,25 @@ void KeyFramerTab::rotationSlider(const QObject* slider)                //TODO: 
   {
     x=getX();
     setX(x);
+
+    //edu
+    setGlobalX(anim->getGlobalRotation(animationView->getSelectedPart()).x);
   }
   else if(slider==yRotationSlider)
   {
     y=getY();
     setY(y);
+
+    //edu
+    setGlobalY(anim->getGlobalRotation(animationView->getSelectedPart()).y);
   }
   else if(slider==zRotationSlider)
   {
     z=getZ();
     setZ(z);
+
+    //edu
+    setGlobalZ(anim->getGlobalRotation(animationView->getSelectedPart()).z);
   }
 
   if(animationView->getSelectedPart())
@@ -514,6 +538,13 @@ void KeyFramerTab::rotationValue()                                          //TO
     anim->setRotation(animationView->getSelectedPart(), x, y, z);
     animationView->repaint();
   }
+
+  //edu
+  Rotation globRot = anim->getGlobalRotation(animationView->getSelectedPart());
+  setGlobalX(globRot.x);
+  setGlobalY(globRot.y);
+  setGlobalZ(globRot.z);
+
 
   updateKeyBtn();
 }
@@ -626,6 +657,12 @@ void KeyFramerTab::updateInputs()
     setX(x);
     setY(y);
     setZ(z);
+
+    //edu
+    Rotation globRot =  anim->getGlobalRotation(animationView->getSelectedPart());
+    setGlobalX(globRot.x);
+    setGlobalY(globRot.y);
+    setGlobalZ(globRot.z);
   }
   else
     emit enableRotation(false);

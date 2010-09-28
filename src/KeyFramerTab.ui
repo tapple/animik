@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>741</width>
-    <height>693</height>
+    <width>776</width>
+    <height>744</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -760,7 +760,7 @@
             </layout>
            </widget>
           </item>
-          <item row="6" column="1" colspan="2">
+          <item row="7" column="1" colspan="2">
            <spacer>
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -772,6 +772,13 @@
              </size>
             </property>
            </spacer>
+          </item>
+          <item row="6" column="1">
+           <widget class="QLabel" name="DebugLabel">
+            <property name="text">
+             <string>DEBUG</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>

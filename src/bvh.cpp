@@ -71,9 +71,9 @@ bool BVH::expect_token(const QString& name)
   return true;
 }
 
-BVHNode* BVH::bvhReadNode()
+BVHNode* BVH::bvhReadNode(/*edu*/BVHNode* parent)
 {
-  qDebug("BVH::bvhReadNode()");
+  qDebug("BVH::bvhReadNode(%d)", (unsigned int)parent);
 
   QString type=nextToken();
   if(type=="}") return NULL;
@@ -89,8 +89,8 @@ BVHNode* BVH::bvhReadNode()
     return NULL;
   }
 
-  // add node with name
-  BVHNode* node=new BVHNode(nextToken());
+  // add node with name. And parent
+  BVHNode* node = new BVHNode(nextToken(), parent);
   if(!validNodes.contains(node->name()))
     node->type=BVH_NO_SL;
   else
@@ -147,7 +147,7 @@ BVHNode* BVH::bvhReadNode()
   BVHNode* child=NULL;
   do
   {
-    if((child=bvhReadNode()))
+    if((child=bvhReadNode(node)))
     {
       node->addChild(child);
     }
@@ -327,7 +327,7 @@ BVHNode* BVH::bvhRead(const QString& file)
 
   expect_token("HIERARCHY");
 
-  BVHNode* root=bvhReadNode();
+  BVHNode* root=bvhReadNode(/*edu*/0);
 
   expect_token("MOTION");
   expect_token("Frames:");
@@ -431,7 +431,7 @@ BVHNode* BVH::avmRead(const QString& file)
 
   expect_token("HIERARCHY");
 
-  BVHNode* root=bvhReadNode();
+  BVHNode* root=bvhReadNode(/*edu*/0);
 
   expect_token("MOTION");
   expect_token("Frames:");
@@ -527,7 +527,7 @@ BVHNode* BVH::animRead(const QString& file, const QString& limFile)
   BVHNode* root;
 
   // positions pseudonode
-  lastLoadedPositionNode=new BVHNode("position");
+  lastLoadedPositionNode=new BVHNode("position", 0);
   lastLoadedPositionNode->type=BVH_POS;
   // default avatar scale for BVH and AVM files
   lastLoadedAvatarScale=1.0;

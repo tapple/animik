@@ -29,25 +29,10 @@ Rotation::Rotation()
 
 Rotation::Rotation(double rx,double ry, double rz)
 {
-  //edu
-  globalX = 0;   //I suppose T-pose as initial
-  globalY = 0;
-  globalZ = 0;
-
   x=rx;
   y=ry;
   z=rz;
 }
-
-
-//edu
-void Rotation::setGlogalRotation(double globX, double globY, double globZ)
-{
-  globalX = globX;
-  globalY = globY;
-  globalZ = globZ;
-}
-
 
 Rotation Rotation::difference(const Rotation& rot1,const Rotation& rot2)
 {

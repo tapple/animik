@@ -54,7 +54,7 @@ AnimationView::AnimationView(QWidget* parent,const char* /* name */,Animation* a
     return;
   }
 
-  animation=0;
+  currentAnimation=0;
 
   // fake glut initialization
   int args=1;
@@ -130,7 +130,7 @@ void AnimationView::selectAnimation(unsigned int index)
 {
   if(index< (unsigned int) animList.count())
   {
-    animation=animList.at(index);
+    currentAnimation=animList.at(index);
     emit animationSelected(getAnimation());
     repaint();
   }
@@ -140,7 +140,7 @@ void AnimationView::setAnimation(Animation* anim)
 {
     clear();
 
-    animation=anim;
+    currentAnimation=anim;
     animList.append(anim);
     connect(anim,SIGNAL(frameChanged()),this,SLOT(repaint()));
     repaint();
@@ -207,7 +207,7 @@ void AnimationView::addAnimation(Animation* anim)
   if(!inAnimList(anim))
   {
     animList.append(anim);
-    animation=anim; // set it as the current one
+    currentAnimation=anim; // set it as the current one
     if(animList.count() && anim!=animList.first())
       anim->setFrame(animList.first()->getFrame());
 
@@ -219,7 +219,7 @@ void AnimationView::addAnimation(Animation* anim)
 void AnimationView::clear()
 {
   animList.clear();
-  animation=NULL;
+  currentAnimation=NULL;
 }
 
 void AnimationView::setFrame(int frame)
@@ -642,6 +642,7 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
 
       emit partClicked(part,
                        Rotation(getAnimation()->getRotation(part)),
+                       Rotation(getAnimation()->getGlobalRotation(part)),
                        getAnimation()->getRotationLimits(part),
                        Position(getAnimation()->getPosition())
                       );
@@ -1226,6 +1227,7 @@ void AnimationView::selectPart(BVHNode* node)
   partSelected=getAnimation()->getPartIndex(node)+ANIMATION_INCREMENT*animationIndex;
   emit partClicked(node,
                    Rotation(getAnimation()->getRotation(node)),
+                   Rotation(getAnimation()->getGlobalRotation(node)),
                    getAnimation()->getRotationLimits(node),
                    Position(getAnimation()->getPosition())
                   );
