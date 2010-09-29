@@ -52,6 +52,7 @@ public:
   virtual void Redo() {/*TODO*/};
   virtual void ExportForSecondLife();
   virtual void UpdateToolbar();
+  virtual void UpdateMenu();
   virtual bool IsUnsaved();
 
 signals:

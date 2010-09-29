@@ -214,6 +214,21 @@ void KeyFramerTab::UpdateToolbar()
   mainWindow->resetCameraAction->setEnabled(true);
 }
 
+void KeyFramerTab::UpdateMenu()
+{
+  //Note: actions shared with Toolbar are handled in UpdateToolbar()
+  mainWindow->fileLoadPropsAction->setEnabled(true);
+  mainWindow->fileSavePropsAction->setEnabled(propNameCombo->count());
+
+  mainWindow->toolsOptimizeBVHAction->setEnabled(true);
+  mainWindow->toolsMirrorAction->setEnabled(true);
+
+  mainWindow->optionsJointLimitsAction->setEnabled(true);
+  mainWindow->optionsLoopAction->setEnabled(true);
+  mainWindow->optionsProtectFirstFrameAction->setEnabled(true);
+  mainWindow->optionsShowTimelineAction->setEnabled(true);
+  mainWindow->optionsSkeletonAction->setEnabled(true);
+}
 
 //edu
 void KeyFramerTab::onTabActivated()
@@ -229,6 +244,7 @@ void KeyFramerTab::onTabActivated()
   animationView->resize(oldSize);
 
   UpdateToolbar();
+  UpdateMenu();
 }
 
 
@@ -1240,6 +1256,8 @@ void KeyFramerTab::fileLoadProps()
             selectProp(prop->name());
           }
         } // while
+
+        UpdateMenu();     //enable "Save Props..."
       }
     }
   }
@@ -1628,6 +1646,8 @@ void KeyFramerTab::newProp(Prop::PropType type)
     selectProp(prop->name());
     attachToComboBox->setCurrentIndex(0);
   }
+
+  UpdateMenu();
 }
 
 void KeyFramerTab::selectProp(const QString& propName)
@@ -1754,6 +1774,8 @@ void KeyFramerTab::deleteProp()
       selectProp(propNameCombo->currentText());
     }
   }
+
+  UpdateMenu();
 }
 
 void KeyFramerTab::clearProps()

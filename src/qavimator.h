@@ -100,6 +100,11 @@ protected:
   /** Open new tab and load given file (or create new) */
   void OpenNewTab(NewFileDialog::ProjectType fileType, const QString& filename, bool newFile);
   AbstractDocumentTab* activeTab();
+  /** Return all open document tabs */
+  QList<AbstractDocumentTab*> openTabs();
+  /** Activate a tab with given AbstractDocumentTab content.
+      Returns FALSE if no such tab exists, otherwise TRUE. */
+  bool activateTab(AbstractDocumentTab* tab);
   void UpdateMenus();
   void UpdateToolbar();
 

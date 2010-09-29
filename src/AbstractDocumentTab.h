@@ -33,6 +33,8 @@ public:
 
   //Update display state of buttons in the toolbar of main window
   virtual void UpdateToolbar() = 0;
+  //Update menu of main window
+  virtual void UpdateMenu() = 0;
 
   virtual void onTabActivated() = 0;
 

@@ -98,10 +98,22 @@ void qavimator::addTabsCloseButtons()
 
 void qavimator::UpdateMenus()
 {
-  bool hasTabs = (activeTab() != 0);
+  if(activeTab() != 0)
+    return;           //Let the tab handle the actions by itself
+                      //Document related actions common for all tabs
+                      //are handled in UpdateToolbar()
+  fileExportForSecondLifeAction->setEnabled(false);
+  fileLoadPropsAction->setEnabled(false);
+  fileSavePropsAction->setEnabled(false);
 
-  fileExportForSecondLifeAction->setEnabled(hasTabs);
-    //TODO
+  toolsOptimizeBVHAction->setEnabled(false);
+  toolsMirrorAction->setEnabled(false);
+
+  optionsJointLimitsAction->setEnabled(false);
+  optionsLoopAction->setEnabled(false);
+  optionsProtectFirstFrameAction->setEnabled(false);
+  optionsShowTimelineAction->setEnabled(false);
+  optionsSkeletonAction->setEnabled(false);
 }
 
 
@@ -109,7 +121,7 @@ void qavimator::UpdateToolbar()
 {
   bool hasTabs = (activeTab() != 0);
 
-  fileAddAction->setEnabled(hasTabs);
+  fileAddAction->setEnabled(false);         //TODO: decide it's future
 
   fileSaveAction->setEnabled(hasTabs);
   fileSaveAsAction->setEnabled(hasTabs);
@@ -129,11 +141,34 @@ void qavimator::UpdateToolbar()
   */
 AbstractDocumentTab* qavimator::activeTab()
 {
-    if (QMdiSubWindow *activeSubWindow = mdiArea->activeSubWindow())
-        return dynamic_cast<AbstractDocumentTab *>(activeSubWindow->widget());
-    return 0;
+  if (QMdiSubWindow *activeSubWindow = mdiArea->activeSubWindow())
+    return dynamic_cast<AbstractDocumentTab *>(activeSubWindow->widget());
+  return 0;
 }
 
+
+QList<AbstractDocumentTab*> qavimator::openTabs()
+{
+  QList<AbstractDocumentTab*> tabs;
+  foreach(QMdiSubWindow* subWindow, mdiArea->subWindowList())
+    tabs.append(dynamic_cast<AbstractDocumentTab *>(subWindow->widget()));
+
+  return tabs;
+}
+
+
+bool qavimator::activateTab(AbstractDocumentTab* tab)
+{
+  foreach(QMdiSubWindow* subWindow, mdiArea->subWindowList())
+  {
+    if(dynamic_cast<AbstractDocumentTab *>(subWindow->widget()) == tab)
+    {
+      mdiArea->setActiveSubWindow(subWindow);
+      return true;
+    }
+  }
+  return false;       //no such tab found
+}
 
 
 QString qavimator::selectFileToOpen(const QString& caption)
@@ -167,6 +202,16 @@ void qavimator::fileOpen(const QString& name)
 {
   if(!name.isEmpty())
   {
+    //check if not already open
+    foreach(AbstractDocumentTab* tab, openTabs())
+    {
+      if(tab->CurrentFile == name)
+      {
+        activateTab(tab);
+        return;
+      }
+    }
+
     NewFileDialog::ProjectType filetype;
 
     if(name.endsWith(".avm", Qt::CaseInsensitive) || name.endsWith(".bvh", Qt::CaseInsensitive))
@@ -428,6 +473,9 @@ void qavimator::on_mdiArea_subWindowActivated(QMdiSubWindow*)
   //we need to nudge it explicitely
   if(activeTab())
     activeTab()->onTabActivated();
+
+  if(activeTab())
+    setCurrentFile(activeTab()->CurrentFile);
 
   UpdateMenus();
   UpdateToolbar();

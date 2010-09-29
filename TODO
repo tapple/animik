@@ -11,12 +11,11 @@ Untested:
 
 == mihalovic ===============================================================================================================================
 Features:
-  * Rotate/pan of scene doesn't unselect limb/prop. Only simple click on background.
+  * Rotate/pan of scene shouldn't unselect limb/prop. Only simple click on background.
 
 Bugs:
   * After opening .avm file, the floor is not highlighted red if first frame is protected. After moving on another frame and back it already is
-  * When switching active document tabs, main window's title is not updated
+  * Global rotation angles are not displayed correctly when set with sliders
 
 Next task:
-  * Update main menu/toolbar depending on current tab
   * Show also GLOBAL rotation for each limb. Draw global (still) coordinate system around currently selected limb. And check Kundrat's work.
