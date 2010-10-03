@@ -190,7 +190,7 @@ class AnimationView : public QGLWidget
     Animation* currentAnimation; // this is the "currently selected" animation
     Camera camera;
     double changeX, changeY, changeZ;
-    BVHNode* joints[Animation::NUM_FIGURES];
+    BVHNode* joints[Animation::NUM_FIGURES];      //edu: general BVH joints taken from default (male/female) figures
 
     bool skeleton;
     bool selecting;

@@ -836,7 +836,8 @@ void AnimationView::drawFigure(Animation* anim,unsigned int index)
 }
 
 // NOTE: joints == motion for now
-void AnimationView::drawPart(Animation* anim,unsigned int currentAnimationIndex,int frame,BVHNode* motion,BVHNode* joints,int mode)
+void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex,
+                             int frame, BVHNode* motion, BVHNode* joints, int mode)
 {
   float color[4];
 
@@ -923,8 +924,7 @@ void AnimationView::drawPart(Animation* anim,unsigned int currentAnimationIndex,
     {
       if(selecting) glLoadName(selectName);
       if(anim->getMirrored() &&
-          (mirrorSelected==selectName || partSelected==selectName)
-	)
+        (mirrorSelected==selectName || partSelected==selectName))
       {
         glColor4f(1.0, 0.635, 0.059, 1);
       }
@@ -933,7 +933,7 @@ void AnimationView::drawPart(Animation* anim,unsigned int currentAnimationIndex,
       else if(partHighlighted==selectName)
         glColor4f(0.4, 0.5, 0.3, 1);
       else
-          glColor4f(0.6, 0.5, 0.5, 1);           //edu: when drawing aux figures, use (0.55, 0.5, 0.5, 0.9)
+        glColor4f(0.6, 0.5, 0.5, 1);           //edu: when drawing aux figures, use (0.55, 0.5, 0.5, 0.9)
       if(anim->getIK(motion))
       {
         glGetFloatv(GL_CURRENT_COLOR,color);
