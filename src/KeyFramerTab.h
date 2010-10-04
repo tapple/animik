@@ -68,6 +68,7 @@ public slots:
 
 protected slots:
     void readSettings();
+    void onAnimationStateChanged(bool unsaved);
 
     void partClicked(BVHNode* node, Rotation rot, Rotation globRot, RotationLimits rotLimits, Position pos);
     void partDragged(BVHNode* node,double changeX,double changeY,double changeZ);
@@ -312,6 +313,7 @@ protected:
 private:
     void bindMenuActions();
     void bindToolbarActions();
+    void bindAnimationSignals();
 //    Ui::KeyFramerTab *ui;
 };
 

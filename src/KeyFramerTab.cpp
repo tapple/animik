@@ -25,7 +25,7 @@
 KeyFramerTab::KeyFramerTab(qavimator* mainWindow, const QString& fileName, bool createFile)
   : QWidget(0), AbstractDocumentTab(mainWindow)
 {
-    nodeMapping <<  0                             //edu: position
+  nodeMapping <<  0                             //edu: position
               <<  1 <<  2 <<  3 <<  4 << 5      //edu: hip, abdomen, chest, neck, head
               <<  7 <<  8 <<  9 << 10           //edu: (left) collar, shoulder, fore-arm, hand
               << 12 << 13 << 14 << 15           //edu: ...
@@ -52,9 +52,6 @@ KeyFramerTab::KeyFramerTab(qavimator* mainWindow, const QString& fileName, bool 
   setPlaystate(PLAYSTATE_STOPPED);
 
   readSettings();                                 //TOTO: need to take values from Settings (read in qavimator.cpp)
-
-  bindMenuActions();
-  bindToolbarActions();
 
   connect(animationView,SIGNAL(partClicked(BVHNode*,
                                            Rotation,
@@ -126,44 +123,41 @@ KeyFramerTab::KeyFramerTab(qavimator* mainWindow, const QString& fileName, bool 
   else
     fileOpen(fileName);
 
+  bindMenuActions();
+  bindToolbarActions();
+  bindAnimationSignals();
+
   updateInputs();
 }
 
 KeyFramerTab::~KeyFramerTab()
 {
-    if(timeline) delete timeline;
+  if(timeline) delete timeline;
 }
 
 
 void KeyFramerTab::bindMenuActions()
 {
-  //TODO: eliminate the QActions one by one (really?)
-
-//    connect(mainWindow->fileNewAction, SIGNAL(triggered()), this, SLOT(fileNewAction_triggered()));
-//    connect(mainWindow->fileOpenAction, SIGNAL(triggered()), this, SLOT(Open()));
-    connect(mainWindow->fileAddAction, SIGNAL(triggered()), this, SLOT(fileAddAction_triggered()));
-
-//    connect(mainWindow->fileSaveAsAction, SIGNAL(triggered()), this, SLOT(fileSaveAsAction_triggered()));
-//    connect(mainWindow->fileExportForSecondLifeAction, SIGNAL(triggered()), this, SLOT(fileExportForSecondLife()));
-    connect(mainWindow->fileLoadPropsAction, SIGNAL(triggered()), this, SLOT(fileLoadPropsAction_triggered()));
-    connect(mainWindow->fileSavePropsAction, SIGNAL(triggered()), this, SLOT(fileSavePropsAction_triggered()));
-//TODO: delete    connect(mainWindow->fileQuitAction, SIGNAL(triggered()), this, SLOT(fileQuitAction_triggered()));
-
-    connect(mainWindow->toolsOptimizeBVHAction, SIGNAL(triggered()), this, SLOT(toolsOptimizeBVHAction_triggered()));
-    connect(mainWindow->toolsMirrorAction, SIGNAL(triggered()), this, SLOT(toolsMirrorAction_triggered()));
-
-    connect(mainWindow->optionsSkeletonAction, SIGNAL(triggered(bool)), this, SLOT(optionsSkeletonAction_toggled(bool)));
-    connect(mainWindow->optionsJointLimitsAction, SIGNAL(triggered(bool)), this, SLOT(optionsJointLimitsAction_toggled(bool)));
-    connect(mainWindow->optionsLoopAction, SIGNAL(toggled(bool)), this, SLOT(optionsLoopAction_toggled(bool)));
-    connect(mainWindow->optionsProtectFirstFrameAction, SIGNAL(triggered(bool)), this, SLOT(optionsProtectFirstFrameAction_toggled(bool)));
-    connect(mainWindow->optionsShowTimelineAction, SIGNAL(triggered(bool)), this, SLOT(optionsShowTimelineAction_toggled(bool)));
-
-    //TODO: and so on... There are many more animation related
+  connect(mainWindow->fileAddAction, SIGNAL(triggered()), this, SLOT(fileAddAction_triggered()));
+  connect(mainWindow->fileLoadPropsAction, SIGNAL(triggered()), this, SLOT(fileLoadPropsAction_triggered()));
+  connect(mainWindow->fileSavePropsAction, SIGNAL(triggered()), this, SLOT(fileSavePropsAction_triggered()));
+  connect(mainWindow->toolsOptimizeBVHAction, SIGNAL(triggered()), this, SLOT(toolsOptimizeBVHAction_triggered()));
+  connect(mainWindow->toolsMirrorAction, SIGNAL(triggered()), this, SLOT(toolsMirrorAction_triggered()));
+  connect(mainWindow->optionsSkeletonAction, SIGNAL(triggered(bool)), this, SLOT(optionsSkeletonAction_toggled(bool)));
+  connect(mainWindow->optionsJointLimitsAction, SIGNAL(triggered(bool)), this, SLOT(optionsJointLimitsAction_toggled(bool)));
+  connect(mainWindow->optionsLoopAction, SIGNAL(toggled(bool)), this, SLOT(optionsLoopAction_toggled(bool)));
+  connect(mainWindow->optionsProtectFirstFrameAction, SIGNAL(triggered(bool)), this, SLOT(optionsProtectFirstFrameAction_toggled(bool)));
+  connect(mainWindow->optionsShowTimelineAction, SIGNAL(triggered(bool)), this, SLOT(optionsShowTimelineAction_toggled(bool)));
 }
 
 void KeyFramerTab::bindToolbarActions()
 {
-    connect(mainWindow->resetCameraAction, SIGNAL(triggered()), this, SLOT(resetCameraAction_triggered()));
+  connect(mainWindow->resetCameraAction, SIGNAL(triggered()), this, SLOT(resetCameraAction_triggered()));
+}
+
+void KeyFramerTab::bindAnimationSignals()
+{
+  connect(animationView->getAnimation(0), SIGNAL(animationDirty(bool)), this, SLOT(onAnimationStateChanged(bool)));
 }
 
 bool KeyFramerTab::IsUnsaved()
@@ -230,11 +224,8 @@ void KeyFramerTab::UpdateMenu()
   mainWindow->optionsSkeletonAction->setEnabled(true);
 }
 
-//edu
 void KeyFramerTab::onTabActivated()
 {
-//  qDebug("KeyFramerTab::onTabActivated()");
-
   // hack to get 3D view back in shape
 //  qApp->processEvents();
   animationView->makeCurrent();
@@ -248,9 +239,7 @@ void KeyFramerTab::onTabActivated()
 }
 
 
-// FIXME:: implement a static Settings:: class                              //TODO: Yes, move it there
 //TODO: in Tab implementations we only read already loaded settings from Settings class.
-//TODO: The actuall load is performed in qavimator class.
 void KeyFramerTab::readSettings()
 {
 
@@ -280,6 +269,15 @@ void KeyFramerTab::readSettings()
 }
 
 /************************************ SLOTS *********************************/
+
+//slot gets called by Animation when it's saved or modified
+void KeyFramerTab::onAnimationStateChanged(bool unsaved)
+{
+  QString a = unsaved ? "*" : "";
+  mainWindow->setWindowTitle("Animik [" + CurrentFile + a +"]");
+  QFileInfo fileInfo(CurrentFile);
+  setWindowTitle(fileInfo.fileName() + a);
+}
 
 // slot gets called by AnimationView::mousePressEvent()
 void KeyFramerTab::partClicked(BVHNode* node, Rotation rot, Rotation globRot, RotationLimits limits, Position pos)
@@ -1044,17 +1042,10 @@ void KeyFramerTab::fileOpen()
 
 void KeyFramerTab::fileOpen(const QString& name)
 {
-  QString file=name;
+//  QString file=name;
 
-  if(file.isEmpty())
-    file=selectFileToOpen(tr("Select Animation File to Load"));
-
-  if(!file.isEmpty())
-  {
-    clearProps();
-//oblt    if(!clearOpenFiles()) return;
-    fileAdd(file);
-  }
+  clearProps();
+  fileAdd(/*file*/name);
 
   // update timeline and animation view with the currently selected body part
   // this helps to sync the visual selections
@@ -1080,7 +1071,8 @@ void KeyFramerTab::fileAdd(const QString& name)
     // handling of non-existant file names
     if(!QFile::exists(file))
     {
-      QMessageBox::warning(this,QObject::tr("Load Animation File"),QObject::tr("<qt>Animation file not found:<br />%1</qt>").arg(file));
+      QMessageBox::warning(this, QObject::tr("Load Animation File"),
+                           QObject::tr("<qt>Animation file not found:<br />%1</qt>").arg(file));
       return;
     }
     addToOpenFiles(file);
@@ -1140,9 +1132,6 @@ void KeyFramerTab::fileAdd(const QString& name)
 }
 
 
-// Menu Action: File / Save
-
-
 // Menu Action: File / Save As...
 void KeyFramerTab::fileSaveAs()
 {
@@ -1180,18 +1169,13 @@ void KeyFramerTab::fileSaveAs()
 // Menu Action: File / Export For Second Life
 void KeyFramerTab::fileExportForSecondLife()
 {
-    // FIXME: think of a sensible thing to do when the animation has not been saved
-    //        as .avm yet
-    //TODO: And also let user choose the export file location
-//oblt  if(CurrentFile != /*UNTITLED_NAME*/ UntitledName())
-//  {
-    QFileInfo fileInfo(CurrentFile);
-    QString exportName=fileInfo.path()+"/"+fileInfo.baseName()+".bvh";
+  //TODO: let the user choose the export file location
+  QFileInfo fileInfo(CurrentFile);
+  QString exportName=fileInfo.path()+"/"+fileInfo.baseName()+".bvh";
 
-    qDebug("qavimator::fileExportForSecondLife(): exporting animation as '%s'.",exportName.toLatin1().constData());
-    animationView->getAnimation()->saveBVH(exportName);
-    QMessageBox::information(this,QObject::tr("Export for Second Life"),QObject::tr("Animation was exported for Second Life as:\n%1").arg(exportName));
-//oblt  }
+  qDebug("qavimator::fileExportForSecondLife(): exporting animation as '%s'.",exportName.toLatin1().constData());
+  animationView->getAnimation()->saveBVH(exportName);
+  QMessageBox::information(this,QObject::tr("Export for Second Life"),QObject::tr("Animation was exported for Second Life as:\n%1").arg(exportName));
 }
 
 
