@@ -363,7 +363,7 @@ void qavimator::removeFromOpenFiles(unsigned int which)
 // convenience function to set window title in a defined way
 void qavimator::setCurrentFile(const QString& fileName)           //TODO: to setWindowTitle
 {
-  setWindowTitle("qavimator ["+fileName+"]");
+  setWindowTitle("Animik ["+fileName+"]");
 }
 
 
@@ -475,7 +475,7 @@ void qavimator::on_mdiArea_subWindowActivated(QMdiSubWindow*)
     activeTab()->onTabActivated();
 
   if(activeTab())
-    setCurrentFile(activeTab()->CurrentFile);
+    setCurrentFile(activeTab()->CurrentFile + (activeTab()->IsUnsaved() ? "*" : ""));
 
   UpdateMenus();
   UpdateToolbar();

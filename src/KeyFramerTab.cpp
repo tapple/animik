@@ -476,10 +476,11 @@ void KeyFramerTab::partChoice()
 }
 
 // gets called whenever a body part rotation slider is moved
-void KeyFramerTab::rotationSlider(const QObject* slider)                //TODO: to rotationSliderMoved ?
+void KeyFramerTab::rotationSlider(const QObject* slider)
 {
   Animation* anim=animationView->getAnimation();
   Rotation rot=anim->getRotation(currentPart);
+  BVHNode* parentNode = animationView->getSelectedPart()->Parent();
 
   double x=rot.x;
   double y=rot.y;
@@ -491,7 +492,9 @@ void KeyFramerTab::rotationSlider(const QObject* slider)                //TODO: 
     setX(x);
 
     //edu
-    setGlobalX(anim->getGlobalRotation(animationView->getSelectedPart()).x);
+    //We do workaround with parent because this part is not updated yet
+    double newGX = anim->getGlobalRotation(parentNode).x + x;
+    setGlobalX(newGX);
   }
   else if(slider==yRotationSlider)
   {
@@ -499,7 +502,8 @@ void KeyFramerTab::rotationSlider(const QObject* slider)                //TODO: 
     setY(y);
 
     //edu
-    setGlobalY(anim->getGlobalRotation(animationView->getSelectedPart()).y);
+    double newGY = anim->getGlobalRotation(parentNode).y + y;
+    setGlobalY(newGY);
   }
   else if(slider==zRotationSlider)
   {
@@ -507,7 +511,8 @@ void KeyFramerTab::rotationSlider(const QObject* slider)                //TODO: 
     setZ(z);
 
     //edu
-    setGlobalZ(anim->getGlobalRotation(animationView->getSelectedPart()).z);
+    double newGZ = anim->getGlobalRotation(parentNode).z + z;
+    setGlobalZ(newGZ);
   }
 
   if(animationView->getSelectedPart())
