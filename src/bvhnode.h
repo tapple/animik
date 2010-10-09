@@ -86,7 +86,7 @@ class BVHNode
     void removeChild(BVHNode* child);
 
     /** Returns frame data for a given frame number.
-        In case of non-key-frame number, the data are evaluated. */
+        In case of non-key-frame number, the data are calculated. */
     const FrameData frameData(int frame) const;
     const FrameData keyframeDataByIndex(int index) const;    //edu: gets n-th key frame (NOT N-TH FRAME!)
     const QList<int> keyframeList() const;                   //edu: indices of key frames

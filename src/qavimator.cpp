@@ -31,6 +31,7 @@
 #include "SaveChangesDialog.h"
 #include "NewFileDialog.h"
 #include "KeyFramerTab.h"
+#include "BlenderTab.h"
 
 #define ANIM_FILTER "Animation Files (*.avm *.avbl *.bvh)"
 #define SVN_ID      "$Id$"
@@ -69,7 +70,7 @@ void qavimator::OpenNewTab(NewFileDialog::ProjectType fileType, const QString& f
       tab = new KeyFramerTab(this, filename, newFile);
     break;
     case NewFileDialog::AVBL :
-      throw "Not implemented yet";     //TODO
+      tab = new BlenderTab(this, filename, newFile);
     break;
     default: throw "Unknown file type";
   }
@@ -121,7 +122,8 @@ void qavimator::UpdateToolbar()
 {
   bool hasTabs = (activeTab() != 0);
 
-  fileAddAction->setEnabled(false);         //TODO: decide it's future
+  if(!hasTabs)
+    fileAddAction->setEnabled(false);
 
   fileSaveAction->setEnabled(hasTabs);
   fileSaveAsAction->setEnabled(hasTabs);

@@ -826,6 +826,10 @@ void AnimationView::drawFigure(Animation* anim,unsigned int index)
     drawPart(anim,index,anim->getFrame(),anim->getMotion(),joints[figType],MODE_PARTS);
     selectName = index*ANIMATION_INCREMENT;
     glEnable(GL_COLOR_MATERIAL);
+
+    //edu
+//    drawRotationHelpers(anim->getFrame(), anim->getMotion(), joints[figType]);
+
     drawPart(anim,index,anim->getFrame(),anim->getMotion(),joints[figType],MODE_ROT_AXES);
     selectName = index*ANIMATION_INCREMENT;
     glDisable(GL_DEPTH_TEST);
@@ -836,7 +840,7 @@ void AnimationView::drawFigure(Animation* anim,unsigned int index)
 }
 
 // NOTE: joints == motion for now
-void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex,
+void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex,         //TODO: currentAnimationIndex is unused?!
                              int frame, BVHNode* motion, BVHNode* joints, int mode)
 {
   float color[4];
@@ -856,6 +860,7 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
       selectName++;
       motion=motion->child(0);
     }
+    //edu: draw skeleton if visible
     if(mode==MODE_SKELETON && skeleton && !selecting)
     {
       glColor4f(0,1,1,1);
@@ -883,7 +888,7 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
     Rotation rot=motion->frameData(frame).rotation();
     for(int i=0;i<motion->numChannels;i++)
     {
-/*
+      /*
       float value;
       if(motion->ikOn)
         value = motion->frame[frame][i] + motion->ikRot[i];
@@ -903,9 +908,9 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
       // need to do rotations in the right order
       switch(motion->channelType[i])
       {
-        case BVH_XROT: glRotatef(rot.x+ikRot.x,1,0,0); break;
-        case BVH_YROT: glRotatef(rot.y+ikRot.y,0,1,0); break;
-        case BVH_ZROT: glRotatef(rot.z+ikRot.z,0,0,1); break;
+        case BVH_XROT: glRotatef(rot.x+ikRot.x, 1, 0, 0); break;
+        case BVH_YROT: glRotatef(rot.y+ikRot.y, 0, 1, 0); break;
+        case BVH_ZROT: glRotatef(rot.z+ikRot.z, 0, 0, 1); break;
         default: break;
       }
 
@@ -913,9 +918,9 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
       {
         switch(motion->channelType[i])
         {
-          case BVH_XROT: drawCircle(0,10,xSelect ? 4 : 1); break;
-          case BVH_YROT: drawCircle(1,10,ySelect ? 4 : 1); break;
-          case BVH_ZROT: drawCircle(2,10,zSelect ? 4 : 1); break;
+          case BVH_XROT: drawCircle(0, 10, xSelect ? 4 : 1); break;
+          case BVH_YROT: drawCircle(1, 10, ySelect ? 4 : 1); break;
+          case BVH_ZROT: drawCircle(2, 10, zSelect ? 4 : 1); break;
           default: break;
         }
       }
@@ -939,7 +944,8 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
         glGetFloatv(GL_CURRENT_COLOR,color);
         glColor4f(color[0],color[1],color[2]+0.3,color[3]);
       }
-      anim->getFigureType()==Animation::FIGURE_MALE ? drawSLMalePart(motion->name()):drawSLFemalePart(motion->name());
+      anim->getFigureType()==Animation::FIGURE_MALE ? drawSLMalePart(motion->name())
+                                                    : drawSLFemalePart(motion->name());
 
       for(unsigned int index=0;index< (unsigned int) propList.count();index++)
       {
@@ -954,6 +960,105 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
     glPopMatrix();
   }
 }
+
+
+
+
+
+
+
+
+
+/*edu
+void AnimationView::drawRotationHelpers(int frame, BVHNode* motion, BVHNode* joints)
+{
+  GLint renderMode;
+  glGetIntegerv(GL_RENDER_MODE, &renderMode);
+  selecting=(renderMode==GL_SELECT);
+
+  if(motion && joints)
+  {
+    selectName++;
+    glPushMatrix();
+    glTranslatef(joints->offset[0],joints->offset[1],joints->offset[2]);
+
+    if(motion->type==BVH_NO_SL)       //edu: WHILE rather than IF?
+    {
+      selectName++;
+      motion=motion->child(0);
+    }
+
+    Rotation rot=motion->frameData(frame).rotation();
+    for(int i=0; i<motion->numChannels; i++)
+    {
+      Rotation ikRot;
+      if(motion->ikOn) ikRot=motion->ikRot;
+
+      // need to do rotations in the right order
+      switch(motion->channelType[i])
+      {
+        case BVH_XROT:
+          glRotatef(rot.x+ikRot.x, 1, 0, 0);
+          qDebug(":::::::::::::::::::%s MOVED rot.x+ikRot.x=%f", motion->name().toLatin1().constData(), rot.x+ikRot.x);
+        break;
+        case BVH_YROT:
+          glRotatef(rot.y+ikRot.y, 0, 1, 0);
+          qDebug(":::::::::::::::::::%s MOVED rot.y+ikRot.y=%f", motion->name().toLatin1().constData(), rot.x+ikRot.y);
+        break;
+        case BVH_ZROT:
+          glRotatef(rot.z+ikRot.z, 0, 0, 1);
+          qDebug(":::::::::::::::::::%s MOVED rot.z+ikRot.z=%f", motion->name().toLatin1().constData(), rot.x+ikRot.z);
+        break;
+        default: break;
+      }
+    }//for
+
+    if(!selecting && partSelected==selectName)
+    {
+      Rotation glob = getAnimation(0)->getGlobalRotation(motion);
+/*      switch(motion->channelType[i])
+      {
+        case BVH_XROT:      */
+//          glRotatef(-(glob.x), 1, 0, 0);
+/*        break;
+        case BVH_YROT:    */
+//          glRotatef(-(glob.y), 0, 1, 0);
+/*        break;
+        case BVH_ZROT:    */
+//          glRotatef(-(glob.z), 0, 0, 1);
+/*        break;prnt
+        default: break;
+      }       */
+
+/*      switch(motion->channelType[i])
+      {
+        case BVH_XROT:    */
+//          drawCircle(0, 9, xSelect ? 4 : 2);
+/*        break;
+        case BVH_YROT:    */
+//          drawCircle(1, 9, ySelect ? 4 : 2);
+/*        break;
+        case BVH_ZROT:    */
+//          drawCircle(2, 9, zSelect ? 4 : 2);
+/*        break;
+        default: break;
+      }   */
+/*    }
+    else
+      for(int i=0;i<motion->numChildren();i++)
+        drawRotationHelpers(frame, motion->child(i), joints->child(i));
+
+    glPopMatrix();
+  }
+}
+
+*/
+
+
+
+
+
+
 
 void AnimationView::drawDragHandles(const Prop* prop) const
 {
@@ -1135,6 +1240,9 @@ void AnimationView::drawCircle(int axis,float radius,int width)
     case 1: glColor4f(0,1,0,1); break;
     case 2: glColor4f(0,0,1,1); break;
   }
+
+  if(width==3) glColor4f(1, 0.4, 0.6, 1);         //edu: DEBUG!
+
   glBegin(GL_LINE_LOOP);
   for(int i=0;i<circle_points;i++)
   {
@@ -1150,9 +1258,9 @@ void AnimationView::drawCircle(int axis,float radius,int width)
   glBegin(GL_LINES);
   switch(axis)
   {
-    case 0: glVertex3f(-10,0,0); glVertex3f(10,0,0); break;
-    case 1: glVertex3f(0,-10,0); glVertex3f(0,10,0); break;
-    case 2: glVertex3f(0,0,-10); glVertex3f(0,0,10); break;
+    case 0: glVertex3f(-(radius),0,0); glVertex3f(radius,0,0); break;
+    case 1: glVertex3f(0,-(radius),0); glVertex3f(0,radius,0); break;
+    case 2: glVertex3f(0,0,-(radius)); glVertex3f(0,0,radius); break;
   }
   glEnd();
 

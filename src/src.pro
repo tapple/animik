@@ -20,7 +20,10 @@ SOURCES += animation.cpp \
     KeyFramerTab.cpp \
     AbstractDocumentTab.cpp \
     NewFileDialog.cpp \
-    SaveChangesDialog.cpp
+    SaveChangesDialog.cpp \
+    BlenderTab.cpp \
+    Blender.cpp \
+    BlenderTimeline.cpp
 HEADERS += animation.h \
     animationview.h \
     bvh.h \
@@ -41,12 +44,16 @@ HEADERS += animation.h \
     KeyFramerTab.h \
     AbstractDocumentTab.h \
     NewFileDialog.h \
-    SaveChangesDialog.h
+    SaveChangesDialog.h \
+    BlenderTab.h \
+    Blender.h \
+    BlenderTimeline.h
 FORMS += mainapplicationform.ui \
     settingsdialogform.ui \
     KeyFramerTab.ui \
     NewFileDialog.ui \
-    SaveChangesDialog.ui
+    SaveChangesDialog.ui \
+    BlenderTab.ui
 RESOURCES += icons.qrc
 TEMPLATE = app
 TARGET = ../bin/qavimator

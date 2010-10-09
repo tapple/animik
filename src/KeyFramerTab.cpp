@@ -14,7 +14,7 @@
 #include "timeline.h"
 #include "timelineview.h"
 #include "settings.h"
-#include "settingsdialog.h"
+//edu#include "settingsdialog.h"
 
 #define ANIM_FILTER "Animation Files (*.avm *.bvh)"
 #define PROP_FILTER "Props (*.prp)"
@@ -206,6 +206,7 @@ void KeyFramerTab::UpdateToolbar()
 {
   mainWindow->resetCameraAction->setVisible(true);
   mainWindow->resetCameraAction->setEnabled(true);
+  mainWindow->fileAddAction->setEnabled(false);         //TODO: decide it's future
 }
 
 void KeyFramerTab::UpdateMenu()
@@ -332,10 +333,10 @@ void KeyFramerTab::partClicked(BVHNode* node, Rotation rot, Rotation globRot, Ro
     setGlobalX(globRot.x);
     setGlobalY(globRot.y);
     setGlobalZ(globRot.z);
-    if(node && node->Parent())
+/*    if(node && node->Parent())
       DebugLabel->setText("DEBUG: parent = " + node->Parent()->name());
     else
-      DebugLabel->setText("DEBUG: parent = NULL");
+      DebugLabel->setText("DEBUG: parent = NULL");      */
 
 
 //    emit enablePosition(!protect);
@@ -1919,10 +1920,10 @@ void KeyFramerTab::fileAddAction_triggered()
 }
 
 
-void KeyFramerTab::fileSaveAsAction_triggered()
+/*void KeyFramerTab::fileSaveAsAction_triggered()
 {
   fileSaveAs();
-}
+}*/
 
 void KeyFramerTab::fileExportForSecondLifeAction_triggered()
 {

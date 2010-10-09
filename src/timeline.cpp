@@ -113,7 +113,7 @@ void Timeline::setNumberOfFrames(int frames)
 
   numOfFrames=frames;
 
-  QPixmap* newOffscreen=new QPixmap(numOfFrames*KEY_WIDTH,LINE_HEIGHT*(NUM_PARTS+1));
+  QPixmap* newOffscreen=new QPixmap(numOfFrames*KEY_WIDTH, LINE_HEIGHT*(NUM_PARTS+1));
 
   // copy old offscreen pixmap to new pixmap, if there is one
   if(offscreen)

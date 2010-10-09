@@ -92,7 +92,7 @@ protected slots:
 //edu: it's up    void fileOpenAction_triggered();
     void fileAddAction_triggered();
 //    void fileSaveAction_triggered();
-    void fileSaveAsAction_triggered();
+//obst?    void fileSaveAsAction_triggered();
     void fileExportForSecondLifeAction_triggered();
     void fileLoadPropsAction_triggered();
     void fileSavePropsAction_triggered();
