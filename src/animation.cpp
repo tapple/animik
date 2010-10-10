@@ -33,6 +33,10 @@
 #include "bvh.h"
 #include "settings.h"
 
+
+/** The 'model' class for an avatar animation. Maintains the motion data
+    and related parameters (loop/ease in/out, rotation limits...), solves IK etc.
+  */
 Animation::Animation(BVH* newBVH,const QString& bvhFile) :
   frame(0),totalFrames(0),mirrored(false)
 {
@@ -334,7 +338,6 @@ void Animation::applyIK(const QString& name)
     addKeyFrame(node);
     node->setKeyframeRotation(frame,rot);
     emit redrawTrack(getPartIndex(node));
-//    }
   }
 }
 
@@ -621,8 +624,8 @@ void Animation::setPosition(double x,double y,double z)
   else
   {
     positionNode->addKeyframe(frame,Position(x,y,z),Rotation());
-    setEaseIn(positionNode,frame,Settings::Instance()->easeIn());
-    setEaseOut(positionNode,frame,Settings::Instance()->easeOut());
+    setEaseIn(positionNode, frame, Settings::Instance()->easeIn());
+    setEaseOut(positionNode, frame, Settings::Instance()->easeOut());
   }
   setDirty(true);
   // tell timeline that this keyframe has changed (added or changed is the same here)
@@ -684,8 +687,8 @@ void Animation::addKeyFrame(BVHNode* joint)
 {
   joint->addKeyframe(frame,getPosition(),getRotation(joint));
 
-  setEaseIn(joint,frame,Settings::Instance()->easeIn());
-  setEaseOut(joint,frame,Settings::Instance()->easeOut());
+  setEaseIn(joint, frame, Settings::Instance()->easeIn());
+  setEaseOut(joint, frame, Settings::Instance()->easeOut());
 
   setDirty(true);
 
@@ -754,7 +757,8 @@ void Animation::deleteKeyFrame(int jointNumber,int frameNum)
   if(jointNumber)
   {
      BVHNode* joint=getNode(jointNumber);
-     if(joint->isKeyframe(frameNum)) deleteKeyFrame(joint,frameNum);
+     if(joint->isKeyframe(frameNum))
+       deleteKeyFrame(joint,frameNum);
   }
   else if(isKeyFrame()) deleteKeyFrameAllJoints();
 

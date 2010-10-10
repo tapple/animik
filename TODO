@@ -16,6 +16,7 @@ Features:
 Bugs:
   * After opening .avm file, the floor is not highlighted red if first frame is protected. After moving on another frame and back it already is
   * Tab/window title not flagged with asterisk when change don in TimeLineView by dragging.
+  * Main window height/width is not saved.
 
 Next task:
   * Show also GLOBAL rotation for each limb. Draw global (still) coordinate system around currently selected limb. And check Kundrat's work.

@@ -162,7 +162,7 @@ class Animation : public QObject
     void numberOfFrames(int num);
     void currentFrame(int frame);
     void frameChanged();
-    void redrawTrack(int track);
+    void redrawTrack(int track);        //edu: what an ugly name
     void animationDirty(bool state);
 
   protected:

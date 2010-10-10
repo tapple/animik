@@ -774,6 +774,7 @@ void BVH::bvhPrintNode(BVHNode* n,int depth)
     bvhPrintNode(n->child(i), depth+1);
 }
 
+//edu: Why this is here?
 BVHNode* BVH::bvhFindNode(BVHNode* root,const QString& name) const
 {
   BVHNode *node;
