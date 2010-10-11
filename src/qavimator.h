@@ -130,6 +130,10 @@ protected:
   bool protectFirstFrame;
   // will be true if a frame is protected
   bool protect;
+
+private slots:
+    void on_fileAddAction_triggered();
+    void on_resetCameraAction_triggered();
 };
 
 #endif

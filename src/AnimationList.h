@@ -18,6 +18,9 @@ class AnimationList : public QWidget {
     AnimationList(QWidget *parent = 0);
     ~AnimationList();
 
+  signals:
+    void AnimationFileTaken(QString filename);
+
   public slots:
     void addNewFile();
 

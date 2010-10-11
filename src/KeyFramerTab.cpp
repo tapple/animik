@@ -124,7 +124,6 @@ KeyFramerTab::KeyFramerTab(qavimator* mainWindow, const QString& fileName, bool 
     fileOpen(fileName);
 
   bindMenuActions();
-  bindToolbarActions();
   bindAnimationSignals();
 
   updateInputs();
@@ -150,10 +149,6 @@ void KeyFramerTab::bindMenuActions()
   connect(mainWindow->optionsShowTimelineAction, SIGNAL(triggered(bool)), this, SLOT(optionsShowTimelineAction_toggled(bool)));
 }
 
-void KeyFramerTab::bindToolbarActions()
-{
-  connect(mainWindow->resetCameraAction, SIGNAL(triggered()), this, SLOT(resetCameraAction_triggered()));
-}
 
 void KeyFramerTab::bindAnimationSignals()
 {
@@ -171,6 +166,11 @@ bool KeyFramerTab::IsUnsaved()
   return false;
 }
 
+
+void KeyFramerTab::AddFile()
+{
+  fileAdd();
+}
 
 void KeyFramerTab::Save()
 {
@@ -195,6 +195,11 @@ void KeyFramerTab::Copy()
 void KeyFramerTab::Paste()
 {
   editPaste();
+}
+
+void KeyFramerTab::ResetView()
+{
+  emit resetCamera();
 }
 
 void KeyFramerTab::ExportForSecondLife()
@@ -1914,12 +1919,6 @@ double KeyFramerTab::calculateLongestRunningTime()
 // -------------------------------------------------------------------------
 // ------- Menu Actions slots (connected in MainWindow) -------
 
-void KeyFramerTab::fileAddAction_triggered()
-{
-  fileAdd();
-}
-
-
 /*void KeyFramerTab::fileSaveAsAction_triggered()
 {
   fileSaveAs();
@@ -1976,15 +1975,6 @@ void KeyFramerTab::optionsShowTimelineAction_toggled(bool on)
 {
   showTimeline(on);
 }
-
-
-// ------- Additional Toolbar Element Slots --------
-
-void KeyFramerTab::resetCameraAction_triggered()
-{
-  emit resetCamera();
-}
-
 
 // Autoconnection from designer UI
 // ------- UI Element Slots --------

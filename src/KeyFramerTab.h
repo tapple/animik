@@ -43,6 +43,7 @@ public:
   KeyFramerTab(qavimator* mainWindow, const QString& fileName, bool createFile);
   ~KeyFramerTab();
 
+  virtual void AddFile();
   virtual void Save();
   virtual void SaveAs();
   virtual void Cut();
@@ -50,6 +51,7 @@ public:
   virtual void Paste();
   virtual void Undo() {/*TODO*/};
   virtual void Redo() {/*TODO*/};
+  virtual void ResetView();
   virtual void ExportForSecondLife();
   virtual void UpdateToolbar();
   virtual void UpdateMenu();
@@ -90,7 +92,7 @@ protected slots:
     // ------- Menu Action Slots --------
 //    void fileNewAction_triggered();
 //edu: it's up    void fileOpenAction_triggered();
-    void fileAddAction_triggered();
+//obst    void fileAddAction_triggered();
 //    void fileSaveAction_triggered();
 //obst?    void fileSaveAsAction_triggered();
     void fileExportForSecondLifeAction_triggered();
@@ -106,10 +108,6 @@ protected slots:
     void optionsLoopAction_toggled(bool on);
     void optionsProtectFirstFrameAction_toggled(bool on);
     void optionsShowTimelineAction_toggled(bool on);
-
-    // ------- Additional Toolbar Element Slots -------
-
-    void resetCameraAction_triggered();
 
     // ------- UI Element Slots --------
     void on_selectAnimationCombo_activated(int);
@@ -312,7 +310,6 @@ protected:
 
 private:
     void bindMenuActions();
-    void bindToolbarActions();
     void bindAnimationSignals();
 //    Ui::KeyFramerTab *ui;
 };

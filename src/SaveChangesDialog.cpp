@@ -19,6 +19,7 @@ SaveChangesDialog::SaveChangesDialog(QWidget *parent, QList<AbstractDocumentTab*
   }
 
   ui->setupUi(this);
+  setWindowTitle("Save modified documents");
   ui->listView->setModel(new QStringListModel(list));
 
   connect(ui->listView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onSelectionChanged()));

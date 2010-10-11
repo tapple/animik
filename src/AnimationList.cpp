@@ -38,7 +38,9 @@ void AnimationList::addNewFile()
   QString file=QFileDialog::getOpenFileName(this, "Choose an animation file", Settings::Instance()->lastPath(), ANIM_FILTER);
 #endif
 
-  if(!file.isEmpty() && (file.endsWith(".avm", Qt::CaseInsensitive) || file.endsWith(".bvh", Qt::CaseInsensitive)))
+  if(file.isEmpty() || availableAnimations.contains(file))
+    return;
+  if(file.endsWith(".avm", Qt::CaseInsensitive) || file.endsWith(".bvh", Qt::CaseInsensitive))
   {
     availableAnimations.append(file);
     QStringListModel* model =  dynamic_cast<QStringListModel*>(ui->availableAnimsListView->model());
@@ -70,7 +72,12 @@ void AnimationList::on_addButton_clicked()
 {
   QItemSelectionModel* selModel = ui->availableAnimsListView->selectionModel();
   int index = selModel->selectedIndexes().at(0).row();
-  QMessageBox::warning(this, "DEBUG", availableAnimations.at(index));
+//  QString filename = "" + availableAnimations.at(index);
+//  QMessageBox::warning(this, "DEBUG", filename);
+
+//  qDebug("Animation file offered: %s", filename);                 //SIGILL fun begins here
+
+  emit AnimationFileTaken(availableAnimations.at(index));
 }
 
 void AnimationList::on_removeButton_clicked()

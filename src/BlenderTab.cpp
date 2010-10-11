@@ -33,7 +33,6 @@ BlenderTab::BlenderTab(qavimator* mainWindow, const QString& fileName, bool crea
     fileOpen(fileName);
 
   bindMenuActions();
-  bindToolbarActions();
 }
 
 BlenderTab::~BlenderTab()
@@ -44,21 +43,19 @@ BlenderTab::~BlenderTab()
 
 void BlenderTab::bindMenuActions()
 {
-  connect(mainWindow->fileAddAction, SIGNAL(triggered()), animsList, SLOT(addNewFile()));
 /*  connect(mainWindow->optionsLoopAction, SIGNAL(toggled(bool)), this, SLOT(optionsLoopAction_toggled(bool)));
   connect(mainWindow->optionsProtectFirstFrameAction, SIGNAL(triggered(bool)), this, SLOT(optionsProtectFirstFrameAction_toggled(bool)));   */
 }
-
-void BlenderTab::bindToolbarActions()
-{
-  connect(mainWindow->resetCameraAction, SIGNAL(triggered()), this, SLOT(resetCameraAction_triggered()));
-}
-
 
 bool BlenderTab::IsUnsaved()
 {
   //TODO
   return true;
+}
+
+void BlenderTab::AddFile()
+{
+  animsList->addNewFile();
 }
 
 void BlenderTab::Save()
@@ -84,6 +81,11 @@ void BlenderTab::Copy()
 void BlenderTab::Paste()
 {
   sorry();
+}
+
+void BlenderTab::ResetView()
+{
+  emit resetCamera();
 }
 
 void BlenderTab::ExportForSecondLife()
@@ -265,17 +267,17 @@ void BlenderTab::fileNew()
   //TODO: open empty scene and timeline
 }
 
-// ------- Additional Toolbar Element Slots --------
-
-void BlenderTab::resetCameraAction_triggered()
-{
-  emit resetCamera();
-}
-
 
 // ------- Autoconnection of UI elements -------- //
 
-//...when there will be some
+void BlenderTab::on_animsList_AnimationFileTaken(QString filename)
+{
+  Animation* anim=new Animation(blenderAnimationView->getBVH(),filename);
+  QFileInfo fInfo(filename);
+  if(!blenderTimeline->AddAnimation(anim, fInfo.completeBaseName()))
+    QMessageBox::warning(this, "Error loading animation", "Can't add animation file '" +
+                         filename + "' to timeline. Not enough space.");
+}
 
 // ---------------------------------------------- //
 

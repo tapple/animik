@@ -19,59 +19,96 @@
 BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(parent)
 {
   offscreen=0;
+  _firstItem = 0;
+  _lastItem = 0;
 
   framesCount = MIN_TRACK_FRAMES;
   setNumberOfFrames(framesCount);
 }
 
-
-
-bool BlenderTimeline::AddAnimation(Animation* anim)
+bool BlenderTimeline::AddAnimation(Animation* anim, QString title)
 {
   //TODO
 
-  TimelineItem* toBePredecessor = 0;
-  if(!FindFreeSpace(0, anim->getNumberOfFrames(), toBePredecessor))
-    return false;
+  TimelineItem* toBePredecessor;
+  try {
+    toBePredecessor = FindFreeSpace(0, anim->getNumberOfFrames()/*, toBePredecessor*/);
+  }
+  catch(QString) { return false; }
+  
+  TimelineItem* newItem;
+  if(toBePredecessor == 0)                  //will become new first item
+  {
+    newItem = new TimelineItem(anim, title, 0);
+    newItem->setNextItem(_firstItem);
+    if(_firstItem)
+      _firstItem->setPreviousItem(newItem);
+    else
+      _lastItem = newItem;
+    newItem->setPreviousItem(0);
+    _firstItem = newItem;
+  }
+  else if(toBePredecessor == _lastItem)     //wil become last item
+  {
+    newItem = new TimelineItem(anim, title, toBePredecessor->endIndex()+1);
+    newItem->setNextItem(0);
+    newItem->setPreviousItem(toBePredecessor);
+    toBePredecessor->setNextItem(newItem);
+    _lastItem = newItem;
+  }
+  else
+  {
+    newItem = new TimelineItem(anim, title, toBePredecessor->endIndex()+1);
+    newItem->setNextItem(toBePredecessor->nextItem());
+    newItem->setPreviousItem(toBePredecessor);
+    toBePredecessor->setNextItem(newItem);
+    newItem->nextItem()->setPreviousItem(newItem);
+  }
 
-  TimelineItem* newItem = new TimelineItem(anim, toBePredecessor->endIndex());
-  TimelineItem* nextItem = toBePredecessor->nextItem();
-  toBePredecessor->setNextItem(newItem);
-  newItem->setNextItem(nextItem);
-
+  updateTimelineItemsIndices();
   return true;
 }
 
 
-bool BlenderTimeline::FindFreeSpace(int track, int frames, TimelineItem* outPredecessor)
+/** Passes thorugh TimelineItems and updates their begin/end positions.
+    Called usually after addition of new item */
+void BlenderTimeline::updateTimelineItemsIndices()      //edu: actually only begin position needs to be adjusted
+{
+  if(!_firstItem)
+    return;
+
+  TimelineItem* currentItem = _firstItem;
+  while(currentItem->nextItem() && currentItem->endIndex()>currentItem->nextItem()->beginIndex())
+  {
+    int diff = currentItem->endIndex() - currentItem->nextItem()->beginIndex() + 1;
+    currentItem->nextItem()->shiftBeginIndex(diff);
+    currentItem = currentItem->nextItem();
+  }
+}
+
+
+TimelineItem* BlenderTimeline::FindFreeSpace(int track, int frames)
 {
   //TODO: must be track dependent of course
-
-  outPredecessor = 0;
-
   if(_firstItem == 0 && frames <= framesCount)
-    return true;
+    return 0;
+  if(_firstItem->beginIndex() >= frames)      //is there a space before first?
+    return 0;
 
   TimelineItem* currentItem = _firstItem;
 
   while(currentItem->nextItem() != 0)
   {
     if((currentItem->nextItem()->beginIndex() - currentItem->endIndex() - 1) >= frames)
-    {
-      outPredecessor = currentItem;
-      return true;
-    }
+      return currentItem;
     currentItem = currentItem->nextItem();
   }
 
   //check space after last item
   if((framesCount - _lastItem->endIndex()) >= frames)
-  {
-    outPredecessor = _lastItem;
-    return true;
-  }
+    return _lastItem;
 
-  return false;
+  throw "Not enough space";
 }
 
 

@@ -414,6 +414,12 @@ void qavimator::on_fileOpenAction_triggered()
   fileOpen(file);
 }
 
+void qavimator::on_fileAddAction_triggered()
+{
+  if(activeTab())
+    activeTab()->AddFile();
+}
+
 void qavimator::on_fileSaveAction_triggered()
 {
   activeTab()->Save();
@@ -465,6 +471,13 @@ void qavimator::on_helpAboutAction_triggered()
   helpAbout();
 }
 
+// ------- Toolbar action slots --------
+
+void qavimator::on_resetCameraAction_triggered()
+{
+  if(activeTab())
+    activeTab()->ResetView();
+}
 
 // ------- UI Element Slots --------
 

@@ -22,6 +22,7 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
     BlenderTab(/*QWidget *parent = 0*/qavimator* mainWindow, const QString& fileName, bool createFile);
     ~BlenderTab();
 
+    virtual void AddFile();
     virtual void Save();
     virtual void SaveAs();
     virtual void Cut();
@@ -29,6 +30,7 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
     virtual void Paste();
     virtual void Undo() {/*TODO*/};
     virtual void Redo() {/*TODO*/};
+    virtual void ResetView();
     virtual void ExportForSecondLife();
     virtual void UpdateToolbar();
     virtual void UpdateMenu();
@@ -39,6 +41,7 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
 
   public slots:
      virtual void onTabActivated();
+     void on_animsList_AnimationFileTaken(QString filename);
 
   protected:
      // prevent closing of main window if there are unsaved changes
@@ -62,12 +65,8 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
      void editCopy();
      void editPaste();
 
-  protected slots:
-     void resetCameraAction_triggered();
-
   private:
      void bindMenuActions();
-     void bindToolbarActions();
 
      /////////////edu: DEBUG /////////////
      void sorry();

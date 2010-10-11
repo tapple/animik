@@ -19,9 +19,10 @@ public:
 
   //current file name
   QString CurrentFile;
-  virtual bool IsUnsaved() = 0;       //TODO: thing of the negative
+  virtual bool IsUnsaved() = 0;       //TODO: think of the negative
 
 //public slots:
+  virtual void AddFile() = 0;
   virtual void Save() = 0;
   virtual void SaveAs() = 0;
   virtual void Cut() = 0;
@@ -29,6 +30,7 @@ public:
   virtual void Paste() = 0;
   virtual void Undo() = 0;
   virtual void Redo() = 0;
+  virtual void ResetView() = 0;
   virtual void ExportForSecondLife() = 0;
 
   //Update display state of buttons in the toolbar of main window
