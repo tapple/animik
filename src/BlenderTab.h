@@ -8,6 +8,7 @@
 
 class qavimator;
 class QCloseEvent;
+class QStringList ;
 
 
 /*namespace Ui {
@@ -63,7 +64,6 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
 
   protected slots:
      void resetCameraAction_triggered();
-     void fileAddAction_triggered();
 
   private:
      void bindMenuActions();

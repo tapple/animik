@@ -20,7 +20,7 @@ NewFileDialog::NewFileDialog(QWidget *parent)
   ui->pathLineEdit->setText(Settings::Instance()->lastPath());
 
   QStringList list;
-  list << "AVM" << "AVBL (TODO)";
+  list << "AVM" << "AVBL";
   ui->listView->setModel(new QStringListModel(list));
 
   ui->buttonBox->buttons().at(0)->setEnabled(false);    //OK button disabled

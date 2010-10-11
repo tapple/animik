@@ -5,6 +5,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QCloseEvent>
+#include <QStringListModel>
 
 #include "BlenderTab.h"
 #include "ui_BlenderTab.h"
@@ -43,7 +44,7 @@ BlenderTab::~BlenderTab()
 
 void BlenderTab::bindMenuActions()
 {
-  connect(mainWindow->fileAddAction, SIGNAL(triggered()), this, SLOT(fileAddAction_triggered()));
+  connect(mainWindow->fileAddAction, SIGNAL(triggered()), animsList, SLOT(addNewFile()));
 /*  connect(mainWindow->optionsLoopAction, SIGNAL(toggled(bool)), this, SLOT(optionsLoopAction_toggled(bool)));
   connect(mainWindow->optionsProtectFirstFrameAction, SIGNAL(triggered(bool)), this, SLOT(optionsProtectFirstFrameAction_toggled(bool)));   */
 }
@@ -264,12 +265,6 @@ void BlenderTab::fileNew()
   //TODO: open empty scene and timeline
 }
 
-
-void BlenderTab::fileAddAction_triggered()
-{
-  //TODO: addFile()
-}
-
 // ------- Additional Toolbar Element Slots --------
 
 void BlenderTab::resetCameraAction_triggered()
@@ -278,11 +273,11 @@ void BlenderTab::resetCameraAction_triggered()
 }
 
 
+// ------- Autoconnection of UI elements -------- //
 
+//...when there will be some
 
-
-
-
+// ---------------------------------------------- //
 
 
 
@@ -296,3 +291,4 @@ void BlenderTab::sorry()
 {
   QMessageBox::warning(this, "Under construction", "Not implemented yet. Sorry.");
 }
+
