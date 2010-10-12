@@ -24,7 +24,9 @@ SOURCES += animation.cpp \
     BlenderTab.cpp \
     Blender.cpp \
     BlenderTimeline.cpp \
-    AnimationList.cpp
+    AnimationList.cpp \
+    TimelineTrail.cpp \
+    TrailItem.cpp
 HEADERS += animation.h \
     animationview.h \
     bvh.h \
@@ -49,7 +51,8 @@ HEADERS += animation.h \
     BlenderTab.h \
     Blender.h \
     BlenderTimeline.h \
-    AnimationList.h
+    AnimationList.h \
+    TimelineTrail.h
 FORMS += mainapplicationform.ui \
     settingsdialogform.ui \
     KeyFramerTab.ui \

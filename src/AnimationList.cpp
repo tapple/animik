@@ -1,13 +1,12 @@
 #include <QStringListModel>
 #include <QFileDialog>
 
-#include <QMessageBox>        //DEBUG
-
 #include "AnimationList.h"
 #include "ui_AnimationList.h"
 #include "settings.h"
 
 #define ANIM_FILTER "Animation Files (*.avm *.bvh)"         //TODO: this is repeated on few places. Solve it.
+
 
 
 AnimationList::AnimationList(QWidget *parent) :
@@ -72,9 +71,6 @@ void AnimationList::on_addButton_clicked()
 {
   QItemSelectionModel* selModel = ui->availableAnimsListView->selectionModel();
   int index = selModel->selectedIndexes().at(0).row();
-//  QString filename = "" + availableAnimations.at(index);
-//  QMessageBox::warning(this, "DEBUG", filename);
-
 //  qDebug("Animation file offered: %s", filename);                 //SIGILL fun begins here
 
   emit AnimationFileTaken(availableAnimations.at(index));
