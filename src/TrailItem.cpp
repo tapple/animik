@@ -24,6 +24,8 @@ class TrailItem
     Animation* getAnimation() { return animation; }
     /** Number of frames of containing animation */
     int frames() { return animation->getNumberOfFrames(); }
+    /** Gets weight of a frame to be used in blending */
+    float frameWeight(int frameIndex) { return 0.5; }       //TODO: dynamically from frameData
     TrailItem* nextItem() { return next; }
     void setNextItem(TrailItem* nextItem) { this->next=nextItem; }
     TrailItem* previousItem() { return previous; }
