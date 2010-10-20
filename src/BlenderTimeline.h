@@ -23,6 +23,7 @@ class BlenderTimeline : public QFrame
     bool AddAnimation(Animation* anim, QString title);
 
   protected:
+    void setCurrentFrame(int frameIndex);
     QScrollArea* scrollArea;
     QList<TimelineTrail*> trails;
     void scrollTo(int x);

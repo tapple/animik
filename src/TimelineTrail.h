@@ -18,6 +18,7 @@ class TimelineTrail : public QFrame
     /** Add new animation on first gap big enough. Returns TRUE on success
         or FALSE if there's not enough space on this trail. */
     bool AddAnimation(Animation* anim, QString title);
+    void setCurrentFrame(int frame);
     int animationCount() { return _animationCount; }
     TrailItem* firstItem() { return _firstItem; }
     TrailItem* lastItem() { return _lastItem; }
@@ -40,7 +41,6 @@ class TimelineTrail : public QFrame
         Returns foregoing TimelineItem* on success or throws QString if there is not enough space.
         Returning 0 indicates the space is available on beginning of a track. */
     TrailItem* FindFreeSpace(int frames);
-    void setCurrentFrame(int frame);
 
     void drawBackground();
     void drawTrailItem(TrailItem* item);
