@@ -31,15 +31,18 @@ BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(pare
     TimelineTrail* tt = new TimelineTrail(scrollArea);
     tt->setNumberOfFrames(trailFramesCount);
     connect(tt, SIGNAL(positionCenter(int)), this, SLOT(scrollTo(int)));
+    connect(tt, SIGNAL(adjustLimbsWeight(/*TODO: frameData*/)), this, SLOT(showLimbsWeightForm(/*TODO: frameData*/)));
     trails.append(tt);
     scrollLayout->addWidget(tt);
   }
 
-  LimbsWeightForm* lwForm = new LimbsWeightForm(this);
+  limbsForm = new LimbsWeightForm(this);
 
   QHBoxLayout* layout=new QHBoxLayout(this);
   layout->setMargin(0);
   layout->addWidget(scrollArea);
+  layout->addWidget(limbsForm);
+  limbsForm->hide();
 }
 
 BlenderTimeline::~BlenderTimeline()
@@ -68,4 +71,10 @@ void BlenderTimeline::scrollTo(int x)
 {
   QSize size = scrollArea->size();
   scrollArea->ensureVisible(x, 0, size.width()/4, size.height());
+}
+
+//SLOT. A TimelineTrail asked us to show and fill the limbs' weights form
+void BlenderTimeline::showLimbsWeightForm(/*TODO: frameData*/)
+{
+  limbsForm->show();
 }

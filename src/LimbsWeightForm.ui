@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>261</width>
-    <height>260</height>
+    <height>240</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -49,6 +49,12 @@
       </property>
       <item row="9" column="0">
        <widget class="QLabel" name="lHandLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -61,6 +67,12 @@
       </item>
       <item row="8" column="0">
        <widget class="QLabel" name="lForeArmLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -73,6 +85,12 @@
       </item>
       <item row="13" column="0">
        <widget class="QLabel" name="rShldrLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -85,6 +103,12 @@
       </item>
       <item row="13" column="1">
        <widget class="QLabel" name="rShldrWLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -97,6 +121,12 @@
       </item>
       <item row="15" column="1">
        <widget class="QLabel" name="rHandWLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -109,6 +139,12 @@
       </item>
       <item row="21" column="1">
        <widget class="QLabel" name="rFootWLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -121,6 +157,12 @@
       </item>
       <item row="20" column="1">
        <widget class="QLabel" name="rShinWLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -133,6 +175,12 @@
       </item>
       <item row="16" column="1">
        <widget class="QLabel" name="lThighWLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -145,6 +193,12 @@
       </item>
       <item row="17" column="1">
        <widget class="QLabel" name="lShinWLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -157,6 +211,12 @@
       </item>
       <item row="18" column="1">
        <widget class="QLabel" name="lFootWLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -169,6 +229,12 @@
       </item>
       <item row="19" column="1">
        <widget class="QLabel" name="rThighWLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -181,6 +247,12 @@
       </item>
       <item row="7" column="1">
        <widget class="QLabel" name="lShldrWLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -193,6 +265,12 @@
       </item>
       <item row="14" column="1">
        <widget class="QLabel" name="rForeArmWLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -205,6 +283,12 @@
       </item>
       <item row="6" column="1">
        <widget class="QLabel" name="lCollarWLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -217,6 +301,12 @@
       </item>
       <item row="5" column="1">
        <widget class="QLabel" name="headWLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -229,6 +319,12 @@
       </item>
       <item row="4" column="1">
        <widget class="QLabel" name="neckWLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -241,6 +337,12 @@
       </item>
       <item row="3" column="1">
        <widget class="QLabel" name="chestWLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -253,6 +355,12 @@
       </item>
       <item row="2" column="1">
        <widget class="QLabel" name="abdomenWLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -265,6 +373,12 @@
       </item>
       <item row="1" column="1">
        <widget class="QLabel" name="hipWLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -277,6 +391,12 @@
       </item>
       <item row="0" column="1">
        <widget class="QLabel" name="positionWLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -289,6 +409,12 @@
       </item>
       <item row="19" column="0">
        <widget class="QLabel" name="rThighLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -301,6 +427,12 @@
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="hipLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -313,6 +445,12 @@
       </item>
       <item row="0" column="0">
        <widget class="QLabel" name="positionLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -325,6 +463,12 @@
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="abdomenLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -337,6 +481,12 @@
       </item>
       <item row="3" column="0">
        <widget class="QLabel" name="chestLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -349,6 +499,12 @@
       </item>
       <item row="4" column="0">
        <widget class="QLabel" name="neckLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -361,6 +517,12 @@
       </item>
       <item row="5" column="0">
        <widget class="QLabel" name="headLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -373,6 +535,12 @@
       </item>
       <item row="6" column="0">
        <widget class="QLabel" name="lCollarLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -385,6 +553,12 @@
       </item>
       <item row="14" column="0">
        <widget class="QLabel" name="rForeArmLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -397,6 +571,12 @@
       </item>
       <item row="15" column="0">
        <widget class="QLabel" name="rHandLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -409,6 +589,12 @@
       </item>
       <item row="16" column="0">
        <widget class="QLabel" name="lThighLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -421,6 +607,12 @@
       </item>
       <item row="17" column="0">
        <widget class="QLabel" name="lShinLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -433,6 +625,12 @@
       </item>
       <item row="18" column="0">
        <widget class="QLabel" name="lFootLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -445,6 +643,12 @@
       </item>
       <item row="21" column="0">
        <widget class="QLabel" name="rFootLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -457,6 +661,12 @@
       </item>
       <item row="20" column="0">
        <widget class="QLabel" name="rShinLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -469,6 +679,12 @@
       </item>
       <item row="7" column="0">
        <widget class="QLabel" name="lShldrLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -481,6 +697,12 @@
       </item>
       <item row="8" column="1">
        <widget class="QLabel" name="lForeArmWLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -493,6 +715,12 @@
       </item>
       <item row="9" column="1">
        <widget class="QLabel" name="lHandWLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -505,6 +733,12 @@
       </item>
       <item row="11" column="0">
        <widget class="QLabel" name="rCollarLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -517,6 +751,12 @@
       </item>
       <item row="11" column="1">
        <widget class="QLabel" name="rCollarWLabel">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>12</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -612,7 +852,7 @@
          </size>
         </property>
         <property name="text">
-         <string>&lt;&lt; hide</string>
+         <string>&gt;&gt; hide</string>
         </property>
        </widget>
       </item>

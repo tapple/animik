@@ -5,6 +5,7 @@
 #include "animation.h"
 
 class QPixmap;
+class QAction;
 class TrailItem;
 
 
@@ -26,17 +27,24 @@ class TimelineTrail : public QFrame
   signals:
     void resized(const QSize& newSize);
     void positionCenter(int pos);
+    void adjustLimbsWeight(/*TODO: frameData*/);
 
   public slots:
     void setNumberOfFrames(int frames);
+  protected slots:
+    void showLimbsWeight();
 
   protected:
     int framesCount;
     /** current frame of playback */
     int frameSelected;
     QPixmap* offscreen;
+    QAction* deleteAnimationAction;
+    QAction* moveAnimationAction;
+    QAction* limbWeightsAction;
 
     virtual void paintEvent(QPaintEvent* event);
+    void contextMenuEvent(QContextMenuEvent *event);
     /** Finds first avaliable space for animation with @param frames frames.
         Returns foregoing TimelineItem* on success or throws QString if there is not enough space.
         Returning 0 indicates the space is available on beginning of a track. */

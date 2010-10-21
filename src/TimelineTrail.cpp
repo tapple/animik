@@ -1,11 +1,14 @@
-#include <QSize>
+#include <QAction>
+#include <QContextMenuEvent>
+#include <QMenu>
 #include <QPainter>
 #include <QPalette>
+#include <QSize>
 
 #include "TimelineTrail.h"
 #include "TrailItem.cpp"
 
-#define TRACK_HEIGHT     50   //edu: 50px high
+#define TRACK_HEIGHT     72
 #define MIN_FRAME_WIDTH  8    //minimum frame space width that can't be crossed when zooming
 #define MAX_FRAME_WIDTH  20   //TODO: maximum when zooming
 #define ZOOM_STEP        4    //TODO: the zooming
@@ -19,6 +22,11 @@ TimelineTrail::TimelineTrail(QWidget* parent, Qt::WindowFlags) : QFrame(parent)
   frameSelected=14;   //realy?
   _firstItem = 0;
   _lastItem = 0;
+
+  //Actions that may appear in context menu
+  limbWeightsAction = new QAction(tr("Set limbs' weights"), this);
+  connect(limbWeightsAction, SIGNAL(triggered()), this, SLOT(showLimbsWeight()));
+  //TODO: and the other actions
 }
 
 
@@ -155,6 +163,14 @@ void TimelineTrail::paintEvent(QPaintEvent* event)
 }
 
 
+void TimelineTrail::contextMenuEvent(QContextMenuEvent *event)
+{
+  QMenu menu(this);
+  menu.addAction(limbWeightsAction);
+  menu.exec(event->globalPos());
+}
+
+
 void TimelineTrail::drawBackground()
 {
   //TODO
@@ -191,4 +207,11 @@ void TimelineTrail::drawTrailItem(TrailItem* item)
   //if selected frame falls inside this animation, highlight respective frame
   if(frameSelected>=begin && frameSelected<=(begin+/*item->frames()*/30))
     p.fillRect(frameSelected*FRAME_WIDTH, 3, FRAME_WIDTH, TRACK_HEIGHT-6, QColor("#b4045f"));
+}
+
+
+void TimelineTrail::showLimbsWeight()
+{
+  //reemit to containing widget to handle it with custom widget
+  emit adjustLimbsWeight(/*TODO: frameData*/);
 }

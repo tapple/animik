@@ -9,6 +9,7 @@
 class QScrollArea;
 class QSize;
 class TimelineTrail;
+class LimbsWeightForm;
 
 
 class BlenderTimeline : public QFrame
@@ -22,10 +23,14 @@ class BlenderTimeline : public QFrame
     /** Add new animation to a track where fits first. Returns TRUE on success */
     bool AddAnimation(Animation* anim, QString title);
 
+  protected slots:
+    void showLimbsWeightForm(/*TODO: frameData*/);
+
   protected:
     void setCurrentFrame(int frameIndex);
     QScrollArea* scrollArea;
     QList<TimelineTrail*> trails;
+    LimbsWeightForm* limbsForm;
     void scrollTo(int x);
 
   private:
