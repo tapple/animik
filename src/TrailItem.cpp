@@ -14,6 +14,7 @@ class TrailItem
       this->name = name;
       this->animation = animation;
       this->begin = begin;
+      selectedFrame = -1;
       previous = 0;
       next = 0;
     }
@@ -24,6 +25,8 @@ class TrailItem
     Animation* getAnimation() { return animation; }
     /** Number of frames of containing animation */
     int frames() { return animation->getNumberOfFrames(); }
+    /** Highlight @param frameIndex because it's became selected frame */
+    void selectFrame(int frameIndex) { selectedFrame = frameIndex; }
     /** Gets weight of a frame to be used in blending */
     float frameWeight(int frameIndex) { return 0.5; }       //TODO: dynamically from frameData
     TrailItem* nextItem() { return next; }
@@ -31,9 +34,12 @@ class TrailItem
     TrailItem* previousItem() { return previous; }
     void setPreviousItem(TrailItem* previousItem) { this->previous=previousItem; }
 
-  private:
+  protected:
     QString name;
     int begin;
+    /** Currently highlighted frame of animation. The value has meaning
+        only if this item is also highlighted on a timeline. */
+    int selectedFrame;
     Animation* animation;
     TrailItem* next;
     TrailItem* previous;

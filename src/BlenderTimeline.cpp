@@ -1,8 +1,6 @@
 /*
   The timeline widget inside BlenderTab. Includes 3 tracks.
 */
-
-
 #define BLENDING_TRACKS      3
 #define MIN_TRAIL_FRAMES     150  //edu: trail is 150 frames long
 
@@ -30,6 +28,9 @@ BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(pare
   {
     TimelineTrail* tt = new TimelineTrail(scrollArea);
     tt->setNumberOfFrames(trailFramesCount);
+    //if current frame of a trail has changed, sync all others
+    connect(tt, SIGNAL(currentFrameChanged(int)), this, SLOT(setCurrentFrame(int)));
+    connect(tt, SIGNAL(selectedItemChanged()), this, SLOT(unselectOldItem()));
     connect(tt, SIGNAL(positionCenter(int)), this, SLOT(scrollTo(int)));
     connect(tt, SIGNAL(adjustLimbsWeight(/*TODO: frameData*/)), this, SLOT(showLimbsWeightForm(/*TODO: frameData*/)));
     trails.append(tt);
@@ -65,6 +66,13 @@ void BlenderTimeline::setCurrentFrame(int frameIndex)
 {
   foreach(TimelineTrail* trail, trails)
     trail->setCurrentFrame(frameIndex);
+}
+
+void BlenderTimeline::unselectOldItem()
+{
+  foreach(TimelineTrail* trail, trails)
+    if(trail != sender())
+      trail->cancelTrailSelection();
 }
 
 void BlenderTimeline::scrollTo(int x)

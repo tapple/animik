@@ -19,14 +19,18 @@
 TimelineTrail::TimelineTrail(QWidget* parent, Qt::WindowFlags) : QFrame(parent)
 {
   offscreen=0;
-  frameSelected=14;   //realy?
+  currentFrame=14;   //realy?
   _firstItem = 0;
   _lastItem = 0;
+  leftMouseDown = rightMouseDown = false;
 
   //Actions that may appear in context menu
+  deleteAnimationAction = new QAction(tr("Delete animation"), this);
+  connect(deleteAnimationAction, SIGNAL(triggered()), this, SLOT(deleteCurrentAnimation()));
+  moveAnimationAction = new QAction(tr("Move on timeline"), this);
+  connect(moveAnimationAction, SIGNAL(triggered()), this, SLOT(moveCurrentAnimation()));
   limbWeightsAction = new QAction(tr("Set limbs' weights"), this);
   connect(limbWeightsAction, SIGNAL(triggered()), this, SLOT(showLimbsWeight()));
-  //TODO: and the other actions
 }
 
 
@@ -138,36 +142,12 @@ void TimelineTrail::setNumberOfFrames(int frames)
 
 void TimelineTrail::setCurrentFrame(int frame)
 {
-  frameSelected=frame;
-  emit positionCenter(frameSelected*FRAME_WIDTH/*TODO: actual*/);
-}
-
-
-void TimelineTrail::paintEvent(QPaintEvent* event)
-{
-  QSize newSize = QSize(framesCount*FRAME_WIDTH/*TODO: actual*/, TRACK_HEIGHT);
-
-  if(newSize!=size())
+  if(frame != currentFrame)
   {
-    resize(newSize);
-    emit resized(newSize);
+    currentFrame=frame;
+    emit positionCenter(currentFrame*FRAME_WIDTH/*TODO: actual*/);
+    repaint();
   }
-
-  drawBackground();     //and so on...
-
-  TrailItem* testItem = new TrailItem(0, "Test animation", 11);
-  drawTrailItem(testItem);
-
-  QPainter p(this);
-  p.drawPixmap(0, 0, *offscreen);
-}
-
-
-void TimelineTrail::contextMenuEvent(QContextMenuEvent *event)
-{
-  QMenu menu(this);
-  menu.addAction(limbWeightsAction);
-  menu.exec(event->globalPos());
 }
 
 
@@ -180,13 +160,13 @@ void TimelineTrail::drawBackground()
 
   p->fillRect(0, 0, framesCount*FRAME_WIDTH/*TODO: actuall width*/, TRACK_HEIGHT, QColor("#009900"));
   // draw current frame marker
-  p->fillRect(frameSelected*FRAME_WIDTH, 0, FRAME_WIDTH, TRACK_HEIGHT, QColor("#df7401"));
+  p->fillRect(currentFrame*FRAME_WIDTH, 0, FRAME_WIDTH, TRACK_HEIGHT, QColor("#df7401"));
 
   for(int i=0; i<framesCount; i++)
   {
     QPoint upPoint(i*FRAME_WIDTH, 0);
     QPoint downPoint(i*FRAME_WIDTH, TRACK_HEIGHT);
-    if(i==frameSelected)
+    if(i==currentFrame)
       p->setPen(QColor("#ffffff"));
     else
       p->setPen(QColor("#cccccc"));
@@ -202,16 +182,114 @@ void TimelineTrail::drawTrailItem(TrailItem* item)
 
   QPainter p(/*DEBUG this*/ offscreen);
 
-  p.fillRect(item->beginIndex()*FRAME_WIDTH, 3, /*DEBUG item->frames()*/30*FRAME_WIDTH, TRACK_HEIGHT-6, QColor("#ff0077"));
+  QColor boxColor;
+  QColor selFrameColor;
+  if(item==selectedItem)
+  {
+    boxColor = QColor("#ff0044");
+    selFrameColor = QColor("#cb045f");
+  }
+  else
+  {
+    boxColor = QColor("#ff0077");
+    selFrameColor = QColor("#b4045f");
+  }
+  p.fillRect(item->beginIndex()*FRAME_WIDTH, 3, item->frames()*FRAME_WIDTH, TRACK_HEIGHT-6, boxColor);
   int begin = item->beginIndex();
   //if selected frame falls inside this animation, highlight respective frame
-  if(frameSelected>=begin && frameSelected<=(begin+/*item->frames()*/30))
-    p.fillRect(frameSelected*FRAME_WIDTH, 3, FRAME_WIDTH, TRACK_HEIGHT-6, QColor("#b4045f"));
+  if(currentFrame>=begin && currentFrame<=(begin+item->frames()))
+    p.fillRect(currentFrame*FRAME_WIDTH, 3, FRAME_WIDTH, TRACK_HEIGHT-6, selFrameColor);
 }
 
 
+TrailItem* TimelineTrail::findItemOnFrame(int frameIndex)
+{
+  TrailItem* currentItem = _firstItem;
+
+  while(currentItem != 0)
+  {
+    int begin = currentItem->beginIndex();
+    if(frameIndex>=begin && frameIndex<begin+currentItem->frames())
+      break;
+    currentItem = currentItem->nextItem();
+  }
+  return currentItem;
+}
+
+void TimelineTrail::paintEvent(QPaintEvent* event)
+{
+  QSize newSize = QSize(framesCount*FRAME_WIDTH/*TODO: actual*/, TRACK_HEIGHT);
+
+  if(newSize!=size())
+  {
+    resize(newSize);
+    emit resized(newSize);
+  }
+
+  drawBackground();
+
+  TrailItem* currentItem = _firstItem;
+  while(currentItem != 0)
+  {
+    drawTrailItem(currentItem);
+    currentItem = currentItem->nextItem();
+  }
+
+  QPainter p(this);
+  p.drawPixmap(0, 0, *offscreen);
+}
+
+
+void TimelineTrail::contextMenuEvent(QContextMenuEvent *event)
+{
+  if(leftMouseDown && selectedItem)
+  {
+    QMenu menu(this);
+    menu.addAction(limbWeightsAction);
+    menu.exec(event->globalPos());
+  }
+}
+
+void TimelineTrail::mousePressEvent(QMouseEvent* e)
+{
+  int clickedFrame = e->x()/FRAME_WIDTH;
+  if(clickedFrame != currentFrame)
+  {
+    currentFrame = clickedFrame;
+    emit currentFrameChanged(currentFrame);
+  }
+  TrailItem* clickedItem = findItemOnFrame(currentFrame);
+  if(clickedItem != selectedItem)
+  {
+    selectedItem = clickedItem;
+    emit selectedItemChanged();
+  }
+
+//TODO: apply to resulting animation  animation->setFrame(currentFrame);
+
+  leftMouseDown = rightMouseDown = false;
+  if(e->button()==Qt::LeftButton)
+    leftMouseDown = true;
+  else if(e->button()==Qt::RightButton)
+    rightMouseDown = true;
+
+  repaint();
+}
+
+
+// ---------------------- SLOTS ---------------------- //
+void TimelineTrail::deleteCurrentAnimation()
+{
+
+}
+
+void TimelineTrail::moveCurrentAnimation()
+{
+
+}
+
 void TimelineTrail::showLimbsWeight()
 {
-  //reemit to containing widget to handle it with custom widget
+  //reemit to containing widget to handle it own way
   emit adjustLimbsWeight(/*TODO: frameData*/);
 }

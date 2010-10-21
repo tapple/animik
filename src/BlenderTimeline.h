@@ -24,10 +24,12 @@ class BlenderTimeline : public QFrame
     bool AddAnimation(Animation* anim, QString title);
 
   protected slots:
+    void setCurrentFrame(int frameIndex);
+    /** Find trail with selected TrailItem and make it unselect it */
+    void unselectOldItem();
     void showLimbsWeightForm(/*TODO: frameData*/);
 
   protected:
-    void setCurrentFrame(int frameIndex);
     QScrollArea* scrollArea;
     QList<TimelineTrail*> trails;
     LimbsWeightForm* limbsForm;
