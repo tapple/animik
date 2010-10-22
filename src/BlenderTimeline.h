@@ -9,6 +9,7 @@
 class QScrollArea;
 class QSize;
 class TimelineTrail;
+class TrailItem;
 class LimbsWeightForm;
 
 
@@ -28,15 +29,23 @@ class BlenderTimeline : public QFrame
     /** Find trail with selected TrailItem and make it unselect it */
     void unselectOldItem();
     void showLimbsWeightForm(/*TODO: frameData*/);
+    void setFramesCount(int newCount);
+    void startItemReposition(TrailItem* draggingItem);
+    void endItemReposition();
 
   protected:
     QScrollArea* scrollArea;
+    QWidget* stackWidget;
     QList<TimelineTrail*> trails;
     LimbsWeightForm* limbsForm;
     void scrollTo(int x);
+    virtual void paintEvent(QPaintEvent*);
 
   private:
     int trailFramesCount;
+    int needsReshape;
+
+    void fitStackWidgetToContent();
 };
 
 

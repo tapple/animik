@@ -8,8 +8,12 @@
 #include <QScrollArea>
 #include "BlenderTimeline.h"
 #include "TimelineTrail.h"
+#include "TrailItem.cpp"
 #include "LimbsWeightForm.h"
 
+
+
+#include <QSizePolicy>       //for DEBUG purposes
 
 
 BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(parent)
@@ -20,22 +24,38 @@ BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(pare
   scrollArea->setBackgroundRole(QPalette::Dark);
   scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);        //TODO: AsNeeded?
-  QVBoxLayout* scrollLayout = new QVBoxLayout(scrollArea);
+  QVBoxLayout* scrollLayout = new QVBoxLayout(/*scrollArea*/0);
   scrollLayout->setMargin(1);
   scrollLayout->setSpacing(2);
 
+
+  stackWidget = new QWidget(this);
+
+
   for(int i=0; i<BLENDING_TRACKS; i++)
   {
-    TimelineTrail* tt = new TimelineTrail(scrollArea);
-    tt->setNumberOfFrames(trailFramesCount);
+    TimelineTrail* tt = new TimelineTrail(/*scrollArea*/stackWidget);
+    tt->setFrameCount(trailFramesCount);
     //if current frame of a trail has changed, sync all others
     connect(tt, SIGNAL(currentFrameChanged(int)), this, SLOT(setCurrentFrame(int)));
     connect(tt, SIGNAL(selectedItemChanged()), this, SLOT(unselectOldItem()));
     connect(tt, SIGNAL(positionCenter(int)), this, SLOT(scrollTo(int)));
+    connect(tt, SIGNAL(movingItem(TrailItem*)), this, SLOT(startItemReposition(TrailItem*)));
+    connect(tt, SIGNAL(droppedItem()), this, SLOT(endItemReposition()));
     connect(tt, SIGNAL(adjustLimbsWeight(/*TODO: frameData*/)), this, SLOT(showLimbsWeightForm(/*TODO: frameData*/)));
+    connect(tt, SIGNAL(framesCountChanged(int)), this, SLOT(setFramesCount(int)));
     trails.append(tt);
     scrollLayout->addWidget(tt);
   }
+
+
+  stackWidget->setFocusPolicy(Qt::WheelFocus);
+//  stackWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  stackWidget->setLayout(scrollLayout);
+  scrollArea->setWidget(stackWidget);
+//  fitStackWidgetToContent();
+  needsReshape = true;
+
 
   limbsForm = new LimbsWeightForm(this);
 
@@ -57,11 +77,37 @@ bool BlenderTimeline::AddAnimation(Animation* anim, QString title)
   foreach(TimelineTrail* trail, trails)
   {
     if(trail->AddAnimation(anim, title))
+    {
+//      fitStackWidgetToContent();
+      needsReshape=true;
+      repaint();
       return true;
+    }
   }
   return false;
 }
 
+
+void BlenderTimeline::fitStackWidgetToContent()
+{
+  TimelineTrail* t = trails.at(0);
+  int wdth = t->frameWidth()*MIN_TRAIL_FRAMES;
+  if(t->frameCount())
+    wdth = t->frameWidth()*t->frameCount();
+  stackWidget->resize(wdth, size().height()-20);    //20 is cca scrollbar height
+}
+
+
+void BlenderTimeline::paintEvent(QPaintEvent*)
+{
+  if(needsReshape)
+  {
+    fitStackWidgetToContent();
+    needsReshape=false;
+  }
+}
+
+// -------------------------- SLOTS -------------------------- //
 void BlenderTimeline::setCurrentFrame(int frameIndex)
 {
   foreach(TimelineTrail* trail, trails)
@@ -81,8 +127,28 @@ void BlenderTimeline::scrollTo(int x)
   scrollArea->ensureVisible(x, 0, size.width()/4, size.height());
 }
 
-//SLOT. A TimelineTrail asked us to show and fill the limbs' weights form
+void BlenderTimeline::startItemReposition(TrailItem* draggingItem)
+{
+  foreach(TimelineTrail* trail, trails)
+    trail->onMovingItem(draggingItem);
+}
+
+void BlenderTimeline::endItemReposition()
+{
+  foreach(TimelineTrail* trail, trails)
+    if(trail != sender())
+      trail->onDroppedItem();
+}
+
+//A TimelineTrail asked us to show and fill the limbs' weights form
 void BlenderTimeline::showLimbsWeightForm(/*TODO: frameData*/)
 {
   limbsForm->show();
+}
+
+void BlenderTimeline::setFramesCount(int newCount)
+{
+  foreach(TimelineTrail* trail, trails)
+//    if(trail != sender())
+    trail->setFrameCount(newCount);
 }

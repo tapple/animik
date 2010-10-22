@@ -22,6 +22,10 @@ class TimelineTrail : public QFrame
     int animationCount() { return _animationCount; }
     TrailItem* firstItem() { return _firstItem; }
     TrailItem* lastItem() { return _lastItem; }
+    int frameCount() { return framesCount; }
+
+    /** Frame width in pixels. Some (parent) widget need to know before paint. */
+    int frameWidth();
 
   signals:
     void resized(const QSize& newSize);
@@ -30,13 +34,24 @@ class TimelineTrail : public QFrame
     void currentFrameChanged(int newFrameIndex);
     /** Let other trails know current TrailItem changed so they unselect theirs */
     void selectedItemChanged();
+    /** Let other trails know this one changed it's size in frames so they do the same */
+    void framesCountChanged(int newCount);
+    void adjustLimbsWeight(/*TODO: frameData*/);
+    void movingItem(TrailItem* draggedItem);
+    /** Announce done position change for an item so it's original holder
+        can release/reposition it or new one can adopt it. */
+    void droppedItem();
 
   public slots:
     void setCurrentFrame(int frame);
     /** Unselect currently selected TrailItem */
     void cancelTrailSelection() { selectedItem=0; }
-    void setNumberOfFrames(int frames);
+    void setFrameCount(int frames);
+    void onMovingItem(TrailItem* draggedItem);
+    void onDroppedItem();
   protected slots:
+    void deleteCurrentItem();
+    void moveCurrentItem();
     void showLimbsWeight();
 
   protected:
@@ -45,13 +60,16 @@ class TimelineTrail : public QFrame
     int currentFrame;
     /** currently highlighted TrailItem */
     TrailItem* selectedItem;
+    /** Not-null indicates that user is dragging an animation above timeline
+        ready to drop it on new location, which as well may be this trail */
+    TrailItem* draggingItem;
 
     QPixmap* offscreen;
-    QAction* deleteAnimationAction;
-    QAction* moveAnimationAction;
+    QAction* deleteItemAction;
+    QAction* moveItemAction;
     QAction* limbWeightsAction;
 
-    virtual void paintEvent(QPaintEvent* event);
+    virtual void paintEvent(QPaintEvent*);
     virtual void contextMenuEvent(QContextMenuEvent *event);
     virtual void mousePressEvent(QMouseEvent* e);
     /** Finds first avaliable space for animation with @param frames frames.
@@ -60,16 +78,12 @@ class TimelineTrail : public QFrame
     TrailItem* FindFreeSpace(int frames);
     /** Find TrailItem that covers given frame */
     TrailItem* findItemOnFrame(int frameIndex);
+    /** Try to extend this trail with empty frame space. Returns TRUE on success. FALSE means
+        that extension would exceed maximum length allowed. */
+    bool coerceExtension(int size);
 
     void drawBackground();
     void drawTrailItem(TrailItem* item);
-
-  signals:
-    void adjustLimbsWeight(/*TODO: frameData*/);
-
-  protected slots:
-    void deleteCurrentAnimation();
-    void moveCurrentAnimation();
 
   private:
     bool leftMouseDown;
@@ -81,6 +95,7 @@ class TimelineTrail : public QFrame
     /** Passes thorugh TimelineItems and updates their begin/end positions.
         Called usually after addition of a new item. */
     void updateTimelineItemsIndices();
+    void cleanupAfterMove();
 };
 
 #endif // TIMELINETRAIL_H

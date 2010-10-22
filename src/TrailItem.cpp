@@ -46,4 +46,3 @@ class TrailItem
 };
 
 #endif // TRAILITEM_C
-
