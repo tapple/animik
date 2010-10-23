@@ -27,7 +27,10 @@ TimelineTrail::TimelineTrail(QWidget* parent, Qt::WindowFlags) : QFrame(parent)
   _firstItem = 0;
   _lastItem = 0;
   draggingItem = 0;
+  draggingOverFrame = -1;
   leftMouseDown = rightMouseDown = false;
+  //we have to receive mouseMoveEvent even when no button down
+  setMouseTracking(true);
 
   //Actions that may appear in context menu
   deleteItemAction = new QAction(tr("Delete animation"), this);
@@ -178,7 +181,6 @@ void TimelineTrail::setCurrentFrame(int frame)
 
 void TimelineTrail::drawBackground()
 {
-  //TODO
   if(!offscreen) return;
 
   QPainter* p = new QPainter(/*DEBUG this*/ offscreen);
@@ -198,6 +200,15 @@ void TimelineTrail::drawBackground()
     p->drawLine(upPoint, downPoint);
   }
 
+  delete p;
+}
+
+void TimelineTrail::drawMovedItemShadow()
+{
+//done elsewhere  if(draggingItem && draggingOverFrame)
+  QPainter* p = new QPainter(offscreen);
+  p->fillRect(draggingOverFrame*FRAME_WIDTH, 3,
+              draggingItem->frames()*FRAME_WIDTH, TRACK_HEIGHT-6, QColor("#d7df01"));
   delete p;
 }
 
@@ -252,8 +263,8 @@ void TimelineTrail::paintEvent(QPaintEvent*)
   }
 
   drawBackground();
-//TODO  if(draggingItem)
-//    drawMovedItemShadow();
+  if(draggingOverFrame >= 0)
+    drawMovedItemShadow();
 
   TrailItem* currentItem = _firstItem;
   while(currentItem != 0)
@@ -278,6 +289,28 @@ void TimelineTrail::contextMenuEvent(QContextMenuEvent *event)
     menu.addAction(limbWeightsAction);
     menu.exec(event->globalPos());
   }
+}
+
+
+void TimelineTrail::mouseMoveEvent(QMouseEvent* me)
+{
+  if(draggingItem)
+  {
+    float hitFrame = ((float)me->pos().x()) / FRAME_WIDTH;
+    int frame = (int)hitFrame;
+    if(frame != draggingOverFrame)
+    {
+      draggingOverFrame = frame;
+      repaint();
+    }
+  }
+}
+
+void TimelineTrail::leaveEvent(QEvent *)
+{
+  //user dragging an TrailItem left this area
+  draggingOverFrame = -1;
+  repaint();
 }
 
 void TimelineTrail::mousePressEvent(QMouseEvent* e)
@@ -378,11 +411,13 @@ void TimelineTrail::onDroppedItem()
   //TODO: Delete it if comming from here.
 
   cleanupAfterMove();
+  repaint();
 }
 
 void TimelineTrail::cleanupAfterMove()
 {
   draggingItem = 0;
+  draggingOverFrame = -1;
   QCursor defCur;
   setCursor(defCur);
 }

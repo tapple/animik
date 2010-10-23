@@ -63,6 +63,8 @@ class TimelineTrail : public QFrame
     /** Not-null indicates that user is dragging an animation above timeline
         ready to drop it on new location, which as well may be this trail */
     TrailItem* draggingItem;
+    /** An item is being repositioned and mouse is over this frame. Else -1 */
+    int draggingOverFrame;
 
     QPixmap* offscreen;
     QAction* deleteItemAction;
@@ -72,6 +74,9 @@ class TimelineTrail : public QFrame
     virtual void paintEvent(QPaintEvent*);
     virtual void contextMenuEvent(QContextMenuEvent *event);
     virtual void mousePressEvent(QMouseEvent* e);
+    /** Reimplemented for moving an item. Potential new location is "shadowed" */
+    virtual void mouseMoveEvent(QMouseEvent* me);
+    virtual void leaveEvent(QEvent*);
     /** Finds first avaliable space for animation with @param frames frames.
         Returns foregoing TimelineItem* on success or throws QString if there is not enough space.
         Returning 0 indicates the space is available on beginning of a track. */
@@ -83,6 +88,7 @@ class TimelineTrail : public QFrame
     bool coerceExtension(int size);
 
     void drawBackground();
+    void drawMovedItemShadow();
     void drawTrailItem(TrailItem* item);
 
   private:
