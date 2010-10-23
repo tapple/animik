@@ -25,7 +25,7 @@ class TimelineTrail : public QFrame
     int frameCount() { return framesCount; }
 
     /** Frame width in pixels. Some (parent) widget need to know before paint. */
-    int frameWidth();
+    int frameWidth() { return _frameWidth; }
 
   signals:
     void resized(const QSize& newSize);
@@ -58,6 +58,8 @@ class TimelineTrail : public QFrame
     int framesCount;
     /** current frame of playback */
     int currentFrame;
+    /** width of one frame in pixels */
+    int _frameWidth;
     /** currently highlighted TrailItem */
     TrailItem* selectedItem;
     /** Not-null indicates that user is dragging an animation above timeline
@@ -81,6 +83,11 @@ class TimelineTrail : public QFrame
         Returns foregoing TimelineItem* on success or throws QString if there is not enough space.
         Returning 0 indicates the space is available on beginning of a track. */
     TrailItem* FindFreeSpace(int frames);
+    bool isSuitableSpace(int beginFrame, int framesCount);
+    /** Find an item laying before given frame */
+    TrailItem* findPreviousItem(int beforeFrame);
+    /** Find an item laying after given frame */
+    TrailItem* findNextItem(int afterFrame);
     /** Find TrailItem that covers given frame */
     TrailItem* findItemOnFrame(int frameIndex);
     /** Try to extend this trail with empty frame space. Returns TRUE on success. FALSE means

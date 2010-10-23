@@ -20,6 +20,8 @@ class TrailItem
     }
 
     int beginIndex() { return begin; }
+    void setBeginIndex(int index) { begin=index; }
+    //convenience method
     void shiftBeginIndex(int beginOffset) { begin += beginOffset; }
     int endIndex() { return begin + frames() -1; }
     Animation* getAnimation() { return animation; }
