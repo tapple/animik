@@ -39,6 +39,7 @@ BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(pare
     //if current frame of a trail has changed, sync all others
     connect(tt, SIGNAL(currentFrameChanged(int)), this, SLOT(setCurrentFrame(int)));
     connect(tt, SIGNAL(selectedItemChanged()), this, SLOT(unselectOldItem()));
+    connect(tt, SIGNAL(backgroundClicked()), this, SLOT(unselectOldItem()));
     connect(tt, SIGNAL(positionCenter(int)), this, SLOT(scrollTo(int)));
     connect(tt, SIGNAL(movingItem(TrailItem*)), this, SLOT(startItemReposition(TrailItem*)));
     connect(tt, SIGNAL(droppedItem()), this, SLOT(endItemReposition()));

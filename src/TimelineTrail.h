@@ -34,6 +34,7 @@ class TimelineTrail : public QFrame
     void currentFrameChanged(int newFrameIndex);
     /** Let other trails know current TrailItem changed so they unselect theirs */
     void selectedItemChanged();
+    void backgroundClicked();
     /** Let other trails know this one changed it's size in frames so they do the same */
     void framesCountChanged(int newCount);
     void adjustLimbsWeight(/*TODO: frameData*/);
@@ -45,7 +46,7 @@ class TimelineTrail : public QFrame
   public slots:
     void setCurrentFrame(int frame);
     /** Unselect currently selected TrailItem */
-    void cancelTrailSelection() { selectedItem=0; }
+    void cancelTrailSelection() { selectedItem=0; repaint(); }
     void setFrameCount(int frames);
     void onMovingItem(TrailItem* draggedItem);
     void onDroppedItem();
@@ -93,7 +94,6 @@ class TimelineTrail : public QFrame
     /** Try to extend this trail with empty frame space. Returns TRUE on success. FALSE means
         that extension would exceed maximum length allowed. */
     bool coerceExtension(int size);
-
     TrailItem* cutCurrentItem();
 
     void drawBackground();

@@ -264,13 +264,6 @@ bool TimelineTrail::isSuitableSpace(int beginFrame, int framesCount)
   TrailItem* currentItem = _firstItem;
   while(currentItem != 0)
   {
-    //DEBUG so far
-/*    if(currentItem == draggingItem)
-    {
-      currentItem = currentItem->nextItem();
-      continue;
-    }*/
-
     if(currentItem->beginIndex()>endFrame)    //all items from here are too far, so safe
       return true;
     if((currentItem->beginIndex()>=beginFrame && currentItem->beginIndex()<=endFrame) ||
@@ -468,6 +461,8 @@ void TimelineTrail::mousePressEvent(QMouseEvent* e)
     emit currentFrameChanged(currentFrame);
   }
   TrailItem* clickedItem = findItemOnFrame(currentFrame);
+  if(clickedItem==0)
+    emit backgroundClicked();
   if(clickedItem != selectedItem)
   {
     selectedItem = clickedItem;
