@@ -148,6 +148,9 @@ void TimelineTrail::setFrameCount(int frames)
 {
   qDebug("TimelineTrail::setNumberOfFrames(%d==%d): %0lx", framesCount, frames, (unsigned long) offscreen);
 
+  if(frames==framesCount)
+    return;   //nothing to do
+
   framesCount=frames;
   QPixmap* newOffscreen = new QPixmap(framesCount*_frameWidth, TRACK_HEIGHT);
 
@@ -213,6 +216,7 @@ void TimelineTrail::drawMovedItemShadow()
 void TimelineTrail::drawTrailItem(TrailItem* item)
 {
   if(!offscreen) return;
+  if(item==draggingItem) return;
 
   QPainter p(/*DEBUG this*/ offscreen);
 
@@ -260,6 +264,13 @@ bool TimelineTrail::isSuitableSpace(int beginFrame, int framesCount)
   TrailItem* currentItem = _firstItem;
   while(currentItem != 0)
   {
+    //DEBUG so far
+/*    if(currentItem == draggingItem)
+    {
+      currentItem = currentItem->nextItem();
+      continue;
+    }*/
+
     if(currentItem->beginIndex()>endFrame)    //all items from here are too far, so safe
       return true;
     if((currentItem->beginIndex()>=beginFrame && currentItem->beginIndex()<=endFrame) ||
@@ -285,6 +296,8 @@ void TimelineTrail::cleanupAfterMove()
 
 TrailItem* TimelineTrail::findPreviousItem(int beforeFrame)
 {
+  if(_firstItem==0/*==_lastItem*/)
+    return 0;
   if(_firstItem->beginIndex() > beforeFrame)
     return 0;         //belongs to beginning
   if(_firstItem==_lastItem)
@@ -309,12 +322,14 @@ TrailItem* TimelineTrail::findPreviousItem(int beforeFrame)
 
 TrailItem* TimelineTrail::findNextItem(int afterFrame)
 {
+  if(_lastItem==0/*==_firstItem*/)
+    return 0;
   if(_lastItem->endIndex() < afterFrame)
     return 0;           //belongs to very end
   if(_firstItem==_lastItem)
   {
-    if(_lastItem->beginIndex() < afterFrame)
-      return _lastItem;
+    if(_lastItem->beginIndex() > afterFrame)
+     return _lastItem;
     else
       return 0;
   }
@@ -398,67 +413,52 @@ void TimelineTrail::mousePressEvent(QMouseEvent* e)
   leftMouseDown = rightMouseDown = false;
   int clickedFrame = e->x()/_frameWidth;
 
+  //user wishes to place dragged item
   if(draggingItem)
   {
-    //TODO: place it here, make it selected (if from different trail)
-
-    //just reposition within this trail
-    if(draggingItem == selectedItem)
+    if(isSuitableSpace(clickedFrame, draggingItem->frames()))
     {
-      if(isSuitableSpace(clickedFrame, draggingItem->frames()))
+      int endFrame = clickedFrame + draggingItem->frames() -1;
+      if(endFrame > framesCount-1)      //we need to extend trail
       {
-        int endFrame = clickedFrame + draggingItem->frames() -1;
-        if(endFrame > framesCount-1)      //we need to extend trail
-        {
-          int remaining = framesCount - _lastItem->endIndex() -1;
-          if(!coerceExtension(draggingItem->frames() - remaining))
-            return;       //this should never happen if 'isSuitableSpace' returned true
-        }
-
-        TrailItem* newPrevious = findPreviousItem(clickedFrame);
-        TrailItem* newNext = findNextItem(endFrame);
-
-        //DEBUG 4 lines (so far)
-        if(newPrevious==draggingItem)
-          newPrevious=draggingItem->previousItem();
-        if(newNext==draggingItem)
-          newNext=draggingItem->nextItem();
-
-        //correct old bindings
-        if(draggingItem->previousItem() && draggingItem->previousItem()->nextItem()!=draggingItem)
-          draggingItem->previousItem()->setNextItem(draggingItem->nextItem());
-        if(draggingItem->nextItem())
-          draggingItem->nextItem()->setPreviousItem(draggingItem->previousItem());
-
-        if(newPrevious==0)
-        {
-          draggingItem->setPreviousItem(0);
-          if(draggingItem != _firstItem)
-            draggingItem->setNextItem(_firstItem);
-          _firstItem = draggingItem;
-        }
-        else if(newNext==0)
-        {
-          draggingItem->setNextItem(0);
-          if(draggingItem != _lastItem)
-            draggingItem->setPreviousItem(_lastItem);
-          _lastItem = draggingItem;
-        }
-        else
-        {
-          draggingItem->setPreviousItem(newPrevious);
-          draggingItem->setNextItem(newNext);
-          newPrevious->setNextItem(draggingItem);
-          newNext->setPreviousItem(draggingItem);
-        }
-
-        draggingItem->setBeginIndex(clickedFrame);
+        int inside = framesCount-clickedFrame;
+        if(!coerceExtension(draggingItem->frames() - inside))
+          return;       //this should never happen if 'isSuitableSpace' returned true
       }
-      else
-        return;     //failed to drop an item on timeline
+
+      TrailItem* newPrevious = findPreviousItem(clickedFrame);
+      TrailItem* newNext = findNextItem(endFrame);
+
+      //set it to new location on this trail
+      if(newPrevious!=0)
+      {
+        newPrevious->setNextItem(draggingItem);
+        draggingItem->setPreviousItem(newPrevious);
+      }
+      else      //will become new _first here
+      {
+        draggingItem->setPreviousItem(0);
+        _firstItem = draggingItem;
+      }
+      if(newNext!=0)
+      {
+        newNext->setPreviousItem(draggingItem);
+        draggingItem->setNextItem(newNext);
+      }
+      else      //will become new _last
+      {
+        draggingItem->setNextItem(0);
+        _lastItem = draggingItem;
+      }
+
+      draggingItem->setBeginIndex(clickedFrame);
+      selectedItem = draggingItem;
     }
+    else
+      return;     //failed to drop an item on timeline
 
     cleanupAfterMove();
+    repaint();
     emit droppedItem();
     return;
   }
@@ -484,9 +484,9 @@ void TimelineTrail::mousePressEvent(QMouseEvent* e)
   repaint();
 }
 
-// ---------------------- SLOTS ---------------------- //
-/////////////////////////////////////////////////////////
-void TimelineTrail::deleteCurrentItem()
+
+/** Delete selected TrailItem from this trail and return it (to be copied to a 'clipboard') */
+TrailItem* TimelineTrail::cutCurrentItem()
 {
   TrailItem* current = selectedItem;
 
@@ -499,7 +499,7 @@ void TimelineTrail::deleteCurrentItem()
     _firstItem = current->nextItem();
     current->nextItem()->setPreviousItem(0);
   }
-  else if(current==_lastItem)                        //last on trail
+  else if(current==_lastItem)                       //last on trail
   {
     _lastItem = current->previousItem();
     current->previousItem()->setNextItem(0);
@@ -510,16 +510,30 @@ void TimelineTrail::deleteCurrentItem()
     current->nextItem()->setPreviousItem(current->previousItem());
   }
 
-  delete current;
+
+  //This is probably not needed, TODO: resolve
+  current->setPreviousItem(0);
+  current->setNextItem(0);
+
+
   selectedItem = 0;
+  return current;
+}
+
+
+// ---------------------- SLOTS ---------------------- //
+/////////////////////////////////////////////////////////
+void TimelineTrail::deleteCurrentItem()
+{
+  TrailItem* current = cutCurrentItem();
+  delete current;
   repaint();
 }
 
 void TimelineTrail::moveCurrentItem()
 {
-  QPoint corner(selectedItem->beginIndex()*_frameWidth, 3);
-  QCursor::setPos(mapToGlobal(corner));
-  emit movingItem(selectedItem);
+  draggingItem = cutCurrentItem();
+  emit movingItem(draggingItem);
 }
 
 void TimelineTrail::showLimbsWeight()
@@ -532,14 +546,14 @@ void TimelineTrail::onMovingItem(TrailItem* draggedItem)
 {
   QCursor movCur(Qt::SizeAllCursor);
   setCursor(movCur);
-  draggingItem=draggedItem;
+  draggingItem=draggedItem;     //in case of sender, this is not needed
 }
 
 void TimelineTrail::onDroppedItem()
 {
   //Delete it if coming from here.
-  if(draggingItem == selectedItem)
-    deleteCurrentItem();
+//  if(draggingItem == selectedItem)
+//    deleteCurrentItem();
 
   cleanupAfterMove();
   repaint();

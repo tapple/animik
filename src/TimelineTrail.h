@@ -94,6 +94,8 @@ class TimelineTrail : public QFrame
         that extension would exceed maximum length allowed. */
     bool coerceExtension(int size);
 
+    TrailItem* cutCurrentItem();
+
     void drawBackground();
     void drawMovedItemShadow();
     void drawTrailItem(TrailItem* item);

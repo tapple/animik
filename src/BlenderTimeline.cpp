@@ -48,14 +48,10 @@ BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(pare
     scrollLayout->addWidget(tt);
   }
 
-
   stackWidget->setFocusPolicy(Qt::WheelFocus);
-//  stackWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   stackWidget->setLayout(scrollLayout);
   scrollArea->setWidget(stackWidget);
-//  fitStackWidgetToContent();
   needsReshape = true;
-
 
   limbsForm = new LimbsWeightForm(this);
 
@@ -79,7 +75,6 @@ bool BlenderTimeline::AddAnimation(Animation* anim, QString title)
     if(trail->AddAnimation(anim, title))
     {
 //      fitStackWidgetToContent();
-      needsReshape=true;
       repaint();
       return true;
     }
@@ -151,4 +146,7 @@ void BlenderTimeline::setFramesCount(int newCount)
   foreach(TimelineTrail* trail, trails)
 //    if(trail != sender())
     trail->setFrameCount(newCount);
+
+  needsReshape = true;
+  repaint();
 }
