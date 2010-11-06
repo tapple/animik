@@ -232,11 +232,16 @@ void TimelineTrail::drawTrailItem(TrailItem* item)
     boxColor = QColor("#ff0077");
     selFrameColor = QColor("#b4045f");
   }
-  p.fillRect(item->beginIndex()*_frameWidth, 3, item->frames()*_frameWidth, TRACK_HEIGHT-6, boxColor);
+  p.fillRect(item->beginIndex()*_frameWidth+2, 4, item->frames()*_frameWidth-2, TRACK_HEIGHT-6, boxColor);
+  QRectF border(item->beginIndex()*_frameWidth, 3, item->frames()*_frameWidth, TRACK_HEIGHT-6);
+  QPen borderPen(QColor("#000000"));
+  borderPen.setWidth(3);
+  p.setPen(borderPen);
+  p.drawRoundedRect(border, 6.0, 6.0);
   int begin = item->beginIndex();
-  //if selected frame falls inside this animation, highlight respective frame
+  //if selected frame falls inside this animation, highlight the frame
   if(currentFrame>=begin && currentFrame<=item->endIndex())
-    p.fillRect(currentFrame*_frameWidth, 3, _frameWidth, TRACK_HEIGHT-6, selFrameColor);
+    p.fillRect(currentFrame*_frameWidth, 5, _frameWidth, TRACK_HEIGHT-9, selFrameColor);
 }
 
 
@@ -480,7 +485,6 @@ void TimelineTrail::mousePressEvent(QMouseEvent* e)
 }
 
 
-/** Delete selected TrailItem from this trail and return it (to be copied to a 'clipboard') */
 TrailItem* TimelineTrail::cutCurrentItem()
 {
   TrailItem* current = selectedItem;
@@ -505,11 +509,9 @@ TrailItem* TimelineTrail::cutCurrentItem()
     current->nextItem()->setPreviousItem(current->previousItem());
   }
 
-
-  //This is probably not needed, TODO: resolve
+  //This is probably not necessary
   current->setPreviousItem(0);
   current->setNextItem(0);
-
 
   selectedItem = 0;
   return current;
@@ -546,10 +548,6 @@ void TimelineTrail::onMovingItem(TrailItem* draggedItem)
 
 void TimelineTrail::onDroppedItem()
 {
-  //Delete it if coming from here.
-//  if(draggingItem == selectedItem)
-//    deleteCurrentItem();
-
   cleanupAfterMove();
   repaint();
 }

@@ -27,7 +27,8 @@ SOURCES += animation.cpp \
     AnimationList.cpp \
     TimelineTrail.cpp \
     TrailItem.cpp \
-    LimbsWeightForm.cpp
+    LimbsWeightForm.cpp \
+    Player.cpp
 HEADERS += animation.h \
     animationview.h \
     bvh.h \
@@ -54,7 +55,8 @@ HEADERS += animation.h \
     BlenderTimeline.h \
     AnimationList.h \
     TimelineTrail.h \
-    LimbsWeightForm.h
+    LimbsWeightForm.h \
+    Player.h
 FORMS += mainapplicationform.ui \
     settingsdialogform.ui \
     KeyFramerTab.ui \
@@ -62,7 +64,8 @@ FORMS += mainapplicationform.ui \
     SaveChangesDialog.ui \
     BlenderTab.ui \
     AnimationList.ui \
-    LimbsWeightForm.ui
+    LimbsWeightForm.ui \
+    Player.ui
 RESOURCES += icons.qrc
 TEMPLATE = app
 TARGET = ../bin/qavimator
