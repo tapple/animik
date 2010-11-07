@@ -22,6 +22,8 @@ BlenderTab::BlenderTab(qavimator* mainWindow, const QString& fileName, bool crea
   setAttribute(Qt::WA_DeleteOnClose);
 
   connect(this, SIGNAL(resetCamera()), blenderAnimationView, SLOT(resetCamera()));
+  connect(blenderTimeline, SIGNAL(resultingAnimationChanged(Animation*)), blenderPlayer, SLOT(onAnimationChanged(Animation*)));
+  connect(blenderTimeline, SIGNAL(resultingAnimationChanged(Animation*)), this, SLOT(onTimelineAnimationChanged(Animation*)));
 
   if(createFile)
   {
@@ -281,8 +283,13 @@ void BlenderTab::on_animsList_AnimationFileTaken(QString filename)
 
 // ---------------------------------------------- //
 
+// --------------- other slots ------------------ //
+void BlenderTab::onTimelineAnimationChanged(Animation* anim)
+{
+  blenderAnimationView->setAnimation(anim);
+}
 
-
+// ---------------------------------------------- //
 
 
 

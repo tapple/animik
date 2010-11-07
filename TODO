@@ -20,6 +20,7 @@ Bugs:
   * It's somehow possible to lose selected filename in AnimationList without 'Add to timeline' button being disabled. Causes SIGSEGV.
   * Spotted on Win32. Open AVM, selecte a part, alter rotation. Tab is marked with '*', but after selecting another part, it
     disappears (like being saved).
+  * Player loop-ing is independet from underlying Animation. This causes infinite Timer calls on Player when looping while the Animation don't
 
 Bug-o-feature:
   * In the SaveChangesDialog it's possible to change the filename by double-clicking. Find if it's possible to save the file under

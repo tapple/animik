@@ -13,6 +13,8 @@ Player::Player(QWidget *parent) : QWidget(parent), ui(new Ui::Player)
   loopOut = 0;
   loop = true;
 
+  setButtonsEnabled(false);
+  updateLabel();
   connect(&timer,SIGNAL(timeout()),this,SLOT(timerTimeout()));
 }
 
@@ -38,6 +40,22 @@ void Player::setPlaybackFrame(int frame)
     updateLabel();
     emit playbackFrameChanged(playFrame());
   }
+}
+
+int Player::playFrame()
+{
+  if(animation)
+    return animation->getFrame();
+  else
+    return 0;
+}
+
+int Player::totalFrames()
+{
+  if(animation)
+    return animation->getNumberOfFrames();
+  else
+    return 0;
 }
 
 void Player::playOrPause()
@@ -104,12 +122,25 @@ void Player::skipToLast()
 
 void Player::onAnimationChanged(Animation *animation)
 {
+  setButtonsEnabled(animation!=0);
+
+  int oldPlayFrame = playFrame();
+  //When first overall animation emerges, stretch looping to max
+  if(/*DEBUG. Uncomment when LoopIn/Out set by some form. this->animation==0 &&*/ animation)
+    loopOut = animation->getNumberOfFrames();
   this->animation = animation;
-  int framesCount = animation->getNumberOfFrames();
-  if(framesCount<loopIn)
-    loopIn=0;
-  if(framesCount<loopOut)
-    loopOut=framesCount;
+  if(animation)
+  {
+    int framesCount = animation->getNumberOfFrames();
+    if(framesCount<loopIn)
+      loopIn=0;
+    if(framesCount<loopOut)
+      loopOut=framesCount;
+    if(oldPlayFrame<=totalFrames())
+      setPlaybackFrame(oldPlayFrame);
+  }
+  else
+    loopIn = loopOut = 0;
 }
 
 void Player::timerTimeout()
@@ -117,6 +148,15 @@ void Player::timerTimeout()
   stepForward();
 }
 
+
+void Player::setButtonsEnabled(bool enabled)
+{
+  ui->beginButton->setEnabled(enabled);
+  ui->previousButton->setEnabled(enabled);
+  ui->playButton->setEnabled(enabled);
+  ui->nextButton->setEnabled(enabled);
+  ui->endButton->setEnabled(enabled);
+}
 
 void Player::updateLabel()
 {
@@ -126,4 +166,24 @@ void Player::updateLabel()
 void Player::on_playButton_clicked()
 {
   playOrPause();
+}
+
+void Player::on_previousButton_clicked()
+{
+  stepBackward();
+}
+
+void Player::on_nextButton_clicked()
+{
+  stepForward();
+}
+
+void Player::on_beginButton_clicked()
+{
+  skipToFirst();
+}
+
+void Player::on_endButton_clicked()
+{
+  skipToLast();
 }

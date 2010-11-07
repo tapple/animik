@@ -141,8 +141,11 @@ void AnimationView::setAnimation(Animation* anim)
     clear();
 
     currentAnimation=anim;
-    animList.append(anim);
-    connect(anim,SIGNAL(frameChanged()),this,SLOT(repaint()));
+    if(anim)
+    {
+      animList.append(anim);
+      connect(anim,SIGNAL(frameChanged()),this,SLOT(repaint()));
+    }
     repaint();
 }
 

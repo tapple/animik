@@ -17,6 +17,9 @@
    <property name="margin">
     <number>2</number>
    </property>
+   <property name="spacing">
+    <number>1</number>
+   </property>
    <item row="0" column="0">
     <widget class="AnimationView" name="blenderAnimationView" native="true">
      <property name="sizePolicy">
@@ -99,7 +102,7 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="QWidget" name="blenderPlayer" native="true">
+    <widget class="Player" name="blenderPlayer" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -155,6 +158,12 @@
    <class>AnimationList</class>
    <extends>QWidget</extends>
    <header>AnimationList.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Player</class>
+   <extends>QWidget</extends>
+   <header>Player.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

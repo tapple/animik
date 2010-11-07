@@ -8,6 +8,7 @@
 
 #include "TimelineTrail.h"
 #include "TrailItem.cpp"
+#include "bvh.h"
 
 #define TRACK_HEIGHT     72
 #define MIN_FRAME_WIDTH  8    //minimum frame space width that can't be crossed when zooming
@@ -44,7 +45,7 @@ bool TimelineTrail::AddAnimation(Animation* anim, QString title)
 {
   TrailItem* toBePredecessor;
   try {
-    toBePredecessor = FindFreeSpace(anim->getNumberOfFrames());
+    toBePredecessor = findFreeSpace(anim->getNumberOfFrames());
   }
   catch(QString* message)
   {/* Not enough space on this trail. Probably we can't do more here. */
@@ -82,13 +83,14 @@ bool TimelineTrail::AddAnimation(Animation* anim, QString title)
   }
 
   updateTimelineItemsIndices();
+  trailContentChange();
   repaint();
   return true;
 }
 
 
 
-TrailItem* TimelineTrail::FindFreeSpace(int frames)
+TrailItem* TimelineTrail::findFreeSpace(int frames)
 {
   if(_firstItem == 0 && frames <= framesCount)
     return 0;
@@ -315,6 +317,8 @@ TrailItem* TimelineTrail::findPreviousItem(int beforeFrame)
       return currentItem;
     currentItem = currentItem->nextItem();
   }
+
+  throw "findNextItem: unable to return valid TrailItem object";
 }
 
 
@@ -341,8 +345,75 @@ TrailItem* TimelineTrail::findNextItem(int afterFrame)
       return currentItem;
     currentItem = currentItem->previousItem();
   }
+
+  throw "findNextItem: unable to return valid TrailItem object";
 }
 
+
+
+Animation* TimelineTrail::getSummaryAnimation()
+{
+  if(_firstItem==0)           //no animations left at this trail
+    return 0;
+  if(_firstItem==_lastItem)   //single animation, no need for join
+    return _firstItem->getAnimation();
+
+  //TODO
+  //DEBUG: so far, just concatenate them ignoring gaps or any other attributes
+  int totalFrames = 0;
+  TrailItem* currentItem = _firstItem;
+  while(currentItem!=0)
+  {
+    totalFrames += currentItem->frames();
+    currentItem = currentItem->nextItem();
+  }
+
+  Animation* result = new Animation(new BVH(), ""); //_firstItem->getAnimation();
+  result->setNumberOfFrames(totalFrames);
+
+  //copy rotations to the result
+  BVHNode* root = _firstItem->getAnimation()->getMotion();
+  enhanceResultAnimation(result, root);
+
+  return result;
+}
+
+
+void TimelineTrail::enhanceResultAnimation(Animation* destAnim, BVHNode* node)
+{
+  int limbIndex = destAnim/*_firstItem->getAnimation()*/->getPartIndex(node);
+  appendNodeKeyFrames(destAnim, limbIndex);
+  for(int i=0; i<node->numChildren(); i++)
+    enhanceResultAnimation(destAnim, node->child(i));
+}
+
+
+void TimelineTrail::appendNodeKeyFrames(Animation* destAnim, int nodeIndex)
+{
+  TrailItem* currentItem = _firstItem;//->nextItem();
+  int frameOffset = 0;//_firstItem->frames();
+
+  while(currentItem!=0)
+  {
+    BVHNode* limb = currentItem->getAnimation()->getNode(nodeIndex);
+    QList<int> indices = limb->keyframeList();
+    int count = indices.count();
+    for(int i=0; i<count; i++)
+    {
+      FrameData oldData = limb->frameData(indices[i]);
+      destAnim->getNode(nodeIndex)->addKeyframe(indices[i]+frameOffset, oldData.position(), oldData.rotation());
+    }
+    frameOffset += currentItem->frames();
+    currentItem = currentItem->nextItem();
+  }
+}
+
+
+void TimelineTrail::trailContentChange()
+{
+  Animation* result = getSummaryAnimation();
+  emit trailAnimationChanged(result);
+}
 
 
 void TimelineTrail::paintEvent(QPaintEvent*)
@@ -458,6 +529,7 @@ void TimelineTrail::mousePressEvent(QMouseEvent* e)
     cleanupAfterMove();
     repaint();
     emit droppedItem();
+    trailContentChange();
     return;
   }
   if(clickedFrame != currentFrame)
@@ -514,6 +586,7 @@ TrailItem* TimelineTrail::cutCurrentItem()
   current->setNextItem(0);
 
   selectedItem = 0;
+  trailContentChange();
   return current;
 }
 

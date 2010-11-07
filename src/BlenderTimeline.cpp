@@ -45,6 +45,8 @@ BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(pare
     connect(tt, SIGNAL(droppedItem()), this, SLOT(endItemReposition()));
     connect(tt, SIGNAL(adjustLimbsWeight(/*TODO: frameData*/)), this, SLOT(showLimbsWeightForm(/*TODO: frameData*/)));
     connect(tt, SIGNAL(framesCountChanged(int)), this, SLOT(setFramesCount(int)));
+    connect(tt, SIGNAL(trailAnimationChanged(Animation*)), this, SLOT(onTrailAnimationChanged(Animation*)));
+
     trails.append(tt);
     scrollLayout->addWidget(tt);
   }
@@ -150,4 +152,11 @@ void BlenderTimeline::setFramesCount(int newCount)
 
   needsReshape = true;
   repaint();
+}
+
+void BlenderTimeline::onTrailAnimationChanged(Animation* anim)
+{
+
+  //DEBUG so far, TODO: recalculate overall animation
+  emit resultingAnimationChanged(anim);
 }

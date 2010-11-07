@@ -53,7 +53,7 @@ class BVH
     void bvhWriteFrame(BVHNode* node,QTextStream& out,int frame);
     void bvhPrintNode(BVHNode* n, int depth);
 
-    void bvhWrite(Animation* root,const QString& file);
+    void bvhWrite(Animation* anim,const QString& file);
     BVHNode* bvhFindNode(BVHNode* root,const QString& name) const;
 
     void bvhGetChannelLimits(BVHNode* node, BVHChannelType type, double *min, double *max);
@@ -70,8 +70,8 @@ class BVH
     BVHNode* animRead(const QString& file,const QString& limFile);
     BVHNode* avmRead(const QString& file);
 
-    void avmWrite(Animation* root,const QString& file);
-    void animWrite(Animation* root,const QString& file);
+    void avmWrite(Animation* anim,const QString& file);
+    void animWrite(Animation* anim,const QString& file);
     void bvhDelete(BVHNode* node);
 
     QStringList bvhTypeName;

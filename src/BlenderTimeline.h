@@ -24,6 +24,10 @@ class BlenderTimeline : public QFrame
     /** Add new animation to a track where fits first. Returns TRUE on success */
     bool AddAnimation(Animation* anim, QString title);
 
+  signals:
+    void resultingAnimationChanged(Animation*);
+
+
   protected slots:
     void setCurrentFrame(int frameIndex);
     /** Find trail with selected TrailItem and make it unselect it */
@@ -32,6 +36,7 @@ class BlenderTimeline : public QFrame
     void setFramesCount(int newCount);
     void startItemReposition(TrailItem* draggingItem);
     void endItemReposition();
+    void onTrailAnimationChanged(Animation* anim);
 
   protected:
     QScrollArea* scrollArea;

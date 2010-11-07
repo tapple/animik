@@ -41,6 +41,7 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
 
   public slots:
      virtual void onTabActivated();
+     void onTimelineAnimationChanged(Animation* anim);
      void on_animsList_AnimationFileTaken(QString filename);
 
   protected:
