@@ -54,9 +54,9 @@ HEADERS += animation.h \
     Blender.h \
     BlenderTimeline.h \
     AnimationList.h \
-    TimelineTrail.h \
     LimbsWeightForm.h \
-    Player.h
+    Player.h \
+    TimelineTrail2.h
 FORMS += mainapplicationform.ui \
     settingsdialogform.ui \
     KeyFramerTab.ui \
