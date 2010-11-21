@@ -56,7 +56,7 @@ HEADERS += animation.h \
     AnimationList.h \
     LimbsWeightForm.h \
     Player.h \
-    TimelineTrail2.h
+    TimelineTrail.h
 FORMS += mainapplicationform.ui \
     settingsdialogform.ui \
     KeyFramerTab.ui \

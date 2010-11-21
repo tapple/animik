@@ -1,5 +1,5 @@
-#ifndef TIMELINETRAIL2_H
-#define TIMELINETRAIL2_H
+#ifndef TIMELINETRAIL_H
+#define TIMELINETRAIL_H
 
 #include <QFrame>
 #include "animation.h"
