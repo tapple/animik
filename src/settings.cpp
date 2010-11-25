@@ -96,6 +96,7 @@ void Settings::ReadSettings()
     protectFirstFrame=settings.value("/protect_first_frame").toBool();
     showTimelinePanel=settings.value("/show_timeline").toBool();        */
 
+    m_windowMaximized = settings.value("/mainwindow_maximized").toBool();
     int width = settings.value("/mainwindow_width").toInt();
     int height = settings.value("/mainwindow_height").toInt();
 
@@ -161,6 +162,7 @@ void Settings::WriteSettings()
   settings.setValue("/show_timeline",optionsShowTimelineAction->isChecked());   */
 
 //rbsh  settings.setValue("/figure",figureCombo->currentIndex());
+  settings.setValue("/mainwindow_maximized", m_windowMaximized);
   settings.setValue("/mainwindow_width", m_windowWidth);
   settings.setValue("/mainwindow_height", m_windowHeight);
 
@@ -180,6 +182,8 @@ void Settings::WriteSettings()
 
 
 //void Settings::setWindowHeight(int height)     { m_windowHeight=height; }
+bool Settings::windowMaximized() const           { return m_windowMaximized; }
+void Settings::setWindowMaximized(bool full)     { m_windowMaximized = full; }
 int Settings::windowHeight() const                { return m_windowHeight; }
 void Settings::setWindowHeight(int height)        { m_windowHeight = height; }
 //void Settings::setWindowWidth(int width)       { m_windowHeight=width; }

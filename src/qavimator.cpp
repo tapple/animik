@@ -48,6 +48,8 @@ qavimator::qavimator() //: QMainWindow(0)
   setAttribute(Qt::WA_DeleteOnClose);
 
   resize(Settings::Instance()->windowWidth(), Settings::Instance()->windowHeight());
+  if(Settings::Instance()->windowMaximized())
+    setWindowState(Qt::WindowMaximized);
 
   if(qApp->argc()>1)
   {
@@ -238,7 +240,7 @@ void qavimator::quit()
     return;
 
   Settings::Instance()->WriteSettings();
-  
+
   // remove all widgets and close the main form
   qApp->exit(0);
 }
@@ -369,6 +371,16 @@ void qavimator::setCurrentFile(const QString& fileName)           //TODO: to set
 }
 
 
+void qavimator::resizeEvent(QResizeEvent *)
+{
+  Settings::Instance()->setWindowMaximized(isMaximized());
+  if(!isMaximized())
+  {
+    Settings::Instance()->setWindowWidth(width());
+    Settings::Instance()->setWindowHeight(height());
+  }
+}
+
 
 // prevent closing of main window if there are unsaved changes
 void qavimator::closeEvent(QCloseEvent* event)
@@ -376,7 +388,10 @@ void qavimator::closeEvent(QCloseEvent* event)
   if(/*!clearOpenFiles()*/ !resolveUnsavedTabs())
     event->ignore();
   else
+  {
+    Settings::Instance()->WriteSettings();
     event->accept();
+  }
 }
 
 

@@ -37,6 +37,8 @@ public:
 
   static const int MaxRecentOpenFiles = 15;
 
+  bool windowMaximized() const;
+  void setWindowMaximized(bool fullscreen);
   int windowHeight() const;
   void setWindowHeight(int height);
   int windowWidth() const;
@@ -67,6 +69,7 @@ private:
 
   static Settings* instance;
 
+  bool m_windowMaximized;
   int m_windowHeight;
   int m_windowWidth;
 

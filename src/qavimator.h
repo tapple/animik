@@ -90,6 +90,8 @@ protected slots:
   void on_mdiArea_subWindowActivated(QMdiSubWindow*);
 
 protected:
+  //resize main windows and save size to Settings
+  virtual void resizeEvent(QResizeEvent *);
   // prevent closing of main window if there are unsaved changes
   virtual void closeEvent(QCloseEvent* event);
 

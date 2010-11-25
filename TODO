@@ -22,6 +22,9 @@ Bugs:
     disappears (like being saved).
   * Player loop-ing is independet from underlying Animation. This causes infinite Timer calls on Player when looping while the Animation don't
 
+  * INVESTIGATE FIRST: Place two different animations on Blender's timeline. Move the latter on on different track. Delete the left on first track.
+                       Click on the remaining one (non-first track).
+
 Bug-o-feature:
   * In the SaveChangesDialog it's possible to change the filename by double-clicking. Find if it's possible to save the file under
     different filename.
