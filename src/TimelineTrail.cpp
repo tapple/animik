@@ -412,7 +412,7 @@ void TimelineTrail::appendNodeKeyFrames(Animation* destAnim, int nodeIndex)
 void TimelineTrail::trailContentChange()
 {
   Animation* result = getSummaryAnimation();
-  emit trailAnimationChanged(result);
+  emit trailAnimationChanged(result, _firstItem->beginIndex());
 }
 
 

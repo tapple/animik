@@ -25,6 +25,7 @@ class BlenderTimeline : public QFrame
     bool AddAnimation(Animation* anim, QString title);
 
   signals:
+    /** Warn about Animation and its first frame position */
     void resultingAnimationChanged(Animation*);
 
 
@@ -47,6 +48,7 @@ class BlenderTimeline : public QFrame
     virtual void paintEvent(QPaintEvent*);
 
   private:
+    int animationBeginFrame;        //the offset denoting first frame of the overall animation
     int trailFramesCount;
     int needsReshape;
 

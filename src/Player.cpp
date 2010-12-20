@@ -8,6 +8,7 @@ Player::Player(QWidget *parent) : QWidget(parent), ui(new Ui::Player)
 {
   ui->setupUi(this);
 
+  animation = 0;
   _state = PLAYSTATE_STOPPED;
   loopIn = 0;
   loopOut = 0;
@@ -127,7 +128,7 @@ void Player::onAnimationChanged(Animation *animation)
   int oldPlayFrame = playFrame();
   //When first overall animation emerges, stretch looping to max
   if(/*DEBUG. Uncomment when LoopIn/Out set by some form. this->animation==0 &&*/ animation)
-    loopOut = animation->getNumberOfFrames();
+    loopOut = animation->getNumberOfFrames()-1;
   this->animation = animation;
   if(animation)
   {
@@ -135,7 +136,7 @@ void Player::onAnimationChanged(Animation *animation)
     if(framesCount<loopIn)
       loopIn=0;
     if(framesCount<loopOut)
-      loopOut=framesCount;
+      loopOut=framesCount-1;    //last animation's frame
     if(oldPlayFrame<=totalFrames())
       setPlaybackFrame(oldPlayFrame);
   }

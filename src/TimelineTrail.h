@@ -45,7 +45,7 @@ class TimelineTrail : public QFrame
         can release/reposition it or new one can adopt it. */
     void droppedItem();
     /** Summary animation was changed */
-    void trailAnimationChanged(Animation* animation);
+    void trailAnimationChanged(Animation* animation, int firstFrame);
 
   public slots:
     void setCurrentFrame(int frame);

@@ -15,14 +15,13 @@ Features:
 
 Bugs:
   * After opening .avm file, the floor is not highlighted red if first frame is protected. After moving on another frame and back it already is
-  * Tab/window title not flagged with asterisk when change don in TimeLineView by dragging.
-  * Main window height/width is not saved.
+  * Tab/window title not flagged with asterisk when change done in TimeLineView by dragging.
   * It's somehow possible to lose selected filename in AnimationList without 'Add to timeline' button being disabled. Causes SIGSEGV.
   * Spotted on Win32. Open AVM, selecte a part, alter rotation. Tab is marked with '*', but after selecting another part, it
     disappears (like being saved).
-  * Player loop-ing is independet from underlying Animation. This causes infinite Timer calls on Player when looping while the Animation don't
+  * Player loop-ing is independent from underlying Animation. The looping set on the Player should actually set it to the animation.
 
-  * INVESTIGATE FIRST: Place two different animations on Blender's timeline. Move the latter on on different track. Delete the left on first track.
+  * INVESTIGATE FIRST: Place two different animations on Blender's timeline. Move the latter one on different track. Delete the left on first track.
                        Click on the remaining one (non-first track).
 
 Bug-o-feature:

@@ -45,7 +45,7 @@ BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(pare
     connect(tt, SIGNAL(droppedItem()), this, SLOT(endItemReposition()));
     connect(tt, SIGNAL(adjustLimbsWeight(/*TODO: frameData*/)), this, SLOT(showLimbsWeightForm(/*TODO: frameData*/)));
     connect(tt, SIGNAL(framesCountChanged(int)), this, SLOT(setFramesCount(int)));
-    connect(tt, SIGNAL(trailAnimationChanged(Animation*)), this, SLOT(onTrailAnimationChanged(Animation*)));
+    connect(tt, SIGNAL(trailAnimationChanged(Animation*, int)), this, SLOT(onTrailAnimationChanged(Animation*, int)));
 
     trails.append(tt);
     scrollLayout->addWidget(tt);
@@ -154,9 +154,11 @@ void BlenderTimeline::setFramesCount(int newCount)
   repaint();
 }
 
-void BlenderTimeline::onTrailAnimationChanged(Animation* anim)
+void BlenderTimeline::onTrailAnimationChanged(Animation* anim, int firstFrame)
 {
 
   //DEBUG so far, TODO: recalculate overall animation
+  //TODO: find a mechanism to set the real offset
+  animationBeginFrame = firstFrame;
   emit resultingAnimationChanged(anim);
 }
