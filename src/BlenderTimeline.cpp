@@ -19,6 +19,7 @@
 BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(parent)
 {
   trailFramesCount = MIN_TRAIL_FRAMES;
+  resultAnimation = 0;
 
   scrollArea = new QScrollArea(0);
   scrollArea->setBackgroundRole(QPalette::Dark);
@@ -154,11 +155,22 @@ void BlenderTimeline::setFramesCount(int newCount)
   repaint();
 }
 
-void BlenderTimeline::onTrailAnimationChanged(Animation* anim, int firstFrame)
+void BlenderTimeline::onTrailAnimationChanged(Animation* anim, int beginFrame)
 {
 
   //DEBUG so far, TODO: recalculate overall animation
   //TODO: find a mechanism to set the real offset
-  animationBeginFrame = firstFrame;
+  if(resultAnimation)
+    disconnect(resultAnimation, SIGNAL(currentFrame(int)), 0, 0);
+  resultAnimation = anim;
+  if(resultAnimation)
+    connect(resultAnimation, SIGNAL(currentFrame(int)), this, SLOT(onPlayFrameChanged(int)));
+  animationBeginFrame = beginFrame;
   emit resultingAnimationChanged(anim);
+}
+
+void BlenderTimeline::onPlayFrameChanged(int playFrame)
+{
+  foreach(TimelineTrail* trail, trails)
+    trail->setCurrentFrame(animationBeginFrame + playFrame);
 }

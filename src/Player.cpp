@@ -7,9 +7,14 @@
 Player::Player(QWidget *parent) : QWidget(parent), ui(new Ui::Player)
 {
   ui->setupUi(this);
+  pauseIcon.addFile(QString::fromUtf8(":/icons/player/icons/player/PlayerPause.png"), QSize(),
+                    QIcon::Normal, QIcon::Off);
+  playIcon.addFile(QString::fromUtf8(":/icons/player/icons/player/PlayerPlay.png"), QSize(),
+                   QIcon::Normal, QIcon::Off);
 
   animation = 0;
   _state = PLAYSTATE_STOPPED;
+  ui->playButton->setIcon(playIcon);
   loopIn = 0;
   loopOut = 0;
   loop = true;
@@ -68,12 +73,14 @@ void Player::playOrPause()
       setPlaybackFrame(loopIn);
 
     _state = PLAYSTATE_PLAYING;
+    ui->playButton->setIcon(pauseIcon);
     timer.start((int)(1.0/fps()*1000.0));
   }
   else    //pause the playback
   {
     timer.stop();
     _state = PLAYSTATE_STOPPED;
+    ui->playButton->setIcon(playIcon);
   }
 }
 
@@ -161,7 +168,7 @@ void Player::setButtonsEnabled(bool enabled)
 
 void Player::updateLabel()
 {
-  ui->label->setText(QString("Frame %1 of %2").arg(playFrame()).arg(totalFrames()));
+  ui->label->setText(QString("Frame %1 of %2").arg(playFrame()+1).arg(totalFrames()));
 }
 
 void Player::on_playButton_clicked()

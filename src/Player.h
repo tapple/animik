@@ -2,6 +2,7 @@
 #define PLAYER_H
 
 #include <QWidget>
+#include <QIcon>
 #include <animation.h>
 #include <playstate.h>
 
@@ -62,6 +63,8 @@ protected:
 
 private:
     Ui::Player *ui;
+    QIcon playIcon;
+    QIcon pauseIcon;
 
 private slots:
     void on_endButton_clicked();

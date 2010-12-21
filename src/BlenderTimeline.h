@@ -31,13 +31,14 @@ class BlenderTimeline : public QFrame
 
   protected slots:
     void setCurrentFrame(int frameIndex);
-    /** Find trail with selected TrailItem and make it unselect it */
+    /** Find trail with selected TrailItem and make it unselect the item */
     void unselectOldItem();
     void showLimbsWeightForm(/*TODO: frameData*/);
     void setFramesCount(int newCount);
     void startItemReposition(TrailItem* draggingItem);
     void endItemReposition();
-    void onTrailAnimationChanged(Animation* anim);
+    void onTrailAnimationChanged(Animation* anim, int beginFrame);
+    void onPlayFrameChanged(int playFrame);
 
   protected:
     QScrollArea* scrollArea;
@@ -51,6 +52,7 @@ class BlenderTimeline : public QFrame
     int animationBeginFrame;        //the offset denoting first frame of the overall animation
     int trailFramesCount;
     int needsReshape;
+    Animation* resultAnimation;
 
     void fitStackWidgetToContent();
 };
