@@ -109,6 +109,12 @@ void BlenderTimeline::paintEvent(QPaintEvent*)
 // -------------------------- SLOTS -------------------------- //
 void BlenderTimeline::setCurrentFrame(int frameIndex)
 {
+  if(frameIndex >= animationBeginFrame &&         //inside of overall animation
+     frameIndex < animationBeginFrame+resultAnimation->getNumberOfFrames())
+  {
+    resultAnimation->setFrame(frameIndex);        //this causes AnimationView and Player to be updated
+  }
+
   foreach(TimelineTrail* trail, trails)
     trail->setCurrentFrame(frameIndex);
 }
@@ -161,7 +167,7 @@ void BlenderTimeline::onTrailAnimationChanged(Animation* anim, int beginFrame)
   //DEBUG so far, TODO: recalculate overall animation
   //TODO: find a mechanism to set the real offset
   if(resultAnimation)
-    disconnect(resultAnimation, SIGNAL(currentFrame(int)), 0, 0);
+    disconnect(resultAnimation, SIGNAL(currentFrame(int)), 0, 0);     //edu: is this needed?
   resultAnimation = anim;
   if(resultAnimation)
     connect(resultAnimation, SIGNAL(currentFrame(int)), this, SLOT(onPlayFrameChanged(int)));

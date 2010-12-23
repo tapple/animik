@@ -60,6 +60,7 @@ protected:
 
   protected slots:
     void timerTimeout();
+    void animationFrameChanged();
 
 private:
     Ui::Player *ui;

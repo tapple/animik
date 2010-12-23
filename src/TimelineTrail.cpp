@@ -235,15 +235,18 @@ void TimelineTrail::drawTrailItem(TrailItem* item)
     selFrameColor = QColor("#b4045f");
   }
   p.fillRect(item->beginIndex()*_frameWidth+2, 4, item->frames()*_frameWidth-2, TRACK_HEIGHT-6, boxColor);
-  QRectF border(item->beginIndex()*_frameWidth, 3, item->frames()*_frameWidth, TRACK_HEIGHT-6);
-  QPen borderPen(QColor("#000000"));
-  borderPen.setWidth(3);
-  p.setPen(borderPen);
-  p.drawRoundedRect(border, 6.0, 6.0);
+  QRectF border(item->beginIndex()*_frameWidth+1, 3, item->frames()*_frameWidth, TRACK_HEIGHT-6);
+
   int begin = item->beginIndex();
   //if selected frame falls inside this animation, highlight the frame
   if(currentFrame>=begin && currentFrame<=item->endIndex())
-    p.fillRect(currentFrame*_frameWidth, 5, _frameWidth, TRACK_HEIGHT-9, selFrameColor);
+    p.fillRect(currentFrame*_frameWidth+1, 4, _frameWidth, TRACK_HEIGHT-8, selFrameColor);
+
+  //border must go last for correct overlapping
+  QPen borderPen(QColor("#000000"));
+  borderPen.setWidth(2);
+  p.setPen(borderPen);
+  p.drawRoundedRect(border, 4, 4);
 }
 
 

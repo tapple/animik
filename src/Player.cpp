@@ -136,7 +136,11 @@ void Player::onAnimationChanged(Animation *animation)
   //When first overall animation emerges, stretch looping to max
   if(/*DEBUG. Uncomment when LoopIn/Out set by some form. this->animation==0 &&*/ animation)
     loopOut = animation->getNumberOfFrames()-1;
+
+//edu: this is insidous! Disconnects ALL slots tied to that object.
+//      DO NOT USE THAT!  disconnect(animation, SIGNAL(currentFrame(int)), 0, 0);
   this->animation = animation;
+  connect(animation, SIGNAL(currentFrame(int)), this, SLOT(animationFrameChanged()));
   if(animation)
   {
     int framesCount = animation->getNumberOfFrames();
@@ -151,9 +155,15 @@ void Player::onAnimationChanged(Animation *animation)
     loopIn = loopOut = 0;
 }
 
+
 void Player::timerTimeout()
 {
   stepForward();
+}
+
+void Player::animationFrameChanged()
+{
+  updateLabel();
 }
 
 
@@ -169,6 +179,7 @@ void Player::setButtonsEnabled(bool enabled)
 void Player::updateLabel()
 {
   ui->label->setText(QString("Frame %1 of %2").arg(playFrame()+1).arg(totalFrames()));
+  ui->label->repaint();
 }
 
 void Player::on_playButton_clicked()
