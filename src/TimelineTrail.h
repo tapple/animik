@@ -2,7 +2,7 @@
 #define TIMELINETRAIL_H
 
 #include <QFrame>
-#include "animation.h"
+#include "WeightedAnimation.h"
 
 class QPixmap;
 class QAction;
@@ -20,7 +20,7 @@ class TimelineTrail : public QFrame
 
     /** Add new animation on first gap big enough. Returns TRUE on success
         or FALSE if there's not enough space on this trail. */
-    bool AddAnimation(Animation* anim, QString title);
+    bool AddAnimation(WeightedAnimation* anim, QString title);
     int animationCount() { return _animationCount; }
     TrailItem* firstItem() { return _firstItem; }
     TrailItem* lastItem() { return _lastItem; }
@@ -45,7 +45,7 @@ class TimelineTrail : public QFrame
         can release/reposition it or new one can adopt it. */
     void droppedItem();
     /** Summary animation was changed */
-    void trailAnimationChanged(Animation* animation, int firstFrame);
+    void trailAnimationChanged(WeightedAnimation* animation, int firstFrame);
 
   public slots:
     void setCurrentFrame(int frame);
@@ -81,13 +81,13 @@ class TimelineTrail : public QFrame
     /** After any change of position or number of animations at this trail,
         the resulting summary animation is gained with this method.
         Returns 0 if there's no item left. */
-    Animation* getSummaryAnimation();
+    WeightedAnimation* getSummaryAnimation();
     /** Traverses through skeleton tree of to-be result animation and asks
         trais' animations to copy their counterpart key frames there */
-    void enhanceResultAnimation(Animation* destAnim, BVHNode* node);
+    void enhanceResultAnimation(WeightedAnimation* destAnim, BVHNode* node);
     /** Get all keyframes of given limb of all animations on this trail
         (in time order) and append them to given destination animation */
-    void appendNodeKeyFrames(Animation* destAnim, int nodeIndex);
+    void appendNodeKeyFrames(WeightedAnimation* destAnim, int nodeIndex);
     void trailContentChange();
 
 

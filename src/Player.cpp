@@ -128,7 +128,7 @@ void Player::skipToLast()
 }
 
 
-void Player::onAnimationChanged(Animation *animation)
+void Player::onAnimationChanged(WeightedAnimation *animation)
 {
   setButtonsEnabled(animation!=0);
 

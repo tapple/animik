@@ -22,8 +22,8 @@ BlenderTab::BlenderTab(qavimator* mainWindow, const QString& fileName, bool crea
   setAttribute(Qt::WA_DeleteOnClose);
 
   connect(this, SIGNAL(resetCamera()), blenderAnimationView, SLOT(resetCamera()));
-  connect(blenderTimeline, SIGNAL(resultingAnimationChanged(Animation*)), blenderPlayer, SLOT(onAnimationChanged(Animation*)));
-  connect(blenderTimeline, SIGNAL(resultingAnimationChanged(Animation*)), this, SLOT(onTimelineAnimationChanged(Animation*)));
+  connect(blenderTimeline, SIGNAL(resultingAnimationChanged(WeightedAnimation*)), blenderPlayer, SLOT(onAnimationChanged(WeightedAnimation*)));
+  connect(blenderTimeline, SIGNAL(resultingAnimationChanged(WeightedAnimation*)), this, SLOT(onTimelineAnimationChanged(WeightedAnimation*)));
 
   if(createFile)
   {
@@ -274,7 +274,7 @@ void BlenderTab::fileNew()
 
 void BlenderTab::on_animsList_AnimationFileTaken(QString filename)
 {
-  Animation* anim=new Animation(blenderAnimationView->getBVH(),filename);
+  WeightedAnimation* anim=new WeightedAnimation(blenderAnimationView->getBVH(),filename);
   QFileInfo fInfo(filename);
   if(!blenderTimeline->AddAnimation(anim, fInfo.completeBaseName()))
     QMessageBox::warning(this, "Error loading animation", "Can't add animation file '" +
@@ -284,7 +284,7 @@ void BlenderTab::on_animsList_AnimationFileTaken(QString filename)
 // ---------------------------------------------- //
 
 // --------------- other slots ------------------ //
-void BlenderTab::onTimelineAnimationChanged(Animation* anim)
+void BlenderTab::onTimelineAnimationChanged(WeightedAnimation* anim)
 {
   blenderAnimationView->setAnimation(anim);
 }

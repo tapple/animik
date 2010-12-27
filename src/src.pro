@@ -28,7 +28,8 @@ SOURCES += animation.cpp \
     TimelineTrail.cpp \
     TrailItem.cpp \
     LimbsWeightForm.cpp \
-    Player.cpp
+    Player.cpp \
+    WeightedAnimation.cpp
 HEADERS += animation.h \
     animationview.h \
     bvh.h \
@@ -56,7 +57,8 @@ HEADERS += animation.h \
     AnimationList.h \
     LimbsWeightForm.h \
     Player.h \
-    TimelineTrail.h
+    TimelineTrail.h \
+    WeightedAnimation.h
 FORMS += mainapplicationform.ui \
     settingsdialogform.ui \
     KeyFramerTab.ui \

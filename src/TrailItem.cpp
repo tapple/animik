@@ -1,15 +1,15 @@
 #ifndef TRAILITEM_C
 #define TRAILITEM_C
 
-#include "animation.h"
+#include "WeightedAnimation.h"
 
 
-/** Wrapper for an Animation item on BlenderTimeline. TrailItems are supposed
+/** Wrapper for an WeightedAnimation item on BlenderTimeline. TrailItems are supposed
     to build a linked list order by first frame number. */
 class TrailItem
 {
   public:
-    TrailItem(Animation* animation, QString name, int begin)
+    TrailItem(WeightedAnimation* animation, QString name, int begin)
     {
       this->name = name;
       this->animation = animation;
@@ -24,7 +24,7 @@ class TrailItem
     //convenience method
     void shiftBeginIndex(int beginOffset) { begin += beginOffset; }
     int endIndex() { return begin + frames() -1; }
-    Animation* getAnimation() { return animation; }
+    WeightedAnimation* getAnimation() { return animation; }
     /** Number of frames of containing animation */
     int frames() { return animation->getNumberOfFrames(); }
     /** Highlight @param frameIndex because it's became selected frame */
@@ -42,7 +42,7 @@ class TrailItem
     /** Currently highlighted frame of animation. The value has meaning
         only if this item is also highlighted on a timeline. */
     int selectedFrame;
-    Animation* animation;
+    WeightedAnimation* animation;
     TrailItem* next;
     TrailItem* previous;
 };

@@ -41,7 +41,7 @@ TimelineTrail::TimelineTrail(QWidget* parent, Qt::WindowFlags) : QFrame(parent)
 }
 
 
-bool TimelineTrail::AddAnimation(Animation* anim, QString title)
+bool TimelineTrail::AddAnimation(WeightedAnimation* anim, QString title)
 {
   TrailItem* toBePredecessor;
   try {
@@ -354,7 +354,7 @@ TrailItem* TimelineTrail::findNextItem(int afterFrame)
 
 
 
-Animation* TimelineTrail::getSummaryAnimation()
+WeightedAnimation* TimelineTrail::getSummaryAnimation()
 {
   if(_firstItem==0)           //no animations left at this trail
     return 0;
@@ -371,8 +371,9 @@ Animation* TimelineTrail::getSummaryAnimation()
     currentItem = currentItem->nextItem();
   }
 
-  Animation* result = new Animation(new BVH(), ""); //_firstItem->getAnimation();
+  WeightedAnimation* result = new WeightedAnimation(new BVH(), ""); //_firstItem->getAnimation();
   result->setNumberOfFrames(totalFrames);
+  //TODO: copy frame weights here
 
   //copy rotations to the result
   BVHNode* root = _firstItem->getAnimation()->getMotion();
@@ -382,7 +383,7 @@ Animation* TimelineTrail::getSummaryAnimation()
 }
 
 
-void TimelineTrail::enhanceResultAnimation(Animation* destAnim, BVHNode* node)
+void TimelineTrail::enhanceResultAnimation(WeightedAnimation* destAnim, BVHNode* node)
 {
   int limbIndex = destAnim/*_firstItem->getAnimation()*/->getPartIndex(node);
   appendNodeKeyFrames(destAnim, limbIndex);
@@ -391,7 +392,7 @@ void TimelineTrail::enhanceResultAnimation(Animation* destAnim, BVHNode* node)
 }
 
 
-void TimelineTrail::appendNodeKeyFrames(Animation* destAnim, int nodeIndex)
+void TimelineTrail::appendNodeKeyFrames(WeightedAnimation* destAnim, int nodeIndex)
 {
   TrailItem* currentItem = _firstItem;//->nextItem();
   int frameOffset = 0;//_firstItem->frames();
@@ -414,7 +415,7 @@ void TimelineTrail::appendNodeKeyFrames(Animation* destAnim, int nodeIndex)
 
 void TimelineTrail::trailContentChange()
 {
-  Animation* result = getSummaryAnimation();
+  WeightedAnimation* result = getSummaryAnimation();
   emit trailAnimationChanged(result, _firstItem ? _firstItem->beginIndex() : -1);
 }
 

@@ -4,7 +4,7 @@
 #include <QFrame>
 #include <QList>
 
-#include "animation.h"
+#include "WeightedAnimation.h"
 
 class QScrollArea;
 class QSize;
@@ -22,11 +22,11 @@ class BlenderTimeline : public QFrame
     ~BlenderTimeline();
 
     /** Add new animation to a track where fits first. Returns TRUE on success */
-    bool AddAnimation(Animation* anim, QString title);
+    bool AddAnimation(WeightedAnimation* anim, QString title);
 
   signals:
     /** Warn about Animation and its first frame position */
-    void resultingAnimationChanged(Animation*);
+    void resultingAnimationChanged(WeightedAnimation*);
 
 
   protected slots:
@@ -37,7 +37,7 @@ class BlenderTimeline : public QFrame
     void setFramesCount(int newCount);
     void startItemReposition(TrailItem* draggingItem);
     void endItemReposition();
-    void onTrailAnimationChanged(Animation* anim, int beginFrame);
+    void onTrailAnimationChanged(WeightedAnimation* anim, int beginFrame);
     void onPlayFrameChanged(int playFrame);
 
   protected:
@@ -52,7 +52,7 @@ class BlenderTimeline : public QFrame
     int animationBeginFrame;        //the offset denoting first frame of the overall animation
     int trailFramesCount;
     int needsReshape;
-    Animation* resultAnimation;
+    WeightedAnimation* resultAnimation;
 
     void fitStackWidgetToContent();
 };

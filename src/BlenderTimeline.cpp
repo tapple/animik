@@ -46,7 +46,8 @@ BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(pare
     connect(tt, SIGNAL(droppedItem()), this, SLOT(endItemReposition()));
     connect(tt, SIGNAL(adjustLimbsWeight(/*TODO: frameData*/)), this, SLOT(showLimbsWeightForm(/*TODO: frameData*/)));
     connect(tt, SIGNAL(framesCountChanged(int)), this, SLOT(setFramesCount(int)));
-    connect(tt, SIGNAL(trailAnimationChanged(Animation*, int)), this, SLOT(onTrailAnimationChanged(Animation*, int)));
+    connect(tt, SIGNAL(trailAnimationChanged(WeightedAnimation*, int)),
+            this, SLOT(onTrailAnimationChanged(WeightedAnimation*, int)));
 
     trails.append(tt);
     scrollLayout->addWidget(tt);
@@ -72,7 +73,7 @@ BlenderTimeline::~BlenderTimeline()
     delete trails.takeFirst();
 }
 
-bool BlenderTimeline::AddAnimation(Animation* anim, QString title)
+bool BlenderTimeline::AddAnimation(WeightedAnimation* anim, QString title)
 {
   foreach(TimelineTrail* trail, trails)
   {
@@ -161,7 +162,7 @@ void BlenderTimeline::setFramesCount(int newCount)
   repaint();
 }
 
-void BlenderTimeline::onTrailAnimationChanged(Animation* anim, int beginFrame)
+void BlenderTimeline::onTrailAnimationChanged(WeightedAnimation* anim, int beginFrame)
 {
 
   //DEBUG so far, TODO: recalculate overall animation

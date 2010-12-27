@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <QIcon>
-#include <animation.h>
+#include "WeightedAnimation.h"
 #include <playstate.h>
 
 class QTimer;
@@ -37,10 +37,10 @@ public:
 
   public slots:
     void setPlaybackFrame(int frame);
-    void onAnimationChanged(Animation* animation);
+    void onAnimationChanged(WeightedAnimation* animation);
 
 protected:
-    Animation* animation;
+    WeightedAnimation* animation;
     PlayState _state;
     QTimer timer;
     bool loop;
