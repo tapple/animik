@@ -13,10 +13,10 @@ WeightedAnimation::WeightedAnimation(BVH* newBVH,const QString& bvhFile)
   frameWeights = new int[frames_count];
 
   //DEBUG here
+  srand(time(NULL));
   for(int i=0; i<frames_count; i++)
   {
-    clock_t ticks = clock();
-    frameWeights[i] = ticks % frames_count;
+    frameWeights[i] = rand() % 101;
   }
 }
 
@@ -30,6 +30,6 @@ WeightedAnimation::~WeightedAnimation()     //edu: ~Animation() called automatic
 int WeightedAnimation::getFrameWeight(int frameIndex)
 {
   if(frameIndex >= totalFrames)
-    throw "Argument exception: frameIndex exceeds frames count";
+    throw new QString("Argument exception: frameIndex exceeds frames count");
   return frameWeights[frameIndex];
 }

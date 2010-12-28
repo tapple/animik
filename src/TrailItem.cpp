@@ -25,6 +25,8 @@ class TrailItem
     void shiftBeginIndex(int beginOffset) { begin += beginOffset; }
     int endIndex() { return begin + frames() -1; }
     WeightedAnimation* getAnimation() { return animation; }
+    /** Get user-defined overall weight of a frame on given position */
+    int getWeight(int frameIndex) { return animation->getFrameWeight(frameIndex); }
     /** Number of frames of containing animation */
     int frames() { return animation->getNumberOfFrames(); }
     /** Highlight @param frameIndex because it's became selected frame */

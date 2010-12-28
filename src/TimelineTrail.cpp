@@ -11,10 +11,15 @@
 #include "bvh.h"
 
 #define TRACK_HEIGHT     72
-#define MIN_FRAME_WIDTH  8    //minimum frame space width that can't be crossed when zooming
-#define MAX_FRAME_WIDTH  20   //TODO: maximum when zooming
-#define ZOOM_STEP        4    //TODO: the zooming
+#define FRAME_HEIGHT     TRACK_HEIGHT-6
+#define TOP_MARGIN       2
+#define BORDER_WIDTH     2
+#define TEXT_HEIGHT      12
+#define MIN_FRAME_WIDTH  8     //minimum frame space width that can't be crossed when zooming
+#define MAX_FRAME_WIDTH  20    //TODO: maximum when zooming
+#define ZOOM_STEP        4     //TODO: the zooming
 #define MAX_TRAIL_FRAMES 400//DEBUG 4000
+#define MAX_WEIGHT       100.0 //max frame weight
 
 
 
@@ -234,19 +239,50 @@ void TimelineTrail::drawTrailItem(TrailItem* item)
     boxColor = QColor("#ff0077");
     selFrameColor = QColor("#b4045f");
   }
-  p.fillRect(item->beginIndex()*_frameWidth+2, 4, item->frames()*_frameWidth-2, TRACK_HEIGHT-6, boxColor);
-  QRectF border(item->beginIndex()*_frameWidth+1, 3, item->frames()*_frameWidth, TRACK_HEIGHT-6);
+  p.fillRect(item->beginIndex()*_frameWidth+2, TOP_MARGIN+BORDER_WIDTH, item->frames()*_frameWidth-2, FRAME_HEIGHT, boxColor);
+  QRectF border(item->beginIndex()*_frameWidth+1, TOP_MARGIN+1, item->frames()*_frameWidth, FRAME_HEIGHT);
 
   int begin = item->beginIndex();
   //if selected frame falls inside this animation, highlight the frame
   if(currentFrame>=begin && currentFrame<=item->endIndex())
-    p.fillRect(currentFrame*_frameWidth+1, 4, _frameWidth, TRACK_HEIGHT-8, selFrameColor);
+  {
+    p.fillRect(currentFrame*_frameWidth+1, TOP_MARGIN+BORDER_WIDTH, _frameWidth, FRAME_HEIGHT-BORDER_WIDTH, selFrameColor);
+  }
 
-  //border must go last for correct overlapping
+  //border must go almost last for correct overlapping
   QPen borderPen(QColor("#000000"));
-  borderPen.setWidth(2);
+  borderPen.setWidth(BORDER_WIDTH);
   p.setPen(borderPen);
   p.drawRoundedRect(border, 4, 4);
+
+  //show frame weights, as last
+  if(item==selectedItem)
+  {
+    int end = item->endIndex();
+    double hFactor = ((double)FRAME_HEIGHT-BORDER_WIDTH) / MAX_WEIGHT;
+    QColor barColor("#999999");
+
+    for(int i=begin; i<=end; i++)
+    {
+      int barHeight = (int)(item->getWeight(i-begin)*hFactor);
+      if(i==currentFrame)
+      {
+        p.fillRect(i*_frameWidth+2, TOP_MARGIN+BORDER_WIDTH+(FRAME_HEIGHT-BORDER_WIDTH)-barHeight,
+                   _frameWidth-2, barHeight, QColor("#0080ff"));
+      }
+      else
+      {
+        p.fillRect(i*_frameWidth+2, TOP_MARGIN+BORDER_WIDTH+(FRAME_HEIGHT-BORDER_WIDTH)-barHeight,
+                   _frameWidth-2, barHeight, barColor);
+      }
+    }
+
+    QPen textPen(QColor("#ffffff"));
+    textPen.setWidth(2);
+    p.setPen(textPen);
+    p.drawText(currentFrame*_frameWidth-(TEXT_HEIGHT/4), TRACK_HEIGHT-TOP_MARGIN-BORDER_WIDTH-TEXT_HEIGHT,
+               TEXT_HEIGHT*2, TEXT_HEIGHT, 0, QString::number(item->getWeight(currentFrame-begin)));
+  }
 }
 
 
@@ -321,7 +357,7 @@ TrailItem* TimelineTrail::findPreviousItem(int beforeFrame)
     currentItem = currentItem->nextItem();
   }
 
-  throw "findNextItem: unable to return valid TrailItem object";
+  throw new QString("findNextItem: unable to return valid TrailItem object");
 }
 
 
@@ -349,7 +385,7 @@ TrailItem* TimelineTrail::findNextItem(int afterFrame)
     currentItem = currentItem->previousItem();
   }
 
-  throw "findNextItem: unable to return valid TrailItem object";
+  throw new QString("findNextItem: unable to return valid TrailItem object");
 }
 
 

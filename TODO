@@ -25,6 +25,12 @@ Bugs:
   * Open new AVBL, place an animation on the time-line. Clicking on a frame inside works (figure poses). Move the animation to another
     trail. Clicking on its frame doesn't change the posture anymore.
     UPDATE: THIS SHOULD JUST START WORK WHEN I MERGE ANIMATION ON A TRAIL CORRECTLY.
+  * It seems I have some serious problems (with memory?). Move a single animation on blending timeline multiple times. Then run
+    playback. It goes very slow. The more repositions, the slower May be related to unfreed TrailItem objects pending after move (copy->paste).
+    Or to many (unNULLed) references to the same instance? When the item is deleted from the timeline and another one (might be from
+    the same animation) is added, everything goes fine from beginning.
+    UPDATE: This is clear bullsh*t. The problem doesn't appear with multiple animation (to be concatenated) while their TrailItems are all
+    on the same time-line track.
 
 Bug-o-feature:
   * In the SaveChangesDialog it's possible to change the filename by double-clicking. Find if it's possible to save the file under

@@ -74,7 +74,7 @@ void qavimator::OpenNewTab(NewFileDialog::ProjectType fileType, const QString& f
     case NewFileDialog::AVBL :
       tab = new BlenderTab(this, filename, newFile);
     break;
-    default: throw "Unknown file type";
+    default: throw new QString("Unknown file type");
   }
 
   mdiArea->addSubWindow(tab);
@@ -221,9 +221,9 @@ void qavimator::fileOpen(const QString& name)
     if(name.endsWith(".avm", Qt::CaseInsensitive) || name.endsWith(".bvh", Qt::CaseInsensitive))
       filetype = NewFileDialog::AVM;
     else if(name.endsWith(".avbl", Qt::CaseInsensitive))
-      throw "Not implemented yet";
+      throw new QString("Not implemented yet");
     else
-      throw "Unknown file extension";
+      throw new QString("Unknown file extension");
 
     OpenNewTab(filetype, name, false);
   }

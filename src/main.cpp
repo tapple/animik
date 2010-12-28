@@ -22,6 +22,8 @@
 #include "settings.h"
 
 
+#include <QMessageBox>      //DEBUG, TODO: delete
+
 
 int main( int argc, char ** argv )
 {
@@ -29,7 +31,16 @@ int main( int argc, char ** argv )
 
     Settings::Instance()->ReadSettings();
     qavimator* mw=new qavimator();
-    mw->show();
-    a.connect(&a,SIGNAL(lastWindowClosed()),&a,SLOT(quit()));
-    return a.exec();
+
+    //DEBUG, TODO: delete
+    try
+    {
+      mw->show();
+      a.connect(&a,SIGNAL(lastWindowClosed()),&a,SLOT(quit()));
+      return a.exec();
+    }
+    catch (QString* ex) {
+      QMessageBox::warning(NULL, QObject::tr("Fatal error"), *ex);
+      return 1;
+    }
 }
