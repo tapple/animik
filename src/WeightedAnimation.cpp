@@ -30,6 +30,8 @@ WeightedAnimation::~WeightedAnimation()     //edu: ~Animation() called automatic
 int WeightedAnimation::getFrameWeight(int frameIndex)
 {
   if(frameIndex >= totalFrames)
+  {
     throw new QString("Argument exception: frameIndex exceeds frames count");
+  }
   return frameWeights[frameIndex];
 }

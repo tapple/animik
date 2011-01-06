@@ -25,14 +25,22 @@ class TrailItem
     void shiftBeginIndex(int beginOffset) { begin += beginOffset; }
     int endIndex() { return begin + frames() -1; }
     WeightedAnimation* getAnimation() { return animation; }
-    /** Get user-defined overall weight of a frame on given position */
-    int getWeight(int frameIndex) { return animation->getFrameWeight(frameIndex); }
+    /** Get user-defined overall weight of a frame on given position.
+        For blending purposes. */
+    int getWeight(int frameIndex) {
+
+//      try{      //DEBUG
+        return animation->getFrameWeight(frameIndex);
+/*      }
+      catch(QString* ex){
+        return -1;
+      }   */
+
+    }
     /** Number of frames of containing animation */
     int frames() { return animation->getNumberOfFrames(); }
     /** Highlight @param frameIndex because it's became selected frame */
     void selectFrame(int frameIndex) { selectedFrame = frameIndex; }
-    /** Gets weight of a frame to be used in blending */
-    float frameWeight(int frameIndex) { return 0.5; }       //TODO: dynamically from frameData
     TrailItem* nextItem() { return next; }
     void setNextItem(TrailItem* nextItem) { this->next=nextItem; }
     TrailItem* previousItem() { return previous; }

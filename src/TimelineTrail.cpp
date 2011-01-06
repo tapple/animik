@@ -269,6 +269,12 @@ void TimelineTrail::drawTrailItem(TrailItem* item)
       {
         p.fillRect(i*_frameWidth+2, TOP_MARGIN+BORDER_WIDTH+(FRAME_HEIGHT-BORDER_WIDTH)-barHeight,
                    _frameWidth-2, barHeight, QColor("#0080ff"));
+
+        QPen textPen(QColor("#ffffff"));
+        textPen.setWidth(2);
+        p.setPen(textPen);
+        p.drawText(currentFrame*_frameWidth-(TEXT_HEIGHT/4), TRACK_HEIGHT-TOP_MARGIN-BORDER_WIDTH-TEXT_HEIGHT,
+                   TEXT_HEIGHT*2, TEXT_HEIGHT, 0, QString::number(item->getWeight(currentFrame-begin)));
       }
       else
       {
@@ -276,12 +282,6 @@ void TimelineTrail::drawTrailItem(TrailItem* item)
                    _frameWidth-2, barHeight, barColor);
       }
     }
-
-    QPen textPen(QColor("#ffffff"));
-    textPen.setWidth(2);
-    p.setPen(textPen);
-    p.drawText(currentFrame*_frameWidth-(TEXT_HEIGHT/4), TRACK_HEIGHT-TOP_MARGIN-BORDER_WIDTH-TEXT_HEIGHT,
-               TEXT_HEIGHT*2, TEXT_HEIGHT, 0, QString::number(item->getWeight(currentFrame-begin)));
   }
 }
 
