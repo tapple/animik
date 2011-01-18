@@ -2,9 +2,6 @@
 #include "bvh.h"
 
 
-#include "time.h"   //DEBUG, ok?
-
-
 
 WeightedAnimation::WeightedAnimation(BVH* newBVH,const QString& bvhFile)
   : Animation(newBVH, bvhFile)
@@ -12,12 +9,8 @@ WeightedAnimation::WeightedAnimation(BVH* newBVH,const QString& bvhFile)
   int frames_count = newBVH->lastLoadedNumberOfFrames;
   frameWeights = new int[frames_count];
 
-  //DEBUG here
-  srand(time(NULL));
   for(int i=0; i<frames_count; i++)
-  {
-    frameWeights[i] = rand() % 101;
-  }
+    frameWeights[i] = 50;
 }
 
 WeightedAnimation::~WeightedAnimation()     //edu: ~Animation() called automatically
@@ -34,4 +27,19 @@ int WeightedAnimation::getFrameWeight(int frameIndex)
     throw new QString("Argument exception: frameIndex exceeds frames count");
   }
   return frameWeights[frameIndex];
+}
+
+
+int WeightedAnimation::currentFrameWeight()
+{
+  return frameWeights[frame];
+}
+
+void WeightedAnimation::setCurrentFrameWeight(int weight)
+{
+  if(weight<0 || weight>100)
+    throw new QString("Argument exception: frame weight out of range: " +
+                      QString::number(weight) + ". Must fall in <0; 100>");
+  else
+    frameWeights[frame] = weight;
 }

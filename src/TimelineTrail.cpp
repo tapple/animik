@@ -32,6 +32,7 @@ TimelineTrail::TimelineTrail(QWidget* parent, Qt::WindowFlags) : QFrame(parent)
   _lastItem = 0;
   draggingItem = 0;
   draggingOverFrame = -1;
+  settingWeight = false;
   leftMouseDown = rightMouseDown = false;
   //we need to receive mouseMoveEvent even when no button down
   setMouseTracking(true);
@@ -239,14 +240,17 @@ void TimelineTrail::drawTrailItem(TrailItem* item)
     boxColor = QColor("#ff0077");
     selFrameColor = QColor("#b4045f");
   }
-  p.fillRect(item->beginIndex()*_frameWidth+2, TOP_MARGIN+BORDER_WIDTH, item->frames()*_frameWidth-2, FRAME_HEIGHT, boxColor);
-  QRectF border(item->beginIndex()*_frameWidth+1, TOP_MARGIN+1, item->frames()*_frameWidth, FRAME_HEIGHT);
+  p.fillRect(item->beginIndex()*_frameWidth+2, TOP_MARGIN+BORDER_WIDTH,
+             item->frames()*_frameWidth-2, FRAME_HEIGHT, boxColor);
+  QRectF border(item->beginIndex()*_frameWidth+1, TOP_MARGIN+1,
+                item->frames()*_frameWidth, FRAME_HEIGHT);
 
   int begin = item->beginIndex();
   //if selected frame falls inside this animation, highlight the frame
   if(currentFrame>=begin && currentFrame<=item->endIndex())
   {
-    p.fillRect(currentFrame*_frameWidth+1, TOP_MARGIN+BORDER_WIDTH, _frameWidth, FRAME_HEIGHT-BORDER_WIDTH, selFrameColor);
+    p.fillRect(currentFrame*_frameWidth+1, TOP_MARGIN+BORDER_WIDTH,
+               _frameWidth, FRAME_HEIGHT-BORDER_WIDTH, selFrameColor);
   }
 
   //border must go almost last for correct overlapping
@@ -508,6 +512,9 @@ void TimelineTrail::mouseMoveEvent(QMouseEvent* me)
       repaint();
     }
   }
+
+  if(leftMouseDown && settingWeight)
+    adjustFrameWeight(me->y());
 }
 
 void TimelineTrail::leaveEvent(QEvent *)
@@ -519,7 +526,6 @@ void TimelineTrail::leaveEvent(QEvent *)
 
 void TimelineTrail::mousePressEvent(QMouseEvent* e)
 {
-  leftMouseDown = rightMouseDown = false;
   int clickedFrame = e->x()/_frameWidth;
 
   //user wishes to place dragged item
@@ -577,6 +583,12 @@ void TimelineTrail::mousePressEvent(QMouseEvent* e)
     currentFrame = clickedFrame;
     emit currentFrameChanged(currentFrame);
   }
+  else      //second click on selected frame, user wishes to set weight
+  {
+    settingWeight = true;
+    adjustFrameWeight(e->y());
+  }
+
   TrailItem* clickedItem = findItemOnFrame(currentFrame);
   if(clickedItem==0)
     emit backgroundClicked();
@@ -594,6 +606,14 @@ void TimelineTrail::mousePressEvent(QMouseEvent* e)
     rightMouseDown = true;
 
   repaint();
+}
+
+
+void TimelineTrail::mouseReleaseEvent(QMouseEvent *)
+{
+  if(settingWeight)
+    repaint();
+  leftMouseDown = rightMouseDown = settingWeight = false;
 }
 
 
@@ -628,6 +648,20 @@ TrailItem* TimelineTrail::cutCurrentItem()
   selectedItem = 0;
   trailContentChange();
   return current;
+}
+
+
+void TimelineTrail::adjustFrameWeight(int cursorYPosition)
+{
+  int offset = TOP_MARGIN+BORDER_WIDTH;
+  float real_frame_height = TRACK_HEIGHT - 2*offset;
+  int touch = cursorYPosition - offset;
+  if(touch>=0 && touch<=real_frame_height)     //not above/under the TrailItem
+  {
+    float weight = 100.0 * (float)touch / real_frame_height;
+    selectedItem->getAnimation()->setCurrentFrameWeight(100 - (int)weight);
+    repaint(currentFrame*_frameWidth-10, 0, _frameWidth+20, TRACK_HEIGHT);
+  }
 }
 
 

@@ -70,6 +70,8 @@ class TimelineTrail : public QFrame
     /** Not-null indicates that user is dragging an animation above timeline
         ready to drop it on new location, which as well may be this trail */
     TrailItem* draggingItem;
+    /** TRUE means that weight for currently selected frame is being set */
+    bool settingWeight;
     /** An item is being repositioned and mouse is over this frame. Else -1 */
     int draggingOverFrame;
 
@@ -94,6 +96,7 @@ class TimelineTrail : public QFrame
     virtual void paintEvent(QPaintEvent*);
     virtual void contextMenuEvent(QContextMenuEvent *event);
     virtual void mousePressEvent(QMouseEvent* e);
+    virtual void mouseReleaseEvent(QMouseEvent *);
     /** Reimplemented for moving an item. Potential new location is "shadowed" */
     virtual void mouseMoveEvent(QMouseEvent* me);
     virtual void leaveEvent(QEvent*);
@@ -130,6 +133,7 @@ class TimelineTrail : public QFrame
         Called usually after addition of a new item. */
     void updateTimelineItemsIndices();
     void cleanupAfterMove();
+    void adjustFrameWeight(int cursorYPosition);
 };
 
 #endif // TIMELINETRAIL_H

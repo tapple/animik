@@ -14,7 +14,7 @@ class TrailItem
       this->name = name;
       this->animation = animation;
       this->begin = begin;
-      selectedFrame = -1;
+      _selectedFrame = -1;
       previous = 0;
       next = 0;
     }
@@ -40,7 +40,15 @@ class TrailItem
     /** Number of frames of containing animation */
     int frames() { return animation->getNumberOfFrames(); }
     /** Highlight @param frameIndex because it's became selected frame */
-    void selectFrame(int frameIndex) { selectedFrame = frameIndex; }
+    void selectFrame(int frameIndex)
+    {
+      if(frameIndex<0 || frameIndex>=animation->getNumberOfFrames())
+        throw new QString("Argument exception: frame index out of range.");
+      _selectedFrame = frameIndex;
+    }
+    /** Currently highlighted frame of animation. The value has meaning
+        only if this item is also highlighted on a timeline. */
+    int selectedFrame() { return _selectedFrame; }
     TrailItem* nextItem() { return next; }
     void setNextItem(TrailItem* nextItem) { this->next=nextItem; }
     TrailItem* previousItem() { return previous; }
@@ -49,9 +57,7 @@ class TrailItem
   protected:
     QString name;
     int begin;
-    /** Currently highlighted frame of animation. The value has meaning
-        only if this item is also highlighted on a timeline. */
-    int selectedFrame;
+    int _selectedFrame;
     WeightedAnimation* animation;
     TrailItem* next;
     TrailItem* previous;

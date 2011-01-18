@@ -15,6 +15,8 @@ public:
   ~WeightedAnimation();
 
   int getFrameWeight(int frameIndex);
+  int currentFrameWeight();
+  void setCurrentFrameWeight(int weight);
 
 protected:
   /** Array of weights, all must fall into <0, 100> */
