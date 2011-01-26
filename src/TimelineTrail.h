@@ -84,6 +84,8 @@ class TimelineTrail : public QFrame
         the resulting summary animation is gained with this method.
         Returns 0 if there's no item left. */
     WeightedAnimation* getSummaryAnimation();
+    void clearOldGapFillItems();
+    void fillItemGaps();
     /** Traverses through skeleton tree of to-be result animation and asks
         trais' animations to copy their counterpart key frames there */
     void enhanceResultAnimation(WeightedAnimation* destAnim, BVHNode* node);
@@ -114,9 +116,9 @@ class TimelineTrail : public QFrame
     /** Try to extend this trail with empty frame space. Returns TRUE on success. FALSE means
         that extension would exceed maximum length allowed. */
     bool coerceExtension(int size);
-    /** Delete selected TrailItem from this trail and return it (to be copied
+    /** Delete given TrailItem from this trail and return it (to be copied
         to a 'clipboard') */
-    TrailItem* cutCurrentItem();
+    TrailItem* cutItem(TrailItem*);
 
     void drawBackground();
     void drawMovedItemShadow();

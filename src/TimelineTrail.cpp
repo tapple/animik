@@ -14,7 +14,7 @@
 #define FRAME_HEIGHT     TRACK_HEIGHT-6
 #define TOP_MARGIN       2
 #define BORDER_WIDTH     2
-#define TEXT_HEIGHT      12
+#define TEXT_SIZE        16
 #define MIN_FRAME_WIDTH  8     //minimum frame space width that can't be crossed when zooming
 #define MAX_FRAME_WIDTH  20    //TODO: maximum when zooming
 #define ZOOM_STEP        4     //TODO: the zooming
@@ -62,7 +62,7 @@ bool TimelineTrail::AddAnimation(WeightedAnimation* anim, QString title)
   TrailItem* newItem;
   if(toBePredecessor == 0)                  //will become new first item
   {
-    newItem = new TrailItem(anim, title, 0);
+    newItem = new TrailItem(anim, title, 0, false);
     newItem->setNextItem(_firstItem);
     if(_firstItem)
       _firstItem->setPreviousItem(newItem);
@@ -73,7 +73,7 @@ bool TimelineTrail::AddAnimation(WeightedAnimation* anim, QString title)
   }
   else if(toBePredecessor == _lastItem)     //will become last item
   {
-    newItem = new TrailItem(anim, title, toBePredecessor->endIndex()+1);
+    newItem = new TrailItem(anim, title, toBePredecessor->endIndex()+1, false);
     newItem->setNextItem(0);
     newItem->setPreviousItem(toBePredecessor);
     toBePredecessor->setNextItem(newItem);
@@ -81,7 +81,7 @@ bool TimelineTrail::AddAnimation(WeightedAnimation* anim, QString title)
   }
   else
   {
-    newItem = new TrailItem(anim, title, toBePredecessor->endIndex()+1);
+    newItem = new TrailItem(anim, title, toBePredecessor->endIndex()+1, false);
     newItem->setNextItem(toBePredecessor->nextItem());
     newItem->setPreviousItem(toBePredecessor);
     toBePredecessor->setNextItem(newItem);
@@ -194,9 +194,9 @@ void TimelineTrail::drawBackground()
 
   QPainter* p = new QPainter(offscreen);
 
-  p->fillRect(0, 0, framesCount*_frameWidth, TRACK_HEIGHT, QColor("#009900"));
+  p->fillRect(0, 0, framesCount*_frameWidth, TRACK_HEIGHT, QColor("#aeaeae"));
   // draw current frame marker
-  p->fillRect(currentFrame*_frameWidth, 0, _frameWidth, TRACK_HEIGHT, QColor("#df7401"));
+  p->fillRect(currentFrame*_frameWidth, 0, _frameWidth, TRACK_HEIGHT, QColor("#cd8f1d"));
 
   for(int i=0; i<framesCount; i++)
   {
@@ -205,7 +205,7 @@ void TimelineTrail::drawBackground()
     if(i==currentFrame)
       p->setPen(QColor("#ffffff"));
     else
-      p->setPen(QColor("#cccccc"));
+      p->setPen(QColor("#808080"));
     p->drawLine(upPoint, downPoint);
   }
 
@@ -232,14 +232,21 @@ void TimelineTrail::drawTrailItem(TrailItem* item)
   QColor selFrameColor;
   if(item==selectedItem)
   {
-    boxColor = QColor("#ff0044");
-    selFrameColor = QColor("#cb045f");
+    boxColor = QColor("#5c4179");
+    selFrameColor = QColor("#453755");
   }
   else
   {
-    boxColor = QColor("#ff0077");
-    selFrameColor = QColor("#b4045f");
+    boxColor = QColor("#584a68");
+    selFrameColor = QColor("#725518");
   }
+
+  //DEBUG
+  if(item->isShadow())
+    boxColor = QColor("#55bb55");
+  //EOD
+
+
   p.fillRect(item->beginIndex()*_frameWidth+2, TOP_MARGIN+BORDER_WIDTH,
              item->frames()*_frameWidth-2, FRAME_HEIGHT, boxColor);
   QRectF border(item->beginIndex()*_frameWidth+1, TOP_MARGIN+1,
@@ -273,17 +280,36 @@ void TimelineTrail::drawTrailItem(TrailItem* item)
       {
         p.fillRect(i*_frameWidth+2, TOP_MARGIN+BORDER_WIDTH+(FRAME_HEIGHT-BORDER_WIDTH)-barHeight,
                    _frameWidth-2, barHeight, QColor("#0080ff"));
-
-        QPen textPen(QColor("#ffffff"));
-        textPen.setWidth(2);
-        p.setPen(textPen);
-        p.drawText(currentFrame*_frameWidth-(TEXT_HEIGHT/4), TRACK_HEIGHT-TOP_MARGIN-BORDER_WIDTH-TEXT_HEIGHT,
-                   TEXT_HEIGHT*2, TEXT_HEIGHT, 0, QString::number(item->getWeight(currentFrame-begin)));
       }
       else
       {
         p.fillRect(i*_frameWidth+2, TOP_MARGIN+BORDER_WIDTH+(FRAME_HEIGHT-BORDER_WIDTH)-barHeight,
                    _frameWidth-2, barHeight, barColor);
+      }
+
+      //Weight value for selected frame is show as the very last thing
+      if(currentFrame>=begin && currentFrame<=end)
+      {
+        int w = item->getWeight(currentFrame-begin);
+        QPen textPen(QColor("#f8f8f8"));
+        QFont f ("Arial", 11, QFont::Normal);
+        p.setPen(textPen);
+        p.setFont(f);
+
+        //for some galactic reason the center alignment doesn't work
+        //as expected, so must be done manually
+        if(w==100)
+          p.drawText(currentFrame*_frameWidth-_frameWidth, TRACK_HEIGHT-TOP_MARGIN-BORDER_WIDTH-TEXT_SIZE,
+                     _frameWidth*3, TEXT_SIZE, Qt::AlignJustify | Qt::TextJustificationForced
+                     , QString::number(w));
+        else if(w<=10)
+          p.drawText(currentFrame*_frameWidth, TRACK_HEIGHT-TOP_MARGIN-BORDER_WIDTH-TEXT_SIZE,
+                     _frameWidth, TEXT_SIZE, Qt::AlignJustify | Qt::TextJustificationForced
+                     , QString::number(w));
+        else    //10-99
+          p.drawText(currentFrame*_frameWidth-(_frameWidth/2), TRACK_HEIGHT-TOP_MARGIN-BORDER_WIDTH-TEXT_SIZE,
+                     _frameWidth*2, TEXT_SIZE, Qt::AlignJustify | Qt::TextJustificationForced
+                     , QString::number(w));
       }
     }
   }
@@ -393,7 +419,7 @@ TrailItem* TimelineTrail::findNextItem(int afterFrame)
 }
 
 
-
+/**************************** BUILD RESULTING ANIMATION ****************************/
 WeightedAnimation* TimelineTrail::getSummaryAnimation()
 {
   if(_firstItem==0)           //no animations left at this trail
@@ -403,16 +429,18 @@ WeightedAnimation* TimelineTrail::getSummaryAnimation()
 
   //TODO
   //DEBUG: so far, just concatenate them ignoring gaps or any other attributes
-  int totalFrames = 0;
+/*  int totalFrames = 0;
   TrailItem* currentItem = _firstItem;
   while(currentItem!=0)
   {
     totalFrames += currentItem->frames();
     currentItem = currentItem->nextItem();
-  }
+  } */
 
   WeightedAnimation* result = new WeightedAnimation(new BVH(), ""); //_firstItem->getAnimation();
-  result->setNumberOfFrames(totalFrames);
+  result->setNumberOfFrames(/*totalFrames*/_lastItem->endIndex()-_firstItem->beginIndex() +1);
+  clearOldGapFillItems();
+  fillItemGaps();
   //TODO: copy frame weights here
 
   //copy rotations to the result
@@ -420,6 +448,51 @@ WeightedAnimation* TimelineTrail::getSummaryAnimation()
   enhanceResultAnimation(result, root);
 
   return result;
+}
+
+
+/** After placement change, some auxiliary items may become invalid.
+    It's better just to erase all. Done by this method. */
+void TimelineTrail::clearOldGapFillItems()
+{
+  //The case _firstItem == _lastItem && _first->isShadow() should never happen
+
+  TrailItem* currentItem = _firstItem;
+  while(currentItem != 0)
+  {
+    if(currentItem->isShadow())
+    {
+      TrailItem *rubish = cutItem(currentItem);
+      delete rubish;
+    }
+
+    currentItem = currentItem->nextItem();
+  }
+}
+
+/** First sub-step in getting overall result. Gaps on this trail are filled
+    with auxiliary animations. */
+void TimelineTrail::fillItemGaps()
+{
+  TrailItem* currentItem = _firstItem;
+
+  while(currentItem->nextItem() != 0)
+  {
+    int gap = currentItem->nextItem()->beginIndex() - 1 - currentItem->endIndex();
+    if(gap>0)  //aren't side-by-side
+    {
+      WeightedAnimation* gapFillAnim = new WeightedAnimation(new BVH(), "");
+      gapFillAnim->setNumberOfFrames(gap);
+
+      TrailItem* gapFillItem = new TrailItem(gapFillAnim, "", currentItem->endIndex()+1, true);
+      gapFillItem->setPreviousItem(currentItem);
+      gapFillItem->setNextItem(currentItem->nextItem());
+      currentItem->setNextItem(gapFillItem);
+      gapFillItem->nextItem()->setPreviousItem(gapFillItem);
+    }
+
+    currentItem = currentItem->nextItem();
+  }
 }
 
 
@@ -451,6 +524,8 @@ void TimelineTrail::appendNodeKeyFrames(WeightedAnimation* destAnim, int nodeInd
     currentItem = currentItem->nextItem();
   }
 }
+/***********************************************************************************/
+
 
 
 void TimelineTrail::trailContentChange()
@@ -617,9 +692,9 @@ void TimelineTrail::mouseReleaseEvent(QMouseEvent *)
 }
 
 
-TrailItem* TimelineTrail::cutCurrentItem()
+TrailItem* TimelineTrail::cutItem(TrailItem* current)
 {
-  TrailItem* current = selectedItem;
+//  TrailItem* current = selectedItem;
 
   if(current==_firstItem && current==_lastItem)     //was only one on this trail
   {
@@ -669,14 +744,14 @@ void TimelineTrail::adjustFrameWeight(int cursorYPosition)
 /////////////////////////////////////////////////////////
 void TimelineTrail::deleteCurrentItem()
 {
-  TrailItem* current = cutCurrentItem();
+  TrailItem* current = cutItem(selectedItem);
   delete current;
   repaint();
 }
 
 void TimelineTrail::moveCurrentItem()
 {
-  draggingItem = cutCurrentItem();
+  draggingItem = cutItem(selectedItem);
   emit movingItem(draggingItem);
 }
 

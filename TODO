@@ -37,7 +37,6 @@ Bug-o-feature:
     different filename.
 
 Next task:
-  * Establish http://animik.org
   * Weighted animation.
     + int FrameData::weight is totally unreal (because of non-key frames). Instead a solution similar to key-frames should be used. Something
       like 'key-weights' that belong to BVHNode (int[] BVHNode::frameWeights). It would be used in a way similar to key-frames, in method

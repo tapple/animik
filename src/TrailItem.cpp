@@ -9,7 +9,7 @@
 class TrailItem
 {
   public:
-    TrailItem(WeightedAnimation* animation, QString name, int begin)
+    TrailItem(WeightedAnimation* animation, QString name, int begin, bool isShadow)
     {
       this->name = name;
       this->animation = animation;
@@ -17,6 +17,7 @@ class TrailItem
       _selectedFrame = -1;
       previous = 0;
       next = 0;
+      this->shadow = isShadow;
     }
 
     int beginIndex() { return begin; }
@@ -53,6 +54,9 @@ class TrailItem
     void setNextItem(TrailItem* nextItem) { this->next=nextItem; }
     TrailItem* previousItem() { return previous; }
     void setPreviousItem(TrailItem* previousItem) { this->previous=previousItem; }
+    /** TRUE means this is helper animation made to fill gaps on a trail.
+        Such item is not shown to the user in any way. */
+    bool isShadow() { return shadow; }
 
   protected:
     QString name;
@@ -61,6 +65,7 @@ class TrailItem
     WeightedAnimation* animation;
     TrailItem* next;
     TrailItem* previous;
+    bool shadow;
 };
 
 #endif // TRAILITEM_C
