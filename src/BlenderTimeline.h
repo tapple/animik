@@ -49,7 +49,7 @@ class BlenderTimeline : public QFrame
     virtual void paintEvent(QPaintEvent*);
 
   private:
-    int animationBeginFrame;        //the offset denoting first frame of the overall animation
+    int animationBeginPosition;        //the offset denoting first frame of the overall animation
     int trailFramesCount;
     int needsReshape;
     WeightedAnimation* resultAnimation;

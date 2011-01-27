@@ -22,13 +22,24 @@ WeightedAnimation::~WeightedAnimation()     //edu: ~Animation() called automatic
 
 int WeightedAnimation::getFrameWeight(int frameIndex)
 {
-  if(frameIndex >= totalFrames)
+  if(frameIndex < 0 || frameIndex >= totalFrames)
   {
     throw new QString("Argument exception: frameIndex exceeds frames count");
   }
   return frameWeights[frameIndex];
 }
 
+void WeightedAnimation::setFrameWeight(int frameIndex, int weight)
+{
+  if(frameIndex < 0 || frameIndex >= totalFrames)
+    throw new QString("Argument exception: frameIndex exceeds frames count");
+
+  else if(weight<0 || weight>100)
+    throw new QString("Argument exception: frame weight out of range: " +
+                      QString::number(weight) + ". Must fall in <0; 100>");
+  else
+    frameWeights[frameIndex] = weight;
+}
 
 int WeightedAnimation::currentFrameWeight()
 {

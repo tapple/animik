@@ -24,21 +24,23 @@ class TimelineTrail : public QFrame
     int animationCount() { return _animationCount; }
     TrailItem* firstItem() { return _firstItem; }
     TrailItem* lastItem() { return _lastItem; }
-    int frameCount() { return framesCount; }
+    int positionCount() { return positionsCount; }
 
-    /** Frame width in pixels. Some (parent) widget need to know before paint. */
-    int frameWidth() { return _frameWidth; }
+    /** Frame position width in pixels. Some (parent) widget need to know
+        before paint. */
+    int positionWidth() { return _positionWidth; }
 
   signals:
     void resized(const QSize& newSize);
     void positionCenter(int pos);
-    /** Let other trails know current frame changed so they synchronize */
-    void currentFrameChanged(int newFrameIndex);
+    /** Let other trails know current position changed so they synchronize */
+    void currentPositionChanged(int newPositionIndex);
     /** Let other trails know current TrailItem changed so they unselect theirs */
     void selectedItemChanged();
     void backgroundClicked();
-    /** Let other trails know this one changed it's size in frames so they do the same */
-    void framesCountChanged(int newCount);
+    /** Let other trails know this one changed it's size in frame positions
+        so they do the same */
+    void positionsCountChanged(int newCount);
     void adjustLimbsWeight(/*TODO: frameData*/);
     void movingItem(TrailItem* draggedItem);
     /** Announce done position change for an item so it's original holder
@@ -48,10 +50,10 @@ class TimelineTrail : public QFrame
     void trailAnimationChanged(WeightedAnimation* animation, int firstFrame);
 
   public slots:
-    void setCurrentFrame(int frame);
+    void setCurrentPosition(int position);
     /** Unselect currently selected TrailItem */
     void cancelTrailSelection() { selectedItem=0; repaint(); }
-    void setFrameCount(int frames);
+    void setPositionCount(int position);
     void onMovingItem(TrailItem* draggedItem);
     void onDroppedItem();
   protected slots:
@@ -60,20 +62,21 @@ class TimelineTrail : public QFrame
     void showLimbsWeight();
 
   protected:
-    int framesCount;
-    /** current frame of playback */
-    int currentFrame;
-    /** width of one frame in pixels */
-    int _frameWidth;
+    int positionsCount;
+    /** current position (frame) of playback */
+    int currentPosition;
+    /** width of one frame position in pixels */
+    int _positionWidth;
     /** currently highlighted TrailItem */
     TrailItem* selectedItem;
     /** Not-null indicates that user is dragging an animation above timeline
         ready to drop it on new location, which as well may be this trail */
     TrailItem* draggingItem;
-    /** TRUE means that weight for currently selected frame is being set */
+    /** TRUE means that weight for frame under currently selected position
+        is being set */
     bool settingWeight;
-    /** An item is being repositioned and mouse is over this frame. Else -1 */
-    int draggingOverFrame;
+    /** An item is being repositioned and mouse is over this position. Else -1 */
+    int draggingOverPosition;
 
     QPixmap* offscreen;
     QAction* deleteItemAction;
@@ -105,16 +108,16 @@ class TimelineTrail : public QFrame
     /** Finds first avaliable space for animation with @param frames frames.
         Returns foregoing TimelineItem* on success or throws QString if there is not enough space.
         Returning 0 indicates the space is available on beginning of a track. */
-    TrailItem* findFreeSpace(int frames);
-    bool isSuitableSpace(int beginFrame, int framesCount);
-    /** Find an item laying before given frame */
-    TrailItem* findPreviousItem(int beforeFrame);
-    /** Find an item laying after given frame */
-    TrailItem* findNextItem(int afterFrame);
-    /** Find TrailItem that covers given frame */
-    TrailItem* findItemOnFrame(int frameIndex);
-    /** Try to extend this trail with empty frame space. Returns TRUE on success. FALSE means
-        that extension would exceed maximum length allowed. */
+    TrailItem* findFreeSpace(int positions);
+    bool isSuitableSpace(int beginPosition, int positionsCount);
+    /** Find an item laying before given frame position */
+    TrailItem* findPreviousItem(int beforePosition);
+    /** Find an item laying after given position */
+    TrailItem* findNextItem(int afterPosition);
+    /** Find TrailItem that covers given position */
+    TrailItem* findItemOnPosition(int positionIndex);
+    /** Try to extend this trail with empty position space. Returns TRUE on success.
+        FALSE means that extension would exceed maximum length allowed. */
     bool coerceExtension(int size);
     /** Delete given TrailItem from this trail and return it (to be copied
         to a 'clipboard') */

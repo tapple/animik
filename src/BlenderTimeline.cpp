@@ -36,16 +36,16 @@ BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(pare
   for(int i=0; i<BLENDING_TRACKS; i++)
   {
     TimelineTrail* tt = new TimelineTrail(/*scrollArea*/stackWidget);
-    tt->setFrameCount(trailFramesCount);
+    tt->setPositionCount(trailFramesCount);
     //if current frame of a trail has changed, sync all others
-    connect(tt, SIGNAL(currentFrameChanged(int)), this, SLOT(setCurrentFrame(int)));
+    connect(tt, SIGNAL(currentPositionChanged(int)), this, SLOT(setCurrentFrame(int)));
     connect(tt, SIGNAL(selectedItemChanged()), this, SLOT(unselectOldItem()));
     connect(tt, SIGNAL(backgroundClicked()), this, SLOT(unselectOldItem()));
     connect(tt, SIGNAL(positionCenter(int)), this, SLOT(scrollTo(int)));
     connect(tt, SIGNAL(movingItem(TrailItem*)), this, SLOT(startItemReposition(TrailItem*)));
     connect(tt, SIGNAL(droppedItem()), this, SLOT(endItemReposition()));
     connect(tt, SIGNAL(adjustLimbsWeight(/*TODO: frameData*/)), this, SLOT(showLimbsWeightForm(/*TODO: frameData*/)));
-    connect(tt, SIGNAL(framesCountChanged(int)), this, SLOT(setFramesCount(int)));
+    connect(tt, SIGNAL(positionsCountChanged(int)), this, SLOT(setFramesCount(int)));
     connect(tt, SIGNAL(trailAnimationChanged(WeightedAnimation*, int)),
             this, SLOT(onTrailAnimationChanged(WeightedAnimation*, int)));
 
@@ -91,9 +91,9 @@ bool BlenderTimeline::AddAnimation(WeightedAnimation* anim, QString title)
 void BlenderTimeline::fitStackWidgetToContent()
 {
   TimelineTrail* t = trails.at(0);
-  int wdth = t->frameWidth()*MIN_TRAIL_FRAMES;
-  if(t->frameCount())
-    wdth = t->frameWidth()*t->frameCount();
+  int wdth = t->positionWidth()*MIN_TRAIL_FRAMES;
+  if(t->positionCount())
+    wdth = t->positionWidth()*t->positionCount();
   stackWidget->resize(wdth, size().height()-20);    //20 is cca scrollbar height
 }
 
@@ -110,14 +110,14 @@ void BlenderTimeline::paintEvent(QPaintEvent*)
 // -------------------------- SLOTS -------------------------- //
 void BlenderTimeline::setCurrentFrame(int frameIndex)
 {
-  if(frameIndex >= animationBeginFrame &&         //inside of overall animation
-     frameIndex < animationBeginFrame+resultAnimation->getNumberOfFrames())
+  if(frameIndex >= animationBeginPosition &&         //inside of overall animation
+     frameIndex < animationBeginPosition+resultAnimation->getNumberOfFrames())
   {
-    resultAnimation->setFrame(frameIndex);        //this causes AnimationView and Player to be updated
+    resultAnimation->setFrame(frameIndex - animationBeginPosition);        //this causes AnimationView and Player to be updated
   }
 
   foreach(TimelineTrail* trail, trails)
-    trail->setCurrentFrame(frameIndex);
+    trail->setCurrentPosition(frameIndex);
 }
 
 void BlenderTimeline::unselectOldItem()
@@ -156,7 +156,7 @@ void BlenderTimeline::setFramesCount(int newCount)
 {
   foreach(TimelineTrail* trail, trails)
 //    if(trail != sender())
-    trail->setFrameCount(newCount);
+    trail->setPositionCount(newCount);
 
   needsReshape = true;
   repaint();
@@ -172,12 +172,12 @@ void BlenderTimeline::onTrailAnimationChanged(WeightedAnimation* anim, int begin
   resultAnimation = anim;
   if(resultAnimation)
     connect(resultAnimation, SIGNAL(currentFrame(int)), this, SLOT(onPlayFrameChanged(int)));
-  animationBeginFrame = beginFrame;
+  animationBeginPosition = beginFrame;
   emit resultingAnimationChanged(anim);
 }
 
 void BlenderTimeline::onPlayFrameChanged(int playFrame)
 {
   foreach(TimelineTrail* trail, trails)
-    trail->setCurrentFrame(animationBeginFrame + playFrame);
+    trail->setCurrentPosition(animationBeginPosition + playFrame);
 }

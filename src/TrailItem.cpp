@@ -11,7 +11,7 @@ class TrailItem
   public:
     TrailItem(WeightedAnimation* animation, QString name, int begin, bool isShadow)
     {
-      this->name = name;
+      this->Name = name;
       this->animation = animation;
       this->begin = begin;
       _selectedFrame = -1;
@@ -19,6 +19,8 @@ class TrailItem
       next = 0;
       this->shadow = isShadow;
     }
+
+    QString Name;       //mainly for debug purposes so far
 
     int beginIndex() { return begin; }
     void setBeginIndex(int index) { begin=index; }
@@ -40,12 +42,16 @@ class TrailItem
     }
     /** Number of frames of containing animation */
     int frames() { return animation->getNumberOfFrames(); }
-    /** Highlight @param frameIndex because it's became selected frame */
+    /** Highlight @param frameIndex because it's became selected frame.
+        GREAT CAUTION: this DOES NOT change the current frame of the underlying
+        animation. It only highlights frame of this Item. */
     void selectFrame(int frameIndex)
     {
       if(frameIndex<0 || frameIndex>=animation->getNumberOfFrames())
         throw new QString("Argument exception: frame index out of range.");
       _selectedFrame = frameIndex;
+
+//      animation->setFrame(frameIndex);        //FUJ! Troubles with AnimationView (::draw() executed to many times)
     }
     /** Currently highlighted frame of animation. The value has meaning
         only if this item is also highlighted on a timeline. */
@@ -59,7 +65,6 @@ class TrailItem
     bool isShadow() { return shadow; }
 
   protected:
-    QString name;
     int begin;
     int _selectedFrame;
     WeightedAnimation* animation;

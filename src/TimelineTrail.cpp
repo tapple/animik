@@ -26,12 +26,12 @@
 TimelineTrail::TimelineTrail(QWidget* parent, Qt::WindowFlags) : QFrame(parent)
 {
   offscreen=0;
-  currentFrame=0;
-  _frameWidth = MIN_FRAME_WIDTH;
+  currentPosition=0;
+  _positionWidth = MIN_FRAME_WIDTH;
   _firstItem = 0;
   _lastItem = 0;
   draggingItem = 0;
-  draggingOverFrame = -1;
+  draggingOverPosition = -1;
   settingWeight = false;
   leftMouseDown = rightMouseDown = false;
   //we need to receive mouseMoveEvent even when no button down
@@ -96,30 +96,30 @@ bool TimelineTrail::AddAnimation(WeightedAnimation* anim, QString title)
 
 
 
-TrailItem* TimelineTrail::findFreeSpace(int frames)
+TrailItem* TimelineTrail::findFreeSpace(int positions)
 {
-  if(_firstItem == 0 && frames <= framesCount)
+  if(_firstItem == 0 && positions <= positionsCount)
     return 0;
-  if(_firstItem->beginIndex() >= frames)      //is there a space before first?
+  if(_firstItem->beginIndex() >= positions)      //is there a space before first?
     return 0;
 
   TrailItem* currentItem = _firstItem;
 
   while(currentItem->nextItem() != 0)
   {
-    if((currentItem->nextItem()->beginIndex() - currentItem->endIndex() - 1) >= frames)
+    if((currentItem->nextItem()->beginIndex() - currentItem->endIndex() - 1) >= positions)
       return currentItem;
     currentItem = currentItem->nextItem();
   }
 
   //check space after last item
-  if((framesCount - _lastItem->endIndex()) >= frames)
+  if((positionsCount - _lastItem->endIndex()) >= positions)
     return _lastItem;
 
   //try to extend this trail to ensure place at the end
-  int remaining = _lastItem ? framesCount-_lastItem->endIndex()-1
-                            : framesCount;
-  if(coerceExtension(frames-remaining))
+  int remaining = _lastItem ? positionsCount-_lastItem->endIndex()-1
+                            : positionsCount;
+  if(coerceExtension(positions-remaining))
     return _lastItem;
 
   throw new QString("Not enough space");
@@ -128,10 +128,10 @@ TrailItem* TimelineTrail::findFreeSpace(int frames)
 
 bool TimelineTrail::coerceExtension(int size)
 {
-  if (framesCount+size <= MAX_TRAIL_FRAMES)
+  if (positionsCount+size <= MAX_TRAIL_FRAMES)
   {
-    setFrameCount(framesCount+size);
-    emit framesCountChanged(framesCount);
+    setPositionCount(positionsCount+size);
+    emit positionsCountChanged(positionsCount);
     return true;
   }
   else
@@ -152,15 +152,15 @@ void TimelineTrail::updateTimelineItemsIndices()      //edu: actually only begin
   }
 }
 
-void TimelineTrail::setFrameCount(int frames)
+void TimelineTrail::setPositionCount(int positions)
 {
-  qDebug("TimelineTrail::setNumberOfFrames(%d==%d): %0lx", framesCount, frames, (unsigned long) offscreen);
+  qDebug("TimelineTrail::setNumberOfFrames(%d==%d): %0lx", positionsCount, positions, (unsigned long) offscreen);
 
-  if(frames==framesCount)
+  if(positions==positionsCount)
     return;   //nothing to do
 
-  framesCount=frames;
-  QPixmap* newOffscreen = new QPixmap(framesCount*_frameWidth, TRACK_HEIGHT);
+  positionsCount=positions;
+  QPixmap* newOffscreen = new QPixmap(positionsCount*_positionWidth, TRACK_HEIGHT);
 
   // copy old offscreen pixmap to new pixmap, if there is one
   if(offscreen)
@@ -177,13 +177,22 @@ void TimelineTrail::setFrameCount(int frames)
 }
 
 
-void TimelineTrail::setCurrentFrame(int frame)
+void TimelineTrail::setCurrentPosition(int position)
 {
-  if(frame != currentFrame)
+  if(position != currentPosition)
   {
-    currentFrame=frame;
-    emit positionCenter(currentFrame*_frameWidth);
+    currentPosition=position;
+    emit positionCenter(currentPosition*_positionWidth);
     repaint();
+  }
+
+  //Find TrailItem underneath if any, and select it's frame
+  //Also done for the Trail where the frame was set by click.
+  TrailItem* item = findItemOnPosition(currentPosition);
+  if(item != 0)
+  {
+    int toSel = currentPosition - item->beginIndex();
+    item->selectFrame(toSel);
   }
 }
 
@@ -194,15 +203,15 @@ void TimelineTrail::drawBackground()
 
   QPainter* p = new QPainter(offscreen);
 
-  p->fillRect(0, 0, framesCount*_frameWidth, TRACK_HEIGHT, QColor("#aeaeae"));
+  p->fillRect(0, 0, positionsCount*_positionWidth, TRACK_HEIGHT, QColor("#aeaeae"));
   // draw current frame marker
-  p->fillRect(currentFrame*_frameWidth, 0, _frameWidth, TRACK_HEIGHT, QColor("#cd8f1d"));
+  p->fillRect(currentPosition*_positionWidth, 0, _positionWidth, TRACK_HEIGHT, QColor("#cd8f1d"));
 
-  for(int i=0; i<framesCount; i++)
+  for(int i=0; i<positionsCount; i++)
   {
-    QPoint upPoint(i*_frameWidth, 0);
-    QPoint downPoint(i*_frameWidth, TRACK_HEIGHT);
-    if(i==currentFrame)
+    QPoint upPoint(i*_positionWidth, 0);
+    QPoint downPoint(i*_positionWidth, TRACK_HEIGHT);
+    if(i==currentPosition)
       p->setPen(QColor("#ffffff"));
     else
       p->setPen(QColor("#808080"));
@@ -216,8 +225,8 @@ void TimelineTrail::drawMovedItemShadow()
 {
 //if(draggingItem && draggingOverFrame){    no need to, done elsewhere
   QPainter* p = new QPainter(offscreen);
-  p->fillRect(draggingOverFrame*_frameWidth, 0,
-              draggingItem->frames()*_frameWidth, TRACK_HEIGHT-3, QColor("#d7df01"));
+  p->fillRect(draggingOverPosition*_positionWidth, 0,
+              draggingItem->frames()*_positionWidth, TRACK_HEIGHT-3, QColor("#d7df01"));
   delete p;
 }
 
@@ -247,17 +256,17 @@ void TimelineTrail::drawTrailItem(TrailItem* item)
   //EOD
 
 
-  p.fillRect(item->beginIndex()*_frameWidth+2, TOP_MARGIN+BORDER_WIDTH,
-             item->frames()*_frameWidth-2, FRAME_HEIGHT, boxColor);
-  QRectF border(item->beginIndex()*_frameWidth+1, TOP_MARGIN+1,
-                item->frames()*_frameWidth, FRAME_HEIGHT);
+  p.fillRect(item->beginIndex()*_positionWidth+2, TOP_MARGIN+BORDER_WIDTH,
+             item->frames()*_positionWidth-2, FRAME_HEIGHT, boxColor);
+  QRectF border(item->beginIndex()*_positionWidth+1, TOP_MARGIN+1,
+                item->frames()*_positionWidth, FRAME_HEIGHT);
 
   int begin = item->beginIndex();
   //if selected frame falls inside this animation, highlight the frame
-  if(currentFrame>=begin && currentFrame<=item->endIndex())
+  if(currentPosition>=begin && currentPosition<=item->endIndex())
   {
-    p.fillRect(currentFrame*_frameWidth+1, TOP_MARGIN+BORDER_WIDTH,
-               _frameWidth, FRAME_HEIGHT-BORDER_WIDTH, selFrameColor);
+    p.fillRect(currentPosition*_positionWidth+1, TOP_MARGIN+BORDER_WIDTH,
+               _positionWidth, FRAME_HEIGHT-BORDER_WIDTH, selFrameColor);
   }
 
   //border must go almost last for correct overlapping
@@ -276,21 +285,21 @@ void TimelineTrail::drawTrailItem(TrailItem* item)
     for(int i=begin; i<=end; i++)
     {
       int barHeight = (int)(item->getWeight(i-begin)*hFactor);
-      if(i==currentFrame)
+      if(i==currentPosition)
       {
-        p.fillRect(i*_frameWidth+2, TOP_MARGIN+BORDER_WIDTH+(FRAME_HEIGHT-BORDER_WIDTH)-barHeight,
-                   _frameWidth-2, barHeight, QColor("#0080ff"));
+        p.fillRect(i*_positionWidth+2, TOP_MARGIN+BORDER_WIDTH+(FRAME_HEIGHT-BORDER_WIDTH)-barHeight,
+                   _positionWidth-2, barHeight, QColor("#0080ff"));
       }
       else
       {
-        p.fillRect(i*_frameWidth+2, TOP_MARGIN+BORDER_WIDTH+(FRAME_HEIGHT-BORDER_WIDTH)-barHeight,
-                   _frameWidth-2, barHeight, barColor);
+        p.fillRect(i*_positionWidth+2, TOP_MARGIN+BORDER_WIDTH+(FRAME_HEIGHT-BORDER_WIDTH)-barHeight,
+                   _positionWidth-2, barHeight, barColor);
       }
 
       //Weight value for selected frame is show as the very last thing
-      if(currentFrame>=begin && currentFrame<=end)
+      if(currentPosition>=begin && currentPosition<=end)
       {
-        int w = item->getWeight(currentFrame-begin);
+        int w = item->getWeight(currentPosition-begin);
         QPen textPen(QColor("#f8f8f8"));
         QFont f ("Arial", 11, QFont::Normal);
         p.setPen(textPen);
@@ -299,16 +308,16 @@ void TimelineTrail::drawTrailItem(TrailItem* item)
         //for some galactic reason the center alignment doesn't work
         //as expected, so must be done manually
         if(w==100)
-          p.drawText(currentFrame*_frameWidth-_frameWidth, TRACK_HEIGHT-TOP_MARGIN-BORDER_WIDTH-TEXT_SIZE,
-                     _frameWidth*3, TEXT_SIZE, Qt::AlignJustify | Qt::TextJustificationForced
+          p.drawText(currentPosition*_positionWidth-_positionWidth, TRACK_HEIGHT-TOP_MARGIN-BORDER_WIDTH-TEXT_SIZE,
+                     _positionWidth*3, TEXT_SIZE, Qt::AlignJustify | Qt::TextJustificationForced
                      , QString::number(w));
         else if(w<=10)
-          p.drawText(currentFrame*_frameWidth, TRACK_HEIGHT-TOP_MARGIN-BORDER_WIDTH-TEXT_SIZE,
-                     _frameWidth, TEXT_SIZE, Qt::AlignJustify | Qt::TextJustificationForced
+          p.drawText(currentPosition*_positionWidth, TRACK_HEIGHT-TOP_MARGIN-BORDER_WIDTH-TEXT_SIZE,
+                     _positionWidth, TEXT_SIZE, Qt::AlignJustify | Qt::TextJustificationForced
                      , QString::number(w));
         else    //10-99
-          p.drawText(currentFrame*_frameWidth-(_frameWidth/2), TRACK_HEIGHT-TOP_MARGIN-BORDER_WIDTH-TEXT_SIZE,
-                     _frameWidth*2, TEXT_SIZE, Qt::AlignJustify | Qt::TextJustificationForced
+          p.drawText(currentPosition*_positionWidth-(_positionWidth/2), TRACK_HEIGHT-TOP_MARGIN-BORDER_WIDTH-TEXT_SIZE,
+                     _positionWidth*2, TEXT_SIZE, Qt::AlignJustify | Qt::TextJustificationForced
                      , QString::number(w));
       }
     }
@@ -316,14 +325,14 @@ void TimelineTrail::drawTrailItem(TrailItem* item)
 }
 
 
-TrailItem* TimelineTrail::findItemOnFrame(int frameIndex)
+TrailItem* TimelineTrail::findItemOnPosition(int positionIndex)
 {
   TrailItem* currentItem = _firstItem;
 
   while(currentItem != 0)
   {
     int begin = currentItem->beginIndex();
-    if(frameIndex>=begin && frameIndex<=currentItem->endIndex())
+    if(positionIndex>=begin && positionIndex<=currentItem->endIndex())
       break;
     currentItem = currentItem->nextItem();
   }
@@ -331,9 +340,9 @@ TrailItem* TimelineTrail::findItemOnFrame(int frameIndex)
 }
 
 
-bool TimelineTrail::isSuitableSpace(int beginFrame, int framesCount)
+bool TimelineTrail::isSuitableSpace(int beginPosition, int positionsCount)
 {
-  int endFrame = beginFrame+framesCount-1;
+  int endFrame = beginPosition+positionsCount-1;
   if(_firstItem == 0 /*&& _lastItem == 0*/ && endFrame <= (MAX_TRAIL_FRAMES-1))
     return true;
 
@@ -342,9 +351,9 @@ bool TimelineTrail::isSuitableSpace(int beginFrame, int framesCount)
   {
     if(currentItem->beginIndex()>endFrame)    //all items from here are too far, so safe
       return true;
-    if((currentItem->beginIndex()>=beginFrame && currentItem->beginIndex()<=endFrame) ||
-       (currentItem->endIndex()>=beginFrame && currentItem->endIndex()<=endFrame) ||
-       (beginFrame>=currentItem->beginIndex() && beginFrame<=currentItem->endIndex()))
+    if((currentItem->beginIndex()>=beginPosition && currentItem->beginIndex()<=endFrame) ||
+       (currentItem->endIndex()>=beginPosition && currentItem->endIndex()<=endFrame) ||
+       (beginPosition>=currentItem->beginIndex() && beginPosition<=currentItem->endIndex()))
       return false;                           //overlaps with currentItem
 
     currentItem = currentItem->nextItem();
@@ -356,22 +365,26 @@ bool TimelineTrail::isSuitableSpace(int beginFrame, int framesCount)
 
 void TimelineTrail::cleanupAfterMove()
 {
-  draggingItem = 0;
-  draggingOverFrame = -1;
+  if(draggingItem != 0)
+  {
+
+    draggingItem = 0;
+  }
+  draggingOverPosition = -1;
   QCursor defCur;
   setCursor(defCur);
 }
 
 
-TrailItem* TimelineTrail::findPreviousItem(int beforeFrame)
+TrailItem* TimelineTrail::findPreviousItem(int beforePosition)
 {
   if(_firstItem==0/*==_lastItem*/)
     return 0;
-  if(_firstItem->beginIndex() > beforeFrame)
+  if(_firstItem->beginIndex() > beforePosition)
     return 0;         //belongs to beginning
   if(_firstItem==_lastItem)
   {
-    if(_firstItem->endIndex() < beforeFrame)
+    if(_firstItem->endIndex() < beforePosition)
       return _firstItem;
     else
       return 0;
@@ -382,7 +395,7 @@ TrailItem* TimelineTrail::findPreviousItem(int beforeFrame)
   {
     if(currentItem->nextItem()==0)
       return currentItem;
-    if(currentItem->nextItem()->beginIndex() > beforeFrame)
+    if(currentItem->nextItem()->beginIndex() > beforePosition)
       return currentItem;
     currentItem = currentItem->nextItem();
   }
@@ -391,15 +404,15 @@ TrailItem* TimelineTrail::findPreviousItem(int beforeFrame)
 }
 
 
-TrailItem* TimelineTrail::findNextItem(int afterFrame)
+TrailItem* TimelineTrail::findNextItem(int afterPosition)
 {
   if(_lastItem==0/*==_firstItem*/)
     return 0;
-  if(_lastItem->endIndex() < afterFrame)
+  if(_lastItem->endIndex() < afterPosition)
     return 0;           //belongs to very end
   if(_firstItem==_lastItem)
   {
-    if(_lastItem->beginIndex() > afterFrame)
+    if(_lastItem->beginIndex() > afterPosition)
      return _lastItem;
     else
       return 0;
@@ -410,7 +423,7 @@ TrailItem* TimelineTrail::findNextItem(int afterFrame)
   {
     if(currentItem->previousItem()==0)
       return currentItem;
-    if(currentItem->previousItem()->endIndex() < afterFrame)
+    if(currentItem->previousItem()->endIndex() < afterPosition)
       return currentItem;
     currentItem = currentItem->previousItem();
   }
@@ -424,20 +437,10 @@ WeightedAnimation* TimelineTrail::getSummaryAnimation()
 {
   if(_firstItem==0)           //no animations left at this trail
     return 0;
-  if(_firstItem==_lastItem)   //single animation, no need for join
-    return _firstItem->getAnimation();
 
-  //TODO
-  //DEBUG: so far, just concatenate them ignoring gaps or any other attributes
-/*  int totalFrames = 0;
-  TrailItem* currentItem = _firstItem;
-  while(currentItem!=0)
-  {
-    totalFrames += currentItem->frames();
-    currentItem = currentItem->nextItem();
-  } */
+  //NOTE: if in tempetation not to do the composition with only one Item, DON'T DO so! It'll cause nasty bug.
 
-  WeightedAnimation* result = new WeightedAnimation(new BVH(), ""); //_firstItem->getAnimation();
+  WeightedAnimation* result = new WeightedAnimation(new BVH(), "");
   result->setNumberOfFrames(/*totalFrames*/_lastItem->endIndex()-_firstItem->beginIndex() +1);
   clearOldGapFillItems();
   fillItemGaps();
@@ -455,14 +458,12 @@ WeightedAnimation* TimelineTrail::getSummaryAnimation()
     It's better just to erase all. Done by this method. */
 void TimelineTrail::clearOldGapFillItems()
 {
-  //The case _firstItem == _lastItem && _first->isShadow() should never happen
-
   TrailItem* currentItem = _firstItem;
   while(currentItem != 0)
   {
     if(currentItem->isShadow())
     {
-      TrailItem *rubish = cutItem(currentItem);
+      TrailItem* rubish = cutItem(currentItem);
       delete rubish;
     }
 
@@ -537,7 +538,7 @@ void TimelineTrail::trailContentChange()
 
 void TimelineTrail::paintEvent(QPaintEvent*)
 {
-  QSize newSize = QSize(framesCount*_frameWidth, TRACK_HEIGHT);
+  QSize newSize = QSize(positionsCount*_positionWidth, TRACK_HEIGHT);
 
   if(newSize!=size())
   {
@@ -546,7 +547,7 @@ void TimelineTrail::paintEvent(QPaintEvent*)
   }
 
   drawBackground();
-  if(draggingOverFrame >= 0)
+  if(draggingOverPosition >= 0)
     drawMovedItemShadow();
 
   TrailItem* currentItem = _firstItem;
@@ -579,11 +580,11 @@ void TimelineTrail::mouseMoveEvent(QMouseEvent* me)
 {
   if(draggingItem)
   {
-    float hitFrame = ((float)me->pos().x()) / _frameWidth;
+    float hitFrame = ((float)me->pos().x()) / _positionWidth;
     int frame = (int)hitFrame;
-    if(frame != draggingOverFrame)
+    if(frame != draggingOverPosition)
     {
-      draggingOverFrame = frame;
+      draggingOverPosition = frame;
       repaint();
     }
   }
@@ -595,13 +596,13 @@ void TimelineTrail::mouseMoveEvent(QMouseEvent* me)
 void TimelineTrail::leaveEvent(QEvent *)
 {
   //user dragging an TrailItem left this area
-  draggingOverFrame = -1;
+  draggingOverPosition = -1;
   repaint();
 }
 
 void TimelineTrail::mousePressEvent(QMouseEvent* e)
 {
-  int clickedFrame = e->x()/_frameWidth;
+  int clickedFrame = e->x()/_positionWidth;
 
   //user wishes to place dragged item
   if(draggingItem)
@@ -609,9 +610,9 @@ void TimelineTrail::mousePressEvent(QMouseEvent* e)
     if(isSuitableSpace(clickedFrame, draggingItem->frames()))
     {
       int endFrame = clickedFrame + draggingItem->frames() -1;
-      if(endFrame > framesCount-1)      //we need to extend trail
+      if(endFrame > positionsCount-1)      //we need to extend trail
       {
-        int inside = framesCount-clickedFrame;
+        int inside = positionsCount-clickedFrame;
         if(!coerceExtension(draggingItem->frames() - inside))
           return;       //this should never happen if 'isSuitableSpace' returned true
       }
@@ -653,18 +654,18 @@ void TimelineTrail::mousePressEvent(QMouseEvent* e)
     trailContentChange();
     return;
   }
-  if(clickedFrame != currentFrame)
+  if(clickedFrame != currentPosition)
   {
-    currentFrame = clickedFrame;
-    emit currentFrameChanged(currentFrame);
+    currentPosition = clickedFrame;
+    emit currentPositionChanged(currentPosition);
   }
-  else      //second click on selected frame, user wishes to set weight
+  else if(selectedItem != 0)     //second click on selected frame, user wishes to set weight
   {
     settingWeight = true;
     adjustFrameWeight(e->y());
   }
 
-  TrailItem* clickedItem = findItemOnFrame(currentFrame);
+  TrailItem* clickedItem = findItemOnPosition(currentPosition);
   if(clickedItem==0)
     emit backgroundClicked();
   if(clickedItem != selectedItem)
@@ -673,6 +674,8 @@ void TimelineTrail::mousePressEvent(QMouseEvent* e)
     emit selectedItemChanged();
   }
 
+  //NOTE: current frame of every TrailItem that might be crossed is set
+  //      elsewhere, through signal/slot loop.
 //TODO: apply to resulting animation  animation->setFrame(currentFrame);
 
   if(e->button()==Qt::LeftButton)
@@ -694,8 +697,6 @@ void TimelineTrail::mouseReleaseEvent(QMouseEvent *)
 
 TrailItem* TimelineTrail::cutItem(TrailItem* current)
 {
-//  TrailItem* current = selectedItem;
-
   if(current==_firstItem && current==_lastItem)     //was only one on this trail
   {
     _firstItem = _lastItem = 0;
@@ -734,8 +735,9 @@ void TimelineTrail::adjustFrameWeight(int cursorYPosition)
   if(touch>=0 && touch<=real_frame_height)     //not above/under the TrailItem
   {
     float weight = 100.0 * (float)touch / real_frame_height;
-    selectedItem->getAnimation()->setCurrentFrameWeight(100 - (int)weight);
-    repaint(currentFrame*_frameWidth-10, 0, _frameWidth+20, TRACK_HEIGHT);
+    int frameIndex = currentPosition - selectedItem->beginIndex();
+    selectedItem->getAnimation()->setFrameWeight(frameIndex, 100 - (int)weight);
+    repaint(currentPosition*_positionWidth-10, 0, _positionWidth+20, TRACK_HEIGHT);
   }
 }
 

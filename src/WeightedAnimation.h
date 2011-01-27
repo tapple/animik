@@ -17,6 +17,7 @@ public:
   int getFrameWeight(int frameIndex);
   int currentFrameWeight();
   void setCurrentFrameWeight(int weight);
+  void setFrameWeight(int frameIndex, int weight);
 
 protected:
   /** Array of weights, all must fall into <0, 100> */
