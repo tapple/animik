@@ -54,7 +54,7 @@ void TrailJoiner::fillItemGaps()
       WeightedAnimation* gapFillAnim = new WeightedAnimation(new BVH(), "");
       gapFillAnim->setNumberOfFrames(gap);
 
-      TrailItem* gapFillItem = new TrailItem(gapFillAnim, "", currentItem->endIndex()+1, true);
+      TrailItem* gapFillItem = new TrailItem(gapFillAnim, "shadow", currentItem->endIndex()+1, true);
       gapFillItem->setPreviousItem(currentItem);
       gapFillItem->setNextItem(currentItem->nextItem());
       currentItem->setNextItem(gapFillItem);

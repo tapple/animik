@@ -6,6 +6,10 @@
 #include <QPalette>
 #include <QSize>
 
+
+#include <QMessageBox>      //This is DEBUG, TODO: delete
+
+
 #include "bvh.h"
 #include "TimelineTrail.h"
 #include "TrailItem.cpp"
@@ -449,7 +453,7 @@ WeightedAnimation* TimelineTrail::getSummaryAnimation()
 
 
 /** After placement change, some auxiliary items placed by TrailJoiner may become invalid.
-    It's better just to erase all. Done by this method. */
+    It's better just to erase them all. Done by this method. */
 void TimelineTrail::clearShadowItems()
 {
   TrailItem* currentItem = _firstItem;
@@ -489,11 +493,9 @@ TrailItem* TimelineTrail::cutItem(TrailItem* current)
     current->previousItem()->setNextItem(current->nextItem());
     current->nextItem()->setPreviousItem(current->previousItem());
   }
-
   //This is probably not necessary
   current->setPreviousItem(0);
   current->setNextItem(0);
-
   selectedItem = 0;
   trailContentChange();
   return current;
@@ -542,7 +544,7 @@ void TimelineTrail::paintEvent(QPaintEvent*)
 
 void TimelineTrail::contextMenuEvent(QContextMenuEvent *event)
 {
-  if(rightMouseDown && selectedItem)
+  if(/*rightMouseDown &&*/ selectedItem!=0)
   {
     QMenu menu(this);
     menu.addAction(deleteItemAction);
@@ -642,7 +644,6 @@ void TimelineTrail::mousePressEvent(QMouseEvent* e)
     settingWeight = true;
     adjustFrameWeight(e->y());
   }
-
   TrailItem* clickedItem = findItemOnPosition(currentPosition);
   if(clickedItem==0)
     emit backgroundClicked();
@@ -652,9 +653,9 @@ void TimelineTrail::mousePressEvent(QMouseEvent* e)
     emit selectedItemChanged();
   }
 
+
   //NOTE: current frame of every TrailItem that might be crossed is set elsewhere, through signal/slot loop.
 //TODO: apply to resulting animation  animation->setFrame(currentFrame);
-
   if(e->button()==Qt::LeftButton)
     leftMouseDown = true;
   else if(e->button()==Qt::RightButton)
@@ -718,7 +719,7 @@ void TimelineTrail::onMovingItem(TrailItem* draggedItem)
   draggingItem=draggedItem;     //in case of sender, this is not needed
 
   //remove helper items so they're not in way of the one being dragged
-  clearShadowItems();
+  clearShadowItems();           //BUG! ON WIN32 THIS CAUSES SIGSEGV!!!
 }
 
 void TimelineTrail::onDroppedItem()

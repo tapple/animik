@@ -140,9 +140,11 @@ void Player::onAnimationChanged(WeightedAnimation *animation)
 //edu: this is insidous! Disconnects ALL slots tied to that object.
 //      DO NOT USE THAT!  disconnect(animation, SIGNAL(currentFrame(int)), 0, 0);
   this->animation = animation;
-  connect(animation, SIGNAL(currentFrame(int)), this, SLOT(animationFrameChanged()));
+
   if(animation)
   {
+    connect(animation, SIGNAL(currentFrame(int)), this, SLOT(animationFrameChanged()));
+
     int framesCount = animation->getNumberOfFrames();
     if(framesCount<loopIn)
       loopIn=0;

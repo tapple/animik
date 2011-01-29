@@ -12,8 +12,8 @@
 #include "LimbsWeightForm.h"
 
 
-
 #include <QSizePolicy>       //for DEBUG purposes
+
 
 
 BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(parent)
@@ -110,8 +110,8 @@ void BlenderTimeline::paintEvent(QPaintEvent*)
 // -------------------------- SLOTS -------------------------- //
 void BlenderTimeline::setCurrentFrame(int frameIndex)
 {
-  if(frameIndex >= animationBeginPosition &&         //inside of overall animation
-     frameIndex < animationBeginPosition+resultAnimation->getNumberOfFrames())
+  if(resultAnimation !=0 && frameIndex >= animationBeginPosition &&       //inside of overall animation
+     frameIndex < animationBeginPosition + resultAnimation->getNumberOfFrames())
   {
     resultAnimation->setFrame(frameIndex - animationBeginPosition);        //this causes AnimationView and Player to be updated
   }
@@ -164,7 +164,6 @@ void BlenderTimeline::setFramesCount(int newCount)
 
 void BlenderTimeline::onTrailAnimationChanged(WeightedAnimation* anim, int beginFrame)
 {
-
   //DEBUG so far, TODO: recalculate overall animation
   //TODO: find a mechanism to set the real offset
   if(resultAnimation)
