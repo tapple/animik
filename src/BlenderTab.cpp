@@ -17,7 +17,7 @@
 BlenderTab::BlenderTab(qavimator* mainWindow, const QString& fileName, bool createFile)
   : QWidget(0), AbstractDocumentTab(mainWindow)
 {
-  /*ui->*/setupUi(this);
+  setupUi(this);
 
   setAttribute(Qt::WA_DeleteOnClose);
 
@@ -199,11 +199,6 @@ void BlenderTab::fileAdd(const QString& name)
     }
 
     setCurrentFile(file);
-
-/*TODO    blenderAnimationView->addAnimation(anim);
-    blenderTimeline->AddAnimation(anim);
-    blenderTimeline->selectAnimation(anim);
-*/
 
 /*TODO    if(avblFile->getLoopInPoint()==-1)
     {

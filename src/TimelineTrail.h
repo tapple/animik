@@ -60,6 +60,7 @@ class TimelineTrail : public QFrame
     void deleteCurrentItem();
     void moveCurrentItem();
     void showLimbsWeight();
+    void setMixZones();
 
   protected:
     int positionsCount;
@@ -73,7 +74,7 @@ class TimelineTrail : public QFrame
         ready to drop it on new location, which as well may be this trail */
     TrailItem* draggingItem;
     /** TRUE means that weight for frame under currently selected position
-        is being set */
+        is being set by user. */
     bool settingWeight;
     /** An item is being repositioned and mouse is over this position. Else -1 */
     int draggingOverPosition;
@@ -81,20 +82,14 @@ class TimelineTrail : public QFrame
     QPixmap* offscreen;
     QAction* deleteItemAction;
     QAction* moveItemAction;
+    QAction* mixZonesAction;
     QAction* limbWeightsAction;
 
     /** After any change of position or number of animations at this trail,
         the resulting summary animation is gained with this method.
         Returns 0 if there's no item left. */
     WeightedAnimation* getSummaryAnimation();
-    void clearOldGapFillItems();
-    void fillItemGaps();
-    /** Traverses through skeleton tree of to-be result animation and asks
-        trais' animations to copy their counterpart key frames there */
-    void enhanceResultAnimation(WeightedAnimation* destAnim, BVHNode* node);
-    /** Get all keyframes of given limb of all animations on this trail
-        (in time order) and append them to given destination animation */
-    void appendNodeKeyFrames(WeightedAnimation* destAnim, int nodeIndex);
+    void clearShadowItems();
     void trailContentChange();
 
 
@@ -105,6 +100,18 @@ class TimelineTrail : public QFrame
     /** Reimplemented for moving an item. Potential new location is "shadowed" */
     virtual void mouseMoveEvent(QMouseEvent* me);
     virtual void leaveEvent(QEvent*);
+
+
+  private:
+    bool leftMouseDown;
+    bool rightMouseDown;
+    int _animationCount;
+    /** TRUE when new item is being added. Means user send it to the timeline,
+        but for some reason wasn't placed yet. */
+    bool addingNewItem;
+    TrailItem* _firstItem;
+    TrailItem* _lastItem;
+
     /** Finds first avaliable space for animation with @param frames frames.
         Returns foregoing TimelineItem* on success or throws QString if there is not enough space.
         Returning 0 indicates the space is available on beginning of a track. */
@@ -122,23 +129,15 @@ class TimelineTrail : public QFrame
     /** Delete given TrailItem from this trail and return it (to be copied
         to a 'clipboard') */
     TrailItem* cutItem(TrailItem*);
-
-    void drawBackground();
-    void drawMovedItemShadow();
-    void drawTrailItem(TrailItem* item);
-
-  private:
-    bool leftMouseDown;
-    bool rightMouseDown;
-    int _animationCount;
-    TrailItem* _firstItem;
-    TrailItem* _lastItem;
-
     /** Passes thorugh TimelineItems and updates their begin/end positions.
         Called usually after addition of a new item. */
     void updateTimelineItemsIndices();
     void cleanupAfterMove();
     void adjustFrameWeight(int cursorYPosition);
+
+    void drawBackground();
+    void drawMovedItemShadow();
+    void drawTrailItem(TrailItem* item);
 };
 
 #endif // TIMELINETRAIL_H

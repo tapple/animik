@@ -32,19 +32,27 @@ void AnimationList::addNewFile()
 {
   //// For some unknown reason passing "this" locks up the OSX qavimator window. Possibly a QT4 bug, needs investigation
 #ifdef __APPLE__
-  QString file=QFileDialog::getOpenFileName(NULL, "Choose an animation file", Settings::Instance()->lastPath(), ANIM_FILTER);
+  QStringList files=QFileDialog::getOpenFileNames(NULL, "Choose an animation file", Settings::Instance()->lastPath(), ANIM_FILTER);
 #else
-  QString file=QFileDialog::getOpenFileName(this, "Choose an animation file", Settings::Instance()->lastPath(), ANIM_FILTER);
+  QStringList files=QFileDialog::getOpenFileNames(this, "Choose an animation file", Settings::Instance()->lastPath(), ANIM_FILTER);
 #endif
 
-  if(file.isEmpty() || availableAnimations.contains(file))
+  if(files.isEmpty())
     return;
-  if(file.endsWith(".avm", Qt::CaseInsensitive) || file.endsWith(".bvh", Qt::CaseInsensitive))
+
+  foreach(QString file, files)
   {
-    availableAnimations.append(file);
-    QStringListModel* model =  dynamic_cast<QStringListModel*>(ui->availableAnimsListView->model());
-    model->setStringList(availableAnimations);                //TODO: this is sooo lame. Find a dignified way
+    if(file.isEmpty() || availableAnimations.contains(file))
+      continue;
+    else
+    {
+      if(file.endsWith(".avm", Qt::CaseInsensitive) || file.endsWith(".bvh", Qt::CaseInsensitive))
+        availableAnimations.append(files);
+    }
   }
+  QStringListModel* model =  dynamic_cast<QStringListModel*>(ui->availableAnimsListView->model());
+  model->setStringList(availableAnimations);                //TODO: this is sooo lame. Find a dignified way
+  onSelectionChanged();
 }
 
 //--------------------- UI slots ---------------------//
@@ -70,18 +78,28 @@ void AnimationList::on_availableAnimsListView_doubleClicked(QModelIndex)
 void AnimationList::on_addButton_clicked()
 {
   QItemSelectionModel* selModel = ui->availableAnimsListView->selectionModel();
-  int index = selModel->selectedIndexes().at(0).row();
-//  qDebug("Animation file offered: %s", filename);                 //SIGILL fun begins here
 
-  emit AnimationFileTaken(availableAnimations.at(index));
+  int count = selModel->selectedIndexes().count();
+  for(int i=0; i<count; i++)
+  {
+    int index = selModel->selectedIndexes().at(i).row();
+//    qDebug("Animation file offered: %s", filename);                 //SIGILL fun begins here
+
+    emit AnimationFileTaken(availableAnimations.at(index));
+  }
 }
 
 void AnimationList::on_removeButton_clicked()
 {
   QStringListModel* model =  dynamic_cast<QStringListModel*>(ui->availableAnimsListView->model());
   QItemSelectionModel* selModel = ui->availableAnimsListView->selectionModel();
-  int index = selModel->selectedIndexes().at(0).row();
-  availableAnimations.removeAt(index);
+
+  int count = selModel->selectedIndexes().count();
+  for(int i=0; i<count; i++)
+  {
+    int index = selModel->selectedIndexes().at(0).row();
+    availableAnimations.removeAt(index);
+  }
   model->setStringList(availableAnimations);                //TODO: bleh!
 
   onSelectionChanged();         //must be called explicitely

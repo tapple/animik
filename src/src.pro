@@ -29,7 +29,9 @@ SOURCES += animation.cpp \
     TrailItem.cpp \
     LimbsWeightForm.cpp \
     Player.cpp \
-    WeightedAnimation.cpp
+    WeightedAnimation.cpp \
+    TrailJoiner.cpp \
+    MixZonesDialog.cpp
 HEADERS += animation.h \
     animationview.h \
     bvh.h \
@@ -58,7 +60,9 @@ HEADERS += animation.h \
     LimbsWeightForm.h \
     Player.h \
     TimelineTrail.h \
-    WeightedAnimation.h
+    WeightedAnimation.h \
+    TrailJoiner.h \
+    MixZonesDialog.h
 FORMS += mainapplicationform.ui \
     settingsdialogform.ui \
     KeyFramerTab.ui \
@@ -67,7 +71,8 @@ FORMS += mainapplicationform.ui \
     BlenderTab.ui \
     AnimationList.ui \
     LimbsWeightForm.ui \
-    Player.ui
+    Player.ui \
+    MixZonesDialog.ui
 RESOURCES += icons.qrc
 TEMPLATE = app
 TARGET = ../bin/qavimator

@@ -11,7 +11,7 @@ public:
   ~Blender();
 
   /** Returns overall blended animation */
-  Animation* getResultingAnimation();
+  Animation* GetResultingAnimation();
 
 protected:
 

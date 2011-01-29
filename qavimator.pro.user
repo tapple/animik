@@ -117,6 +117,8 @@
     <value type="QString">NLSPATH=/usr/share/locale/%l/%N</value>
     <value type="QString">PATH=/usr/lib/qt4/bin:/usr/bin:/bin:/usr/local/bin:/usr/X11R6/bin/:/usr/games:/usr/lib/qt4/bin:/home/martin/bin</value>
     <value type="QString">PILOTPORT=usb:</value>
+    <value type="QString">PULSE_PROP_media.role=none</value>
+    <value type="QString">PULSE_PROP_phonon.streamid={49f0eea1-4b7f-4693-adf6-20172b6369a0}</value>
     <value type="QString">PWD=/usr/lib/qtcreator</value>
     <value type="QString">PYTHONDONTWRITEBYTECODE=1</value>
     <value type="QString">PYTHONPATH=/usr/lib/ooo/basis-link/program</value>
@@ -212,6 +214,8 @@
     <value type="QString">NLSPATH=/usr/share/locale/%l/%N</value>
     <value type="QString">PATH=/usr/lib/qt4/bin:/usr/bin:/bin:/usr/local/bin:/usr/X11R6/bin/:/usr/games:/usr/lib/qt4/bin:/home/martin/bin</value>
     <value type="QString">PILOTPORT=usb:</value>
+    <value type="QString">PULSE_PROP_media.role=none</value>
+    <value type="QString">PULSE_PROP_phonon.streamid={49f0eea1-4b7f-4693-adf6-20172b6369a0}</value>
     <value type="QString">PWD=/usr/lib/qtcreator</value>
     <value type="QString">PYTHONDONTWRITEBYTECODE=1</value>
     <value type="QString">PYTHONPATH=/usr/lib/ooo/basis-link/program</value>

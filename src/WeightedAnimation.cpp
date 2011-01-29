@@ -2,13 +2,20 @@
 #include "bvh.h"
 
 
+#define MIX_IN_OUT        3
+
 
 WeightedAnimation::WeightedAnimation(BVH* newBVH,const QString& bvhFile)
   : Animation(newBVH, bvhFile)
 {
   int frames_count = newBVH->lastLoadedNumberOfFrames;
-  frameWeights = new int[frames_count];
 
+  if(frames_count < 2*MIX_IN_OUT)
+    _mixIn = _mixOut = frames_count/2;
+  else
+    _mixIn = _mixOut = MIX_IN_OUT;
+
+  frameWeights = new int[frames_count];
   for(int i=0; i<frames_count; i++)
     frameWeights[i] = 50;
 }

@@ -18,10 +18,16 @@ public:
   int currentFrameWeight();
   void setCurrentFrameWeight(int weight);
   void setFrameWeight(int frameIndex, int weight);
+  int mixIn() { return _mixIn; }
+  int mixOut() { return _mixOut; }
+  void setMixIn(int mixIn) { _mixIn = mixIn; }
+  void setMixOut(int mixOut) { _mixOut = mixOut; }
 
-protected:
+private:
   /** Array of weights, all must fall into <0, 100> */
   int* frameWeights;
+  int _mixIn;
+  int _mixOut;
 };
 
 #endif // WEIGHTEDANIMATION_H

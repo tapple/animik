@@ -42,6 +42,12 @@ class TrailItem
     }
     /** Number of frames of containing animation */
     int frames() { return animation->getNumberOfFrames(); }
+    /** Size of mix-in zone */
+    int mixIn() { return animation->mixIn(); }
+    void setMixIn(int mixIn) { animation->setMixIn(mixIn); }
+    /** Size of mix-out zone */
+    int mixOut() { return animation->mixOut(); }
+    void setMixOut(int mixOut) { animation->setMixOut(mixOut); }
     /** Highlight @param frameIndex because it's became selected frame.
         GREAT CAUTION: this DOES NOT change the current frame of the underlying
         animation. It only highlights frame of this Item. */
