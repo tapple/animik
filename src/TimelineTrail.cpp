@@ -461,8 +461,13 @@ void TimelineTrail::clearShadowItems()
   {
     if(currentItem->isShadow())
     {
+      TrailItem* next = currentItem->nextItem();
+
       TrailItem* rubish = cutItem(currentItem);
       delete rubish;
+
+      currentItem = next;
+      continue;
     }
 
     currentItem = currentItem->nextItem();
@@ -497,7 +502,6 @@ TrailItem* TimelineTrail::cutItem(TrailItem* current)
   current->setPreviousItem(0);
   current->setNextItem(0);
   selectedItem = 0;
-  trailContentChange();
   return current;
 }
 
@@ -685,6 +689,7 @@ void TimelineTrail::deleteCurrentItem()
 {
   TrailItem* current = cutItem(selectedItem);
   delete current;
+  trailContentChange();
   repaint();
 }
 

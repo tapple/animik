@@ -19,11 +19,10 @@ Bugs:
   * Spotted on Win32. Open AVM, selecte a part, alter rotation. Tab is marked with '*', but after selecting another part, it
     disappears (like being saved).
   * Player loop-ing is independent from underlying Animation. The looping set on the Player should actually set it to the animation.
-  * INVESTIGATE FIRST (Win32?): Place two different animations on Blender's timeline. Move the latter one on different track. Delete the left on first track.
-                                Click on the remaining one (non-first track).
   * Open new AVBL, place an animation on the time-line. Clicking on a frame inside works (figure poses). Move the animation to another
     trail. Clicking on its frame doesn't change the posture anymore.
     UPDATE: THIS SHOULD JUST START WORK WHEN I MERGE ANIMATION ON A TRAIL CORRECTLY.
+  * Somehow it's possible to have the same file in the Animation list multiple times. Needs investigation first.
 
 
 Bug-o-feature:
@@ -37,6 +36,5 @@ Next task:
       frameData(int). Means it actually is delivered with FrameData object, but the values are storead in the array of BVHNode.
     + int[] Animation::frameWeights appears rationale (just it will be int* WeightedAnimation::frameWeights).
   * The AnimationView in BlenderTab won't select limbs. Clicking on a figure should have no efect.
-  * Add-file-dialog in BlederTab should be multi-select;
   * Show also GLOBAL rotation for each limb. Draw global (still) coordinate system around currently selected limb. And check Kundrat's work.
     (POSTPONED!)

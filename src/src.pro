@@ -83,7 +83,7 @@ QT += opengl
 INCLUDEPATH += ../libquat \
     /usr/include
 QMAKE_CXXFLAGS_DEBUG += -g3
-CONFIG += release \
+CONFIG += debug \
     warn_on \
     qt \
     thread
