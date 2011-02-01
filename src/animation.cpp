@@ -620,13 +620,29 @@ void Animation::setPosition(double x,double y,double z)
   }
   // new keyframe system
   if(positionNode->isKeyframe(frame))
-    positionNode->setKeyframePosition(frame,Position(x,y,z));
+  {
+    positionNode->setKeyframePosition(frame, Position(x,y,z));
+  }
   else
   {
-    positionNode->addKeyframe(frame,Position(x,y,z),Rotation());
+    positionNode->addKeyframe(frame, Position(x,y,z), Rotation());
     setEaseIn(positionNode, frame, Settings::Instance()->easeIn());
     setEaseOut(positionNode, frame, Settings::Instance()->easeOut());
   }
+
+
+  //edu: make position changes also to root (hip) to solve the bug of position changes not being saved
+  BVHNode* root = frames;
+  if(root->isKeyframe(frame))
+    root->setKeyframePosition(frame, Position(x, y, z));
+  else
+  {
+    root->addKeyframe(frame, Position(x,y,z), root->frameData(frame).rotation());
+    setEaseIn(root, frame, Settings::Instance()->easeIn());
+    setEaseOut(root, frame, Settings::Instance()->easeOut());
+  }
+
+
   setDirty(true);
   // tell timeline that this keyframe has changed (added or changed is the same here)
   emit redrawTrack(0);

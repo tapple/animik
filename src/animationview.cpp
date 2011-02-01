@@ -826,17 +826,17 @@ void AnimationView::drawFigure(Animation* anim,unsigned int index)
 
     selectName = index*ANIMATION_INCREMENT;
     glEnable(GL_DEPTH_TEST);
-    drawPart(anim,index,anim->getFrame(),anim->getMotion(),joints[figType],MODE_PARTS);
+    drawPart(anim, index, anim->getFrame(), anim->getMotion(), joints[figType], MODE_PARTS);
     selectName = index*ANIMATION_INCREMENT;
     glEnable(GL_COLOR_MATERIAL);
 
     //edu
 //    drawRotationHelpers(anim->getFrame(), anim->getMotion(), joints[figType]);
 
-    drawPart(anim,index,anim->getFrame(),anim->getMotion(),joints[figType],MODE_ROT_AXES);
+    drawPart(anim, index, anim->getFrame(), anim->getMotion(), joints[figType], MODE_ROT_AXES);
     selectName = index*ANIMATION_INCREMENT;
     glDisable(GL_DEPTH_TEST);
-    drawPart(anim,index,anim->getFrame(),anim->getMotion(),joints[figType],MODE_SKELETON);
+    drawPart(anim, index, anim->getFrame(), anim->getMotion(), joints[figType],MODE_SKELETON);
 
     // restore drawing matrix
     glPopMatrix();

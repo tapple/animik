@@ -35,6 +35,7 @@ WeightedAnimation* TrailJoiner::GetJoinedAnimation()
   //copy rotations to the result
   BVHNode* root = firstItem->getAnimation()->getMotion();
   enhanceResultAnimation(result, root);
+  appendNodeKeyFrames(result, 0);       //finally, the position pseudo-node
 
   return result;
 }
@@ -67,10 +68,10 @@ void TrailJoiner::fillItemGaps()
 
 
 /** Traverses through skeleton tree of to-be result animation and asks
-    trais' animations to copy their counterpart key frames there */
+    trails' animations to copy their counterpart key frames there */
 void TrailJoiner::enhanceResultAnimation(WeightedAnimation* destAnim, BVHNode* node)
 {
-  int limbIndex = destAnim/*_firstItem->getAnimation()*/->getPartIndex(node);
+  int limbIndex = destAnim->getPartIndex(node);
   appendNodeKeyFrames(destAnim, limbIndex);
   for(int i=0; i<node->numChildren(); i++)
     enhanceResultAnimation(destAnim, node->child(i));
@@ -81,8 +82,8 @@ void TrailJoiner::enhanceResultAnimation(WeightedAnimation* destAnim, BVHNode* n
     (in time order) and append them to given destination animation */
 void TrailJoiner::appendNodeKeyFrames(WeightedAnimation* destAnim, int nodeIndex)
 {
-  TrailItem* currentItem = firstItem;//->nextItem();
-  int frameOffset = 0;//_firstItem->frames();
+  TrailItem* currentItem = firstItem;
+  int frameOffset = 0;
 
   while(currentItem!=0)
   {
