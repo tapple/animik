@@ -22,6 +22,8 @@ private:
   TrailItem* firstItem;
   TrailItem* lastItem;
 
+  void fixLastKeyFrames();
+  void fixLastKeyFramesHelper(BVHNode* limb, int lastFrameIndex);
   void fillItemGaps();
   void enhanceResultAnimation(WeightedAnimation* destAnim, BVHNode* node);
   void appendNodeKeyFrames(WeightedAnimation* destAnim, int nodeIndex);

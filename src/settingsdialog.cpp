@@ -47,6 +47,8 @@ void SettingsDialog::on_applyButton_clicked()
 /*TODO  Settings::setEaseIn(easeInCheckbox->isChecked());
   Settings::setEaseOut(easeOutCheckbox->isChecked());     */
 
+  //TODO: Settings::Instance()->setTPoseWarning(tPoseWarningCheckBox->isChecked());
+
   Settings::Instance()->WriteSettings();
 
   emit configChanged();
@@ -84,4 +86,9 @@ void SettingsDialog::on_easeInCheckbox_toggled(bool state)
 void SettingsDialog::on_easeOutCheckbox_toggled(bool state)
 {
   qDebug("easeOutToggled(%d)",state);
+}
+
+void SettingsDialog::on_tPoseWarningCheckBox_toggled(bool checked)
+{
+  qDebug("tPoseWarning toggled(%d)", checked);
 }

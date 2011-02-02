@@ -9,6 +9,7 @@ WeightedAnimation::WeightedAnimation(BVH* newBVH,const QString& bvhFile)
   : Animation(newBVH, bvhFile)
 {
   int frames_count = newBVH->lastLoadedNumberOfFrames;
+  _tPosed = checkTPosed(frames);
 
   if(frames_count < 2*MIX_IN_OUT)
     _mixIn = _mixOut = frames_count/2;
@@ -18,6 +19,19 @@ WeightedAnimation::WeightedAnimation(BVH* newBVH,const QString& bvhFile)
   frameWeights = new int[frames_count];
   for(int i=0; i<frames_count; i++)
     frameWeights[i] = 50;
+}
+
+
+/** Learn if first (key-)frame is T-pose */
+bool WeightedAnimation::checkTPosed(BVHNode* limb)
+{
+  Rotation rot = limb->frameData(0).rotation();
+  bool unchanged = rot.x==0 && rot.y==0 && rot.z==0;
+
+  for(int i=0; i<limb->numChildren(); i++)
+    unchanged = unchanged && checkTPosed(limb->child(i));
+
+  return unchanged;
 }
 
 WeightedAnimation::~WeightedAnimation()     //edu: ~Animation() called automatically

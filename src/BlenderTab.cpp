@@ -12,12 +12,14 @@
 #include "qavimator.h"
 #include "animationview.h"
 #include "settings.h"
+#include "OptionalMessageBox.h"
 
 
 BlenderTab::BlenderTab(qavimator* mainWindow, const QString& fileName, bool createFile)
   : QWidget(0), AbstractDocumentTab(mainWindow)
 {
   setupUi(this);
+  canShowWarn = false;
 
   setAttribute(Qt::WA_DeleteOnClose);
 
@@ -267,13 +269,35 @@ void BlenderTab::fileNew()
 
 // ------- Autoconnection of UI elements -------- //
 
-void BlenderTab::on_animsList_AnimationFileTaken(QString filename)
+void BlenderTab::on_animsList_AnimationFileTaken(QString filename, int orderInBatch, int batchSize)
 {
-  WeightedAnimation* anim=new WeightedAnimation(blenderAnimationView->getBVH(),filename);
+  WeightedAnimation* anim = new WeightedAnimation(blenderAnimationView->getBVH(), filename);
+  if(anim->isFirstFrameTPose())
+    canShowWarn = true;
+
   QFileInfo fInfo(filename);
   if(!blenderTimeline->AddAnimation(anim, fInfo.completeBaseName()))
     QMessageBox::warning(this, "Error loading animation", "Can't add animation file '" +
                          filename + "' to timeline. Not enough space.");
+
+  if(canShowWarn && orderInBatch==batchSize /*TODO: &&Settings::Instance()->tPoseWarning */)
+  {
+    QString* message = new QString("Animation you are adding to the time-line has initial posture of T-pose.\r\n");
+    message->append("This is useful for Second Life animations but may be undesirable when joining multiple animations. ");
+    message->append("To adjust such animation, select 'Cut initial T-pose frame' from it's context menu.");
+    OptionalMessageBox* omb = new OptionalMessageBox("Initial T-pose", *message, this);
+    omb->exec();
+  }
+}
+
+void BlenderTab::on_zoomInButton_clicked()
+{
+  //TODO
+}
+
+void BlenderTab::on_zoomOutButton_clicked()
+{
+  //TODO
 }
 
 // ---------------------------------------------- //
@@ -295,4 +319,3 @@ void BlenderTab::sorry()
 {
   QMessageBox::warning(this, "Under construction", "Not implemented yet. Sorry.");
 }
-

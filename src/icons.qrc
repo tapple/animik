@@ -21,6 +21,9 @@
         <file>icons/stop.png</file>
         <file>icons/torus.png</file>
         <file>icons/undo.png</file>
+        <file>icons/ZoomIn.png</file>
+        <file>icons/ZoomOut.png</file>
+        <file>icons/LightBulb.png</file>
     </qresource>
     <qresource prefix="/icons/player">
         <file>icons/player/PlayerEnd.png</file>

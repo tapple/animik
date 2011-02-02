@@ -24,6 +24,7 @@ WeightedAnimation* TrailJoiner::GetJoinedAnimation()
   if(firstItem==0)           //no animations left at this trail
     return 0;
 
+  fixLastKeyFrames();
   fillItemGaps();
 
   //NOTE: if in tempetation not to do the composition with only one Item, DON'T DO so! It'll cause nasty bug.
@@ -38,6 +39,39 @@ WeightedAnimation* TrailJoiner::GetJoinedAnimation()
   appendNodeKeyFrames(result, 0);       //finally, the position pseudo-node
 
   return result;
+}
+
+
+/** Make last frame of all animations on a trail a key-frame, so they'll keep their original
+    motion (given in KeyFramerTab) intact. Otherwise there would occur an interpolation from (old) last
+    key-frame to the first one of following animation, which will surely confuse user a lot. */
+void TrailJoiner::fixLastKeyFrames()
+{
+  TrailItem* currentItem = firstItem;
+
+  while(currentItem->nextItem() != 0)   //no need to do it for last one
+  {
+    //Note: in case of troubles, investigate the super position pseudo-node
+    int framesCount = currentItem->getAnimation()->getNumberOfFrames();
+    BVHNode* root = currentItem->getAnimation()->getMotion();
+    fixLastKeyFramesHelper(root, framesCount-1);
+
+    currentItem = currentItem->nextItem();
+  }
+}
+
+void TrailJoiner::fixLastKeyFramesHelper(BVHNode* limb, int lastFrameIndex)
+{
+  if(!limb->isKeyframe(lastFrameIndex))
+  {
+    int oldLastKeyFrameIndex = limb->getKeyframeNumberBefore(lastFrameIndex);
+    Position pos = limb->frameData(oldLastKeyFrameIndex).position();
+    Rotation rot = limb->frameData(oldLastKeyFrameIndex).rotation();
+    limb->addKeyframe(lastFrameIndex, pos, rot);
+  }
+
+  for(int i=0; i<limb->numChildren(); i++)
+    fixLastKeyFramesHelper(limb->child(i), lastFrameIndex);
 }
 
 

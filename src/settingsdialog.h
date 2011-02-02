@@ -48,6 +48,9 @@ class SettingsDialog : public QDialog, Ui::SettingsDialogForm
 
     void on_easeInCheckbox_toggled(bool state);
     void on_easeOutCheckbox_toggled(bool state);
+
+private slots:
+    void on_tPoseWarningCheckBox_toggled(bool checked);
 };
 
 #endif

@@ -85,7 +85,7 @@ void AnimationList::on_addButton_clicked()
     int index = selModel->selectedIndexes().at(i).row();
 //    qDebug("Animation file offered: %s", filename);                 //SIGILL fun begins here
 
-    emit AnimationFileTaken(availableAnimations.at(index));
+    emit AnimationFileTaken(availableAnimations.at(index), i+1, count);
   }
 }
 

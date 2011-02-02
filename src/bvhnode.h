@@ -141,6 +141,9 @@ class BVHNode
     double ikGoalDir[3];
     double ikWeight;
 
+    int getKeyframeNumberBefore(int frame) const;
+    int getKeyframeNumberAfter(int frame) const;
+
   protected:
 
     //edu
@@ -149,8 +152,7 @@ class BVHNode
     void setName(const QString& newName);
     double interpolate(double from,double to,int steps,int pos,bool easeOut,bool easeIn) const;
 
-    int getKeyframeNumberBefore(int frame) const;
-    int getKeyframeNumberAfter(int frame) const;
+
 
     // mirrors the keyframes inside of this node
     void mirrorKeys();

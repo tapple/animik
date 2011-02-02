@@ -19,7 +19,7 @@ class AnimationList : public QWidget {
     ~AnimationList();
 
   signals:
-    void AnimationFileTaken(QString filename);
+    void AnimationFileTaken(QString filename, int orderInBatch, int batchSize);
 
   public slots:
     void addNewFile();

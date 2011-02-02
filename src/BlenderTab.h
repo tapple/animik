@@ -42,7 +42,6 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
   public slots:
      virtual void onTabActivated();
      void onTimelineAnimationChanged(WeightedAnimation* anim);
-     void on_animsList_AnimationFileTaken(QString filename);
 
   protected:
      // prevent closing of main window if there are unsaved changes
@@ -68,9 +67,16 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
 
   private:
      void bindMenuActions();
+     bool canShowWarn;
 
      /////////////edu: DEBUG /////////////
      void sorry();
+     /////////////////////////////////////
+
+  private slots:
+    void on_animsList_AnimationFileTaken(QString filename, int orderInBatch, int batchSize);
+    void on_zoomOutButton_clicked();
+    void on_zoomInButton_clicked();
 };
 
 #endif // BLENDERTAB_H
