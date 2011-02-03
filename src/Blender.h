@@ -2,7 +2,10 @@
 #define BLENDER_H
 
 
-class Animation;
+class TrailItem;
+class WeightedAnimation;
+
+
 
 class Blender
 {
@@ -11,10 +14,10 @@ public:
   ~Blender();
 
   /** Returns overall blended animation */
-  Animation* GetResultingAnimation();
+  WeightedAnimation* GetResultingAnimation();
 
-protected:
-
+  /** Blends together weighted animations of given TrailItems. */
+  WeightedAnimation* BlendTrails(TrailItem** trails);
 };
 
 #endif // BLENDER_H

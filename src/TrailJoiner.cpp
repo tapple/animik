@@ -51,8 +51,11 @@ void TrailJoiner::fixLastKeyFrames()
 
   while(currentItem->nextItem() != 0)   //no need to do it for last one
   {
-    //Note: in case of troubles, investigate the super position pseudo-node
     int framesCount = currentItem->getAnimation()->getNumberOfFrames();
+
+    BVHNode* position = currentItem->getAnimation()->getNode(0);
+    fixLastKeyFramesHelper(position, framesCount-1);
+
     BVHNode* root = currentItem->getAnimation()->getMotion();
     fixLastKeyFramesHelper(root, framesCount-1);
 

@@ -294,6 +294,12 @@ void TimelineTrail::drawTrailItem(TrailItem* item)
 
   p.fillRect(item->beginIndex()*_positionWidth+2, TOP_MARGIN+BORDER_WIDTH,
              item->frames()*_positionWidth-2, FRAME_HEIGHT, boxColor);
+
+  //emphasize the first frame if it's T-pose
+  if(item->getAnimation()->isFirstFrameTPose())
+    p.fillRect(item->beginIndex()*_positionWidth+2, TOP_MARGIN+BORDER_WIDTH, _positionWidth-1,
+               FRAME_HEIGHT, QColor("#84365D"));
+
   QRectF border(item->beginIndex()*_positionWidth+1, TOP_MARGIN+1,
                 item->frames()*_positionWidth, FRAME_HEIGHT);
 

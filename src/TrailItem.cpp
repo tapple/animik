@@ -66,9 +66,13 @@ class TrailItem
     void setNextItem(TrailItem* nextItem) { this->next=nextItem; }
     TrailItem* previousItem() { return previous; }
     void setPreviousItem(TrailItem* previousItem) { this->previous=previousItem; }
+
+
     /** TRUE means this is helper animation made to fill gaps on a trail.
         Such item is not shown to the user in any way. */
-    bool isShadow() { return shadow; }
+    bool isShadow() { return shadow; }              //TODO: there is no place for this in final code.
+
+
 
   protected:
     int begin;

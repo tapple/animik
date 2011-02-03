@@ -102,6 +102,7 @@ void BlenderTab::UpdateToolbar()
   mainWindow->resetCameraAction->setVisible(true);
   mainWindow->resetCameraAction->setEnabled(true);
   mainWindow->fileAddAction->setEnabled(true);
+  mainWindow->editCutAction->setVisible(false);
 }
 
 void BlenderTab::UpdateMenu()
@@ -280,13 +281,15 @@ void BlenderTab::on_animsList_AnimationFileTaken(QString filename, int orderInBa
     QMessageBox::warning(this, "Error loading animation", "Can't add animation file '" +
                          filename + "' to timeline. Not enough space.");
 
-  if(canShowWarn && orderInBatch==batchSize /*TODO: &&Settings::Instance()->tPoseWarning */)
+  if(canShowWarn && orderInBatch==batchSize && Settings::Instance()->tPoseWarning())
   {
     QString* message = new QString("Animation you are adding to the time-line has initial posture of T-pose.\r\n");
     message->append("This is useful for Second Life animations but may be undesirable when joining multiple animations. ");
     message->append("To adjust such animation, select 'Cut initial T-pose frame' from it's context menu.");
     OptionalMessageBox* omb = new OptionalMessageBox("Initial T-pose", *message, this);
     omb->exec();
+    Settings::Instance()->setTPoseWarning(omb->showAgain());
+    canShowWarn = false;
   }
 }
 

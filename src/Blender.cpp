@@ -1,11 +1,17 @@
 /*
-  'Model' class behind BlenderTab view. Manages all execution around
-  blending multiple animations.
+  Offers computations related to blending of multiple animations.
 */
 
 #include "Blender.h"
+#include "WeightedAnimation.h"
 
 
 Blender::Blender()
 {
+}
+
+
+WeightedAnimation* Blender::BlendTrails(TrailItem**trails)
+{
+  //TODO
 }

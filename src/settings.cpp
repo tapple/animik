@@ -39,6 +39,7 @@ Settings::Settings()
 
   m_fog = true;
   m_floorTranslucency = 33;
+  m_tPoseWarning = true;
 
   m_easeIn = m_easeOut = false;
 }
@@ -113,6 +114,7 @@ void Settings::ReadSettings()
 
     m_fog = settings.value("/fog").toBool();
     m_floorTranslucency = settings.value("/floor_translucency").toInt();
+    m_tPoseWarning = settings.value("/tpose_warning").toBool();
 
     m_easeIn = settings.value("/ease_in").toBool();
     m_easeOut = settings.value("/ease_out").toBool();
@@ -177,13 +179,15 @@ void Settings::WriteSettings()
   settings.setValue("/ease_in", m_easeIn);
   settings.setValue("/ease_out", m_easeOut);
 
+  settings.setValue("/tpose_warning", m_tPoseWarning);
+
   settings.endGroup();
 }
 
 
 //void Settings::setWindowHeight(int height)     { m_windowHeight=height; }
-bool Settings::windowMaximized() const           { return m_windowMaximized; }
-void Settings::setWindowMaximized(bool full)     { m_windowMaximized = full; }
+bool Settings::windowMaximized() const            { return m_windowMaximized; }
+void Settings::setWindowMaximized(bool full)      { m_windowMaximized = full; }
 int Settings::windowHeight() const                { return m_windowHeight; }
 void Settings::setWindowHeight(int height)        { m_windowHeight = height; }
 //void Settings::setWindowWidth(int width)       { m_windowHeight=width; }
@@ -199,6 +203,8 @@ bool Settings::fog() const                        { return m_fog; }
 
 void Settings::setFloorTranslucency(int value)    { m_floorTranslucency=value; }
 int  Settings::floorTranslucency() const          { return m_floorTranslucency; }
+void Settings::setTPoseWarning(bool value)        { m_tPoseWarning=value; }
+bool Settings::tPoseWarning() const               { return m_tPoseWarning; }
 
 //void Settings::setEaseIn(bool on)              { m_easeIn=on; }
 bool Settings::easeIn() const                     { return m_easeIn; }

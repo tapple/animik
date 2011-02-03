@@ -56,6 +56,8 @@ public:
 
   void setFloorTranslucency(int value);
   int floorTranslucency() const;
+  void setTPoseWarning(bool value);
+  bool tPoseWarning() const;
 
 //    static void setEaseIn(bool on);
   bool easeIn() const;
@@ -78,6 +80,7 @@ private:
 
   bool m_fog;
   int  m_floorTranslucency;
+  bool m_tPoseWarning;
 
   bool m_easeIn;       //TODO: animation
   bool m_easeOut;      //      specific?

@@ -212,6 +212,7 @@ void KeyFramerTab::UpdateToolbar()
   mainWindow->resetCameraAction->setVisible(true);
   mainWindow->resetCameraAction->setEnabled(true);
   mainWindow->fileAddAction->setEnabled(false);         //TODO: decide it's future
+  mainWindow->editCutAction->setVisible(true);
 }
 
 void KeyFramerTab::UpdateMenu()

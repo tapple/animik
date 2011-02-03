@@ -31,6 +31,7 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent)
   floorTranslucencySpin->setValue(Settings::Instance()->floorTranslucency());
   easeInCheckbox->setChecked(Settings::Instance()->easeIn());
   easeOutCheckbox->setChecked(Settings::Instance()->easeOut());
+  tPoseWarningCheckBox->setChecked(Settings::Instance()->tPoseWarning());
 }
 
 SettingsDialog::~SettingsDialog()
@@ -44,10 +45,11 @@ void SettingsDialog::on_applyButton_clicked()
 
   Settings::Instance()->setFog(useFogCheckbox->isChecked());
   Settings::Instance()->setFloorTranslucency(floorTranslucencySpin->value());
-/*TODO  Settings::setEaseIn(easeInCheckbox->isChecked());
+/*TODO: this should be per-animation
+  Settings::setEaseIn(easeInCheckbox->isChecked());
   Settings::setEaseOut(easeOutCheckbox->isChecked());     */
 
-  //TODO: Settings::Instance()->setTPoseWarning(tPoseWarningCheckBox->isChecked());
+  Settings::Instance()->setTPoseWarning(tPoseWarningCheckBox->isChecked());
 
   Settings::Instance()->WriteSettings();
 
