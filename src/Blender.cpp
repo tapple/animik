@@ -139,7 +139,9 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
         WeightedAnimation* mixInShadow = new WeightedAnimation(new BVH(), "");
         mixInShadow->setNumberOfFrames(framesNum);
 
-        //TODO: adjust skeleton posture
+        //adjust shadow skeleton posture
+        int crossPoint = items[i]->frames() - (items[i]->endIndex() - currentItem->beginIndex());
+        interpolatePosture(items[i]->getAnimation(), crossPoint, currentItem->getAnimation(), 0, mixInShadow);
 
         //set shadows frame weights (going backwards from last frame to first)
         for(int n=framesNum-1; n>=0; n--)
@@ -161,7 +163,10 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
         WeightedAnimation* mixInShadow = new WeightedAnimation(new BVH(), "");
         mixInShadow->setNumberOfFrames(framesNum);
 
-        //TODO: adjust skeleton posture
+        //adjust shadow skeleton posture
+        interpolatePosture(items[i]->getAnimation(), items[i]->frames()-1, currentItem->getAnimation(),
+                           0, mixInShadow);
+
 
         for(int n=0; n<framesNum; n++)
         {
@@ -207,7 +212,10 @@ QList<TrailItem*> Blender::createMixOutsImpliedShadowItems(QList<TrailItem*> ite
         WeightedAnimation* mixInShadow = new WeightedAnimation(new BVH(), "");
         mixInShadow->setNumberOfFrames(framesNum);
 
-        //TODO: adjust skeleton posture
+        //adjust shadow skeleton posture
+        int crossPoint = items[i]->endIndex() - currentItem->beginIndex() - 1;
+        interpolatePosture(items[i]->getAnimation(), items[i]->frames()-1, currentItem->getAnimation(),
+                           crossPoint, mixInShadow);
 
         for(int n=0; n<framesNum; n++)
         {
@@ -219,7 +227,8 @@ QList<TrailItem*> Blender::createMixOutsImpliedShadowItems(QList<TrailItem*> ite
                                               items[i]->endIndex()+1, true);
         result.append(shadowItem);
       }
-      else if(currentItem->mixOut() > (currentItem->beginIndex()-items[i]->endIndex()-1))
+      //Gap smaller than mix-out
+      else if(currentItem->mixOut() > (currentItem->beginIndex() - items[i]->endIndex() - 1))
       {
         int gap = currentItem->beginIndex()-items[i]->endIndex()-1;
         int framesNum = currentItem->mixOut() - gap;
@@ -227,7 +236,9 @@ QList<TrailItem*> Blender::createMixOutsImpliedShadowItems(QList<TrailItem*> ite
         WeightedAnimation* mixInShadow = new WeightedAnimation(new BVH(), "");
         mixInShadow->setNumberOfFrames(framesNum);
 
-        //TODO: adjust skeleton posture
+        //adjust shadow skeleton posture
+        interpolatePosture(items[i]->getAnimation(), items[i]->frames()-1, currentItem->getAnimation(),
+                           0, mixInShadow);
 
         for(int n=1; n<=framesNum; n++)
         {
@@ -244,4 +255,42 @@ QList<TrailItem*> Blender::createMixOutsImpliedShadowItems(QList<TrailItem*> ite
   }
 
   return result;
+}
+
+
+/** Create an BVH frame data for an animation. The animation will have only one posture (initial
+    key frame) made as linear interpolation of two given frames.
+    Frame weights are not considered in interpolation. */
+void Blender::interpolatePosture(WeightedAnimation* anim1, int frame1,
+                                 WeightedAnimation* anim2, int frame2,
+                                 WeightedAnimation* targetAnim)     //TODO: no LERP for position, rather Kovar's approach
+{
+  interpolatePostureHelper(anim1, frame1, anim2, frame2, 0, targetAnim);      //position pseudo-node first
+
+  int rootIndex1 = anim1->getPartIndex(anim1->getMotion());
+  interpolatePostureHelper(anim1, frame1, anim2, frame2, rootIndex1, targetAnim);
+}
+
+
+void Blender::interpolatePostureHelper(WeightedAnimation* anim1, int frame1,
+                                       WeightedAnimation* anim2, int frame2,
+                                       int nodeIndex, WeightedAnimation* targetAnim)
+{
+  BVHNode* node1 = anim1->getNode(nodeIndex);
+  FrameData data1 = node1->frameData(frame1);
+  FrameData data2 = anim2->getNode(nodeIndex)->frameData(frame2);
+  Position newPos( (data1.position().x + data2.position().x) / 2,
+                   (data1.position().y + data2.position().y) / 2,
+                   (data1.position().z + data2.position().z) / 2);
+  Rotation newRot( (data1.rotation().x + data2.rotation().x) / 2,
+                   (data1.rotation().y + data2.rotation().y) / 2,
+                   (data1.rotation().z + data2.rotation().z) / 2);
+
+  targetAnim->getNode(nodeIndex)->addKeyframe(0, newPos, newRot);
+
+  for(int i=0; i<node1->numChildren(); i++)
+  {
+    int limbIndex = anim1->getPartIndex(node1->child(i));
+    interpolatePostureHelper(anim1, frame1, anim2, frame2, limbIndex, targetAnim);
+  }
 }

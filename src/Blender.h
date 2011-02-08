@@ -3,6 +3,7 @@
 
 
 class QList;
+class BVHNode;
 class TrailItem;
 class WeightedAnimation;
 
@@ -28,6 +29,10 @@ private:
   QList<TrailItem*> disassembleTimelineTrails(TrailItem** trails, int trailsCount);
   QList<TrailItem*> createMixInsImpliedShadowItems(QList<TrailItem*> items);
   QList<TrailItem*> createMixOutsImpliedShadowItems(QList<TrailItem*> items);
+  void interpolatePosture(WeightedAnimation* anim1, int frame1, WeightedAnimation* anim2, int frame2,
+                          WeightedAnimation* targetAnim);
+  void interpolatePostureHelper(WeightedAnimation* anim1, int frame1, WeightedAnimation* anim2, int frame2,
+                                int nodeIndex, WeightedAnimation* targetAnim);
 };
 
 #endif // BLENDER_H
