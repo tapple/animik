@@ -13,6 +13,8 @@ Untested:
 Features:
   * Rotate/pan of scene shouldn't unselect limb/prop. Only simple click on background.
   * Pan of scene on secondary mouse button+drag.
+  * For now, just thing of this: what about adding possibility (context menu item) to set all frame weights to one level? (standalone dialog
+    with a vertical slider, and a "Default (50)" button)
 
 Bugs:
   * After opening .avm file, the floor is not highlighted red if first frame is protected. After moving on another frame and back it already is
