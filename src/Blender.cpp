@@ -33,54 +33,10 @@ WeightedAnimation* Blender::BlendTrails(TrailItem** trails, int trailsCount)
 
   int beginOffset = beginIndex;     //number of empty frame positions before the result animation
   int newFramesCont = endIndex-beginIndex;
-  //TODO
-}
+  //TODO...
 
 
-/** Returns list of TrailItems such that:
-    1.) its size is equal to overall TrailItems number (one Item at list position, linked list is broken)
-    2.) it is sorted by first frame-position index (lowest index on list's position 0) */
-QList<TrailItem*> Blender::rearangeItemsByBeginIndex(TrailItem** trails, int trailsCount)                 //TODO: usage of this is strongly misunderstood.
-                                                                                                          //It should be used after creating both mix-in/mix-out based
-                                                                                                          //shadow animation. And sort all three lists (including
-                                                                                                          //the original one). Means: add two arguments:
-                                                                                                          //QList<> mixInShadows, QList<> mixOutShadows. And the first
-                                                                                                          //one will also be a QList<TrailItem*>
-{
-  QList<TrailItem*> result;
 
-  TrailItem** firstItems = new TrailItem*[trailsCount];
-  for(int i=0; i<trailsCount; i++)
-    firstItems[i] = trails[i];          //first catch first TrailItems of linked lists
-
-  do
-  {
-    int toBeAddedTrailIndex = -1;
-    int minBeginIndex = 999999999;
-    for(int i=0; i<trailsCount; i++)    //for each firstItem check if it's very earliest
-    {
-       if(firstItems[i] != 0 && firstItems[i]->beginIndex() < minBeginIndex)
-       {
-         toBeAddedTrailIndex = i;
-         minBeginIndex = firstItems[i]->beginIndex();
-       }
-    }
-
-    if(toBeAddedTrailIndex != -1)
-    {
-      TrailItem* toBeAdded = firstItems[toBeAddedTrailIndex];
-      result << toBeAdded;
-      firstItems[toBeAddedTrailIndex] = toBeAdded->nextItem();
-      if(toBeAdded->nextItem() != 0)
-      {
-        toBeAdded->nextItem()->setPreviousItem(0);
-        toBeAdded->setNextItem(0);
-      }
-    }
-
-  } while(toBeAddedTrailIndex != -1);
-
-  return result;
 }
 
 
@@ -98,9 +54,9 @@ QList<TrailItem*> Blender::disassembleTimelineTrails(TrailItem** trails, int tra
     {
       TrailItem* toBeNext = currentItem->nextItem();
 
-      if(currentItem->nextItem()!=0)
-        currentItem->nextItem()->setPreviousItem(0);
-      currentItem->setNextItem(0);
+      if(currentItem->nextItem()!=0)                        //edu:
+        currentItem->nextItem()->setPreviousItem(0);        //actually this shouldn't
+      currentItem->setNextItem(0);                          //be needed at all
 
       result.append(currentItem);
       currentItem = toBeNext;
@@ -293,4 +249,67 @@ void Blender::interpolatePostureHelper(WeightedAnimation* anim1, int frame1,
     int limbIndex = anim1->getPartIndex(node1->child(i));
     interpolatePostureHelper(anim1, frame1, anim2, frame2, limbIndex, targetAnim);
   }
+}
+
+
+
+/** Returns list of TrailItems such that:
+    1.) its size is sum of overall number of TrailItems created by user (one Item at list position, original
+        linked list is broken) + automatically created mix-in/mix-out helper items
+    2.) it is sorted by first frame-position index (lowest index on list's position 0) */
+QList<TrailItem*> Blender::mergeAndSortItemsByBeginIndex(QList<TrailItem*> realItems,
+                                                         QList<TrailItem*> mixInItems,
+                                                         QList<TrailItem*> mixOutItems)
+{
+  QList<TrailItem*> result;
+
+  while(true)
+  {
+    int lowestIndex = 999999999;             //begin index of left-most item
+    QList<TrailItem*>* lowestItemList = 0;   //list that contains the item
+
+    for(int r=0; r<realItems.size(); r++)
+    {
+      if(realItems.at(r)->beginIndex() < lowestIndex)
+      {
+        lowestItemList = &realItems;
+        lowestIndex = realItems.at(r)->beginIndex();
+      }
+    }
+    for(int i=0; i<mixInItems.size(); i++)             //BLEH! code repetition. TODO: think of it
+    {
+      if(mixInItems.at(i)->beginIndex() < lowestIndex)
+      {
+        lowestItemList = &mixInItems;
+        lowestIndex = mixInItems.at(i)->beginIndex();
+      }
+    }
+    for(int o=0; o<mixOutItems.size(); o++)             //here as well
+    {
+      if(mixOutItems.at(o)->beginIndex() < lowestIndex)
+      {
+        lowestItemList = &mixOutItems;
+        lowestIndex = mixOutItems.at(o)->beginIndex();
+      }
+    }
+
+    if(lowestItemList != 0)
+    {
+      result.append(lowestItemList->at(lowestIndex));
+      lowestItemList->removeAt(lowestIndex);
+    }
+    else break;
+  }
+
+  return result;
+}
+
+
+/** Performs the actual blending.
+    All animations are blended together depending on their placement on time-line and weight parameters.
+    Gaps between items are filled.
+    @param sortedItems - unlinked TrailItems sorted by their begin index (from time-line) */
+WeightedAnimation* Blender::blend(QList<TrailItem*> sortedItems)
+{
+  //TODO
 }
