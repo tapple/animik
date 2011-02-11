@@ -34,7 +34,10 @@ private:
   QList<TrailItem*> mergeAndSortItemsByBeginIndex(QList<TrailItem*> realItems,
                                                   QList<TrailItem*> mixInItems,
                                                   QList<TrailItem*> mixOutItems);
-  WeightedAnimation* blend(QList<TrailItem*> sortedItems);
+  void copyKeyFrames(WeightedAnimation* fromAnim, WeightedAnimation* toAnim);
+  int findHighestEndIndex(QList<TrailItem*> items);
+  void blend(QList<TrailItem*> sortedItems, WeightedAnimation* result);
+  int findFirstItemAfter(QList<TrailItem*> sortedItems, int afterPosition);
 };
 
 #endif // BLENDER_H

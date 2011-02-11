@@ -19,24 +19,29 @@ Blender::Blender()
 
 WeightedAnimation* Blender::BlendTrails(TrailItem** trails, int trailsCount)
 {
-  int beginIndex = 999999999;
-  int endIndex = -999999999;
+  QList<TrailItem*> items;
+  QList<TrailItem*> origItems = disassembleTimelineTrails(trails, trailsCount);
 
-  for(int i=0; i<trailsCount; i++)
+  if(origItems.size() == 1)       //only one animation
+    items = origItems;
+  else
   {
-    if(trails[i]->beginIndex() < beginIndex)
-      beginIndex = trails[i]->beginIndex();
-
-    if(trails[i]->endIndex() > endIndex)
-      endIndex = trails[i]->endIndex();
+    QList<TrailItem*> mixIns = createMixInsImpliedShadowItems(origItems);
+    QList<TrailItem*> mixOuts = createMixOutsImpliedShadowItems(origItems);
+    items = mergeAndSortItemsByBeginIndex(origItems, mixIns, mixOuts);
   }
 
-  int beginOffset = beginIndex;     //number of empty frame positions before the result animation
-  int newFramesCont = endIndex-beginIndex;
-  //TODO...
+  int endIndex = findHighestEndIndex(items);
+  int newFramesCont = endIndex - items.at(0)->beginIndex() + 1;
+  WeightedAnimation* result = new WeightedAnimation(new BVH(), "");
+  result->setNumberOfFrames(newFramesCont);
 
+  if(origItems.size() == 1)                 //for a single animation I MUST do it like this.
+    copyKeyFrames(origItems.at(0)->getAnimation(), result);     //Otherwise signal/slot apocalypse begins
+  else
+    blend(items, result, endIndex);
 
-
+  return result;
 }
 
 
@@ -305,11 +310,105 @@ QList<TrailItem*> Blender::mergeAndSortItemsByBeginIndex(QList<TrailItem*> realI
 }
 
 
+void Blender::copyKeyFrames(WeightedAnimation *fromAnim, WeightedAnimation *toAnim)
+{
+  //TODO: must be done before first test execution
+}
+
+
+/** In given list of TrailItems, finds the one that reaches further on the time-line
+    and returns it's last frame index on the line */
+int Blender::findHighestEndIndex(QList<TrailItem*> items)
+{
+  int result = -999999999;
+
+  foreach(TrailItem* item, items)
+  {
+    if(item->endIndex() > result)
+      result = item->endIndex();
+  }
+
+  return result;
+}
+
+
 /** Performs the actual blending.
     All animations are blended together depending on their placement on time-line and weight parameters.
     Gaps between items are filled.
-    @param sortedItems - unlinked TrailItems sorted by their begin index (from time-line) */
-WeightedAnimation* Blender::blend(QList<TrailItem*> sortedItems)
+    @param sortedItems - unlinked TrailItems sorted by their begin index (from time-line)
+    @param result - the target animation which will host the blended postures
+    @param lastFrameIndex - time-line index of the last frame of right-most reaching animation */
+void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, int lastFrameIndex)
 {
-  //TODO
+  if(sortedItems.size() < 2)
+    throw new QString("Argument exception: the argument 'sortedItems' contains to few items.");
+
+  int currentItemIndex = 0;
+  int intervalStartFrame = 999999999;
+  int intervalEndFrame = sortedItems.at(currentItemIndex)->beginIndex();
+  QList<int> itemsInInterval;              //indices (to sortedItems) of items involved in current interval
+
+  while(intervalEndFrame != lastFrameIndex)
+  {
+    intervalStartFrame = intervalEndFrame+1;        //we shift to the next section
+
+    //remove indices of all items that ended in previous section
+    for(int cur=0; cur<itemsInInterval.size(); cur++)
+    {
+      if(sortedItems[itemsInInterval[cur]]->endIndex() < intervalStartFrame)   //the difference should be exactly 1
+      {
+        itemsInInterval.removeAt(cur);
+        cur--;          //dirty trick not to skip an element in for loop
+      }
+    }
+
+
+    if(!itemsInInterval.isEmpty())
+    {
+      //find section's end
+      int minEndFrame = 999999999;            //first find next end of items currently inside section
+      for(int a; a<itemsInInterval.size(); a++)
+      {
+        if(sortedItems[itemsInInterval[a]]->endIndex() < minEndFrame)
+          minEndFrame = sortedItems[itemsInInterval[a]]->endIndex();
+      }
+
+      int nextIndex = itemsInInterval.last()+1;
+      while(true)
+      {
+        if(sortedItems[nextIndex]->beginIndex() > minEndFrame)              //next item is to far
+          break;
+        if(sortedItems[nextIndex]->beginIndex() == intervalStartFrame)      //the item begins right with this
+        {                                                                   //section (probably was a reason
+          itemsInInterval.append(nextIndex);                                //to end the previous)
+        }
+        if(sortedItems[nextIndex]->endIndex() < minEndFrame)                //we've already fully included this
+        {                                                                   //animation in blending
+          nextIndex++;
+          continue;
+        }
+        if(sortedItems[nextIndex]->beginIndex() <= minEndFrame)             //item's begin index delimits
+        {                                                                   //the section (will be processed
+          minEndFrame = sortedItems[nextIndex]->beginIndex() - 1;           //in following section pass)
+          break;
+        }
+      }
+      intervalEndFrame = minEndFrame;
+    }
+    else                                      //no items in this section = we have an empty gap!
+      intervalEndFrame = sortedItems[findFirstItemAfter(intervalStartFrame)]->beginIndex() - 1;
+
+
+    //TODO: the blending itself here
+
+
+  }
+}
+
+
+/** Finds first TrailItem that begins after given time-line position. Returns its index in containing
+    list (also given as argument) */
+int Blender::findFirstItemAfter(QList<TrailItem*> sortedItems, int afterPosition)
+{
+
 }
