@@ -5,6 +5,8 @@
 #include "WeightedAnimation.h"
 
 
+//Whole this class should be soon obsolete. TODO: delete
+
 
 
 TrailJoiner::TrailJoiner(TrailItem *firstItem)

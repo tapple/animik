@@ -43,6 +43,14 @@ Rotation::~Rotation()
 {
 }
 
+void Rotation::Add(Rotation increment)
+{
+  x += increment.x;
+  y += increment.y;
+  z += increment.z;
+}
+
+
 RotationLimits::RotationLimits(const QString& joint,double rxMin,double rxMax,
                                                     double ryMin,double ryMax,
                                                     double rzMin,double rzMax)
@@ -77,6 +85,13 @@ Position::Position(double px,double py, double pz)
 
 Position::~Position()
 {
+}
+
+void Position::Add(Position increment)
+{
+  x += increment.x;
+  y += increment.y;
+  z += increment.z;
 }
 
 Position Position::difference(const Position& pos1,const Position& pos2)

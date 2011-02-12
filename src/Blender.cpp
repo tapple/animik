@@ -2,25 +2,20 @@
   Offers computations related to blending of multiple animations.
 */
 
-#include <QList>
-
 #include "Blender.h"
 #include "bvh.h"
 #include "TrailItem.cpp"
 #include "WeightedAnimation.h"
 
 
-Blender::Blender()
-{
-
-}
+Blender::Blender() { }
 
 
 
 WeightedAnimation* Blender::BlendTrails(TrailItem** trails, int trailsCount)
 {
   QList<TrailItem*> items;
-  QList<TrailItem*> origItems = disassembleTimelineTrails(trails, trailsCount);
+  QList<TrailItem*> origItems = lineUpTimelineTrails(trails, trailsCount);
 
   if(origItems.size() == 1)       //only one animation
     items = origItems;
@@ -37,7 +32,7 @@ WeightedAnimation* Blender::BlendTrails(TrailItem** trails, int trailsCount)
   result->setNumberOfFrames(newFramesCont);
 
   if(origItems.size() == 1)                 //for a single animation I MUST do it like this.
-    copyKeyFrames(origItems.at(0)->getAnimation(), result);     //Otherwise signal/slot apocalypse begins
+    cloneAnimation(origItems.at(0)->getAnimation(), result);     //Otherwise signal/slot apocalypse begins
   else
     blend(items, result, endIndex);
 
@@ -46,8 +41,9 @@ WeightedAnimation* Blender::BlendTrails(TrailItem** trails, int trailsCount)
 
 
 /** Returns list of TrailItems such that its size is equal to overall TrailItems number (one Item
-    at one list position, means original linked lists are broken). */
-QList<TrailItem*> Blender::disassembleTimelineTrails(TrailItem** trails, int trailsCount)
+    at one list position, original lists are merged to one array).
+    Original linked list references are preserved. */
+QList<TrailItem*> Blender::lineUpTimelineTrails(TrailItem** trails, int trailsCount)
 {
   QList<TrailItem*> result;
 
@@ -57,16 +53,18 @@ QList<TrailItem*> Blender::disassembleTimelineTrails(TrailItem** trails, int tra
 
     while(currentItem!=0)       //disconnect it from original linked list
     {
-      TrailItem* toBeNext = currentItem->nextItem();
+//      TrailItem* toBeNext = currentItem->nextItem();
 
-      if(currentItem->nextItem()!=0)                        //edu:
-        currentItem->nextItem()->setPreviousItem(0);        //actually this shouldn't
-      currentItem->setNextItem(0);                          //be needed at all
+//      if(currentItem->nextItem()!=0)                        //edu:
+//        currentItem->nextItem()->setPreviousItem(0);        //actually this shouldn't
+//      currentItem->setNextItem(0);                          //be needed at all        UPDATE: actually this MUSN'T be done at all
 
       result.append(currentItem);
-      currentItem = toBeNext;
+      currentItem = currentItem->nextItem(); //toBeNext;
     }
   }
+
+  return result;
 }
 
 
@@ -259,8 +257,8 @@ void Blender::interpolatePostureHelper(WeightedAnimation* anim1, int frame1,
 
 
 /** Returns list of TrailItems such that:
-    1.) its size is sum of overall number of TrailItems created by user (one Item at list position, original
-        linked list is broken) + automatically created mix-in/mix-out helper items
+    1.) its size is sum of overall number of TrailItems created by user (one Item at list position)
+        + automatically created mix-in/mix-out helper items
     2.) it is sorted by first frame-position index (lowest index on list's position 0) */
 QList<TrailItem*> Blender::mergeAndSortItemsByBeginIndex(QList<TrailItem*> realItems,
                                                          QList<TrailItem*> mixInItems,
@@ -310,9 +308,24 @@ QList<TrailItem*> Blender::mergeAndSortItemsByBeginIndex(QList<TrailItem*> realI
 }
 
 
-void Blender::copyKeyFrames(WeightedAnimation *fromAnim, WeightedAnimation *toAnim)
+void Blender::cloneAnimation(WeightedAnimation* fromAnim, WeightedAnimation* toAnim)
 {
-  //TODO: must be done before first test execution
+  cloneAnimationHelper(0, fromAnim, toAnim);        //clone position pseudo-node
+  int rootIndex = fromAnim->getPartIndex(fromAnim->getMotion());
+  cloneAnimationHelper(rootIndex, fromAnim, toAnim);
+}
+
+
+void Blender::cloneAnimationHelper(int limbIndex, WeightedAnimation* fromAnim, WeightedAnimation * toAnim)
+{
+  QList<int> keys = fromAnim->getNode(limbIndex)->keyframeList();
+  foreach(int i, keys)
+  {
+    FrameData data = fromAnim->getNode(limbIndex)->frameData(i);
+    Position pos(data.position().x, data.position().y, data.position().z);        //TODO: FUJ! why don't you just use copy constructor (=) ?
+    Rotation rot(data.rotation().x, data.rotation().y, data.rotation().z);
+    toAnim->getNode(limbIndex)->addKeyframe(i, pos, rot);
+  }
 }
 
 
@@ -346,7 +359,10 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
   int currentItemIndex = 0;
   int intervalStartFrame = 999999999;
   int intervalEndFrame = sortedItems.at(currentItemIndex)->beginIndex();
-  QList<int> itemsInInterval;              //indices (to sortedItems) of items involved in current interval
+  QList<int> itemsInInterval;           //indices (to sortedItems) of items involved in current interval
+
+  int resultFrame = 0;                  //current frame of target animation
+  int frameOffset = sortedItems.first()->beginIndex();
 
   while(intervalEndFrame != lastFrameIndex)
   {
@@ -396,19 +412,129 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
       intervalEndFrame = minEndFrame;
     }
     else                                      //no items in this section = we have an empty gap!
-      intervalEndFrame = sortedItems[findFirstItemAfter(intervalStartFrame)]->beginIndex() - 1;
+      intervalEndFrame = sortedItems[findFirstItemAfter(sortedItems, intervalStartFrame)]->beginIndex() - 1;
 
 
-    //TODO: the blending itself here
+    //THE BLENDING ITSELF
+    if(itemsInInterval.isEmpty())         //we need to fill the gap
+    {
+      if(resultFrame < 1)                 //just a vain check, there's no place for it in 'production' code
+        throw new QString("Invalid state exception: 'resultFrame' must be more than 0");
+
+      int toFrame = intervalEndFrame - frameOffset;
+      BVHNode* position = result->getNode(0);
+      copyKeyFrame(position, resultFrame, toFrame);
+      BVHNode* root = result->getMotion();
+      copyKeyFrame(root, resultFrame, toFrame);
+    }
+    else if(itemsInInterval.size() == 1)  //only one animation to blend. we can afford to take
+    {                                     //just its first frame as key frame of result
+      int resultStartFrame = intervalStartFrame - frameOffset;
+
+      BVHNode* position = result->getNode(0);
+      combineKeyFramesHelper(sortedItems, itemsInInterval, position, intervalStartFrame, result,
+                             resultStartFrame);
+      BVHNode* root = result->getMotion();
+      combineKeyFramesHelper(sortedItems, itemsInInterval, root, intervalStartFrame, result,
+                             resultStartFrame);
+    }
+    else
+    {
+      combineKeyFrames(sortedItems, itemsInInterval, intervalStartFrame,
+                       intervalEndFrame-intervalStartFrame+1, result, intervalStartFrame-frameOffset);
+    }
+
+  }//while
+}
 
 
+/** The very core method of blending functionality. Combines postures into resulting animation.
+    @param sortedItems - list of all TrailItems to be blended
+    @param itemIndices - indices to the first list argument denoting the animations to be blended now
+    @param fromTimeLineFrame - frame position number on time-line where to start blending
+    @param sectionLength - number of frames to be blended
+    @param target - resulting animation to host mixed postures
+    @param targetFrame - first frame for result posture in the target animation */
+void Blender::combineKeyFrames(QList<TrailItem*> sortedItems, QList<int> itemIndices, int fromTimeLineFrame,
+                               int sectionLength, WeightedAnimation* target, int targetFrame)
+{
+  if(itemIndices.size() < 1)
+    throw new QString("Argument exception: no animation indices given to be combined.");
+
+
+  int lastTimeLineFrame = fromTimeLineFrame + sectionLength - 1;
+  int timeLineFrame = fromTimeLineFrame;
+
+  while(timeLineFrame < lastTimeLineFrame)
+  {
+    BVHNode* position = target->getNode(0);
+    combineKeyFramesHelper(sortedItems, itemIndices, position, timeLineFrame, target, targetFrame);
+
+    BVHNode* root = target->getMotion();
+    combineKeyFramesHelper(sortedItems, itemIndices, root, timeLineFrame, target, targetFrame);
+
+    timeLineFrame++;
+    targetFrame++;
+  }//while
+}
+
+
+void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> itemIndices, BVHNode* limb,
+                                     int timeLineFrame, WeightedAnimation* target, int targetFrame)
+{
+  int partIndex = target->getPartIndex(limb);
+
+  Position sumPos(0.0, 0.0, 0.0);
+  Rotation sumRot(0.0, 0.0, 0.0);
+
+  int count = itemIndices.size();
+  for(int i=0; i<count; i++)
+  {
+    TrailItem* currentItem = sortedItems[itemIndices[i]];
+    int currentFrame = timeLineFrame - currentItem->beginIndex();
+    BVHNode* node = currentItem->getAnimation()->getNode(partIndex);
+    FrameData data = node->frameData(currentFrame);
+    sumPos.Add(data.position());
+    sumRot.Add(data.rotation());
   }
+
+  Position pos(sumPos.x/count, sumPos.y/count, sumPos.z/count);     //At present no weights are involved. TODO
+  Rotation rot(sumRot.x/count, sumRot.y/count, sumRot.z/count);
+  limb->addKeyframe(targetFrame, pos, rot);
+
+  for(int x=0; x<limb->numChildren(); x++)
+    combineKeyFramesHelper(sortedItems, itemIndices, limb->child(x), timeLineFrame, target, targetFrame);
 }
 
 
 /** Finds first TrailItem that begins after given time-line position. Returns its index in containing
-    list (also given as argument) */
+    list (also given as argument) **/
 int Blender::findFirstItemAfter(QList<TrailItem*> sortedItems, int afterPosition)
 {
+  int min = 999999999;
+  int result = -1;
 
+  for(int i=0; i < sortedItems.size(); i++)
+  {
+    if(sortedItems[i]->beginIndex() > afterPosition && sortedItems[i]->beginIndex() < min)
+    {
+      min = sortedItems[i]->beginIndex();
+      result = i;
+    }
+  }
+
+  return result;
+}
+
+
+/** A helper to clone all BVHNode frame data inside an animation from one frame to another.
+    Meant to be used to fill time-line gaps */
+void Blender::copyKeyFrame(BVHNode* limb, int fromFrame, int toFrame)
+{
+  Position pos = limb->frameData(fromFrame).position();
+  Rotation rot = limb->frameData(fromFrame).rotation();
+  limb->addKeyframe(toFrame, pos, rot);
+
+  for(int i=0; i<limb->numChildren(); i++)
+    copyKeyFrame(limb->child(i), fromFrame, toFrame);
 }
