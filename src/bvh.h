@@ -40,6 +40,7 @@ class BVH
     ~BVH();
 
     BVHNode* bvhRead(const QString& file);
+    BVHNode* bvhReadFromString(QString bvhFileData);
 
     void assignChannels(BVHNode* node, FILE* f, int frame);
     void setChannelLimits(BVHNode* node,BVHChannelType type,double min,double max) const;

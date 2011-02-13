@@ -310,20 +310,29 @@ void BVH::setAllKeyFrames(Animation* anim) const
 
 BVHNode* BVH::bvhRead(const QString& file)
 {
-  qDebug("BVH::bvhRead('%s')",file.toLatin1().constData());
+  qDebug("BVH::bvhRead('%s')", file.toLatin1().constData());
 
   QFile animationFile(file);
   if(!animationFile.open(QIODevice::ReadOnly))
   {
-    QMessageBox::critical(0,QObject::tr("File not found"),QObject::tr("BVH File not found: %1").arg(file.toLatin1().constData()));
+    QMessageBox::critical(0, QObject::tr("File not found"),
+                          QObject::tr("BVH File not found: %1").arg(file.toLatin1().constData()));
     return NULL;
   }
 
-  inputFile=animationFile.readAll();
+  inputFile = animationFile.readAll();
   animationFile.close();
 
-  inputFile=inputFile.simplified();
-  tokens=inputFile.split(' ');
+
+
+  return bvhReadFromString(inputFile);      //DEBUG so far
+}
+
+
+BVHNode* BVH::bvhReadFromString(QString bvhFileData)
+{
+  inputFile = bvhFileData.simplified();
+  tokens = inputFile.split(' ');
 
   expect_token("HIERARCHY");
 
@@ -347,6 +356,7 @@ BVHNode* BVH::bvhRead(const QString& file)
 
   return(root);
 }
+
 
 void BVH::avmReadKeyFrame(BVHNode* root)
 {
