@@ -55,6 +55,7 @@ class BVH
     void bvhPrintNode(BVHNode* n, int depth);
 
     void bvhWrite(Animation* anim,const QString& file);
+    void bvhWriteToTextStream(Animation* anim, QTextStream& outStream);
     BVHNode* bvhFindNode(BVHNode* root,const QString& name) const;
 
     void bvhGetChannelLimits(BVHNode* node, BVHChannelType type, double *min, double *max);

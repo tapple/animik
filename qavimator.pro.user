@@ -69,12 +69,12 @@
    <valuelist key="abstractProcess.Environment" type="QVariantList">
     <value type="QString">BROWSER=/usr/bin/www-browser</value>
     <value type="QString">CANBERRA_DRIVER=pulse</value>
-    <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-KMRmnSgMYM,guid=eb948eaa877ad919b73a1c91000000b1</value>
+    <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-k7yNLyWw7L,guid=e55bd168af1e87bc397fd5600000014c</value>
     <value type="QString">DESKTOP_SESSION=01KDE4</value>
     <value type="QString">DISPLAY=:0.0</value>
     <value type="QString">DM_CONTROL=/var/run/xdmctl</value>
     <value type="QString">GCONF_TMPDIR=/tmp</value>
-    <value type="QString">GPG_AGENT_INFO=/tmp/gpg-jNRDu0/S.gpg-agent:11693:1</value>
+    <value type="QString">GPG_AGENT_INFO=/tmp/gpg-0XfERy/S.gpg-agent:23819:1</value>
     <value type="QString">GS_LIB=/home/martin/.fonts</value>
     <value type="QString">GTK_MODULES=canberra-gtk-module</value>
     <value type="QString">G_FILENAME_ENCODING=@locale</value>
@@ -117,8 +117,6 @@
     <value type="QString">NLSPATH=/usr/share/locale/%l/%N</value>
     <value type="QString">PATH=/usr/lib/qt4/bin:/usr/bin:/bin:/usr/local/bin:/usr/X11R6/bin/:/usr/games:/usr/lib/qt4/bin:/home/martin/bin</value>
     <value type="QString">PILOTPORT=usb:</value>
-    <value type="QString">PULSE_PROP_media.role=none</value>
-    <value type="QString">PULSE_PROP_phonon.streamid={865eead5-686a-4b1f-97d1-bbddb30da87e}</value>
     <value type="QString">PWD=/usr/lib/qtcreator</value>
     <value type="QString">PYTHONDONTWRITEBYTECODE=1</value>
     <value type="QString">PYTHONPATH=/usr/lib/ooo/basis-link/program</value>
@@ -131,7 +129,7 @@
     <value type="QString">QT_PLUGIN_PATH=/home/martin/.kde4/lib/kde4/plugins/:/usr/lib/kde4/plugins/</value>
     <value type="QString">QT_XFT=0</value>
     <value type="QString">SCREENDIR=/home/martin/tmp</value>
-    <value type="QString">SESSION_MANAGER=local/mao:@/tmp/.ICE-unix/11860,unix/mao:/tmp/.ICE-unix/11860</value>
+    <value type="QString">SESSION_MANAGER=local/mao:@/tmp/.ICE-unix/23985,unix/mao:/tmp/.ICE-unix/23985</value>
     <value type="QString">SHELL=/bin/bash</value>
     <value type="QString">SHLVL=1</value>
     <value type="QString">SSH_ASKPASS=/usr/lib/ssh/ssh-askpass</value>
@@ -143,7 +141,7 @@
     <value type="QString">XDG_CONFIG_DIRS=/etc/xdg:/etc/xdg/kde4</value>
     <value type="QString">XDG_DATA_DIRS=/usr/share:/usr/share:/usr/local/share</value>
     <value type="QString">XDG_MENU_PREFIX=kde-</value>
-    <value type="QString">XDG_SESSION_COOKIE=5652788f757cc7d3a58ad99e00000151-1295965058.729991-2004161525</value>
+    <value type="QString">XDG_SESSION_COOKIE=5652788f757cc7d3a58ad99e00000151-1297437628.369831-548762654</value>
     <value type="QString">XDM_MANAGED=method=classic</value>
     <value type="QString">XMODIFIERS=@im=none</value>
    </valuelist>
@@ -166,12 +164,12 @@
    <valuelist key="abstractProcess.Environment" type="QVariantList">
     <value type="QString">BROWSER=/usr/bin/www-browser</value>
     <value type="QString">CANBERRA_DRIVER=pulse</value>
-    <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-KMRmnSgMYM,guid=eb948eaa877ad919b73a1c91000000b1</value>
+    <value type="QString">DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-k7yNLyWw7L,guid=e55bd168af1e87bc397fd5600000014c</value>
     <value type="QString">DESKTOP_SESSION=01KDE4</value>
     <value type="QString">DISPLAY=:0.0</value>
     <value type="QString">DM_CONTROL=/var/run/xdmctl</value>
     <value type="QString">GCONF_TMPDIR=/tmp</value>
-    <value type="QString">GPG_AGENT_INFO=/tmp/gpg-jNRDu0/S.gpg-agent:11693:1</value>
+    <value type="QString">GPG_AGENT_INFO=/tmp/gpg-0XfERy/S.gpg-agent:23819:1</value>
     <value type="QString">GS_LIB=/home/martin/.fonts</value>
     <value type="QString">GTK_MODULES=canberra-gtk-module</value>
     <value type="QString">G_FILENAME_ENCODING=@locale</value>
@@ -214,8 +212,6 @@
     <value type="QString">NLSPATH=/usr/share/locale/%l/%N</value>
     <value type="QString">PATH=/usr/lib/qt4/bin:/usr/bin:/bin:/usr/local/bin:/usr/X11R6/bin/:/usr/games:/usr/lib/qt4/bin:/home/martin/bin</value>
     <value type="QString">PILOTPORT=usb:</value>
-    <value type="QString">PULSE_PROP_media.role=none</value>
-    <value type="QString">PULSE_PROP_phonon.streamid={865eead5-686a-4b1f-97d1-bbddb30da87e}</value>
     <value type="QString">PWD=/usr/lib/qtcreator</value>
     <value type="QString">PYTHONDONTWRITEBYTECODE=1</value>
     <value type="QString">PYTHONPATH=/usr/lib/ooo/basis-link/program</value>
@@ -228,7 +224,7 @@
     <value type="QString">QT_PLUGIN_PATH=/home/martin/.kde4/lib/kde4/plugins/:/usr/lib/kde4/plugins/</value>
     <value type="QString">QT_XFT=0</value>
     <value type="QString">SCREENDIR=/home/martin/tmp</value>
-    <value type="QString">SESSION_MANAGER=local/mao:@/tmp/.ICE-unix/11860,unix/mao:/tmp/.ICE-unix/11860</value>
+    <value type="QString">SESSION_MANAGER=local/mao:@/tmp/.ICE-unix/23985,unix/mao:/tmp/.ICE-unix/23985</value>
     <value type="QString">SHELL=/bin/bash</value>
     <value type="QString">SHLVL=1</value>
     <value type="QString">SSH_ASKPASS=/usr/lib/ssh/ssh-askpass</value>
@@ -240,7 +236,7 @@
     <value type="QString">XDG_CONFIG_DIRS=/etc/xdg:/etc/xdg/kde4</value>
     <value type="QString">XDG_DATA_DIRS=/usr/share:/usr/share:/usr/local/share</value>
     <value type="QString">XDG_MENU_PREFIX=kde-</value>
-    <value type="QString">XDG_SESSION_COOKIE=5652788f757cc7d3a58ad99e00000151-1295965058.729991-2004161525</value>
+    <value type="QString">XDG_SESSION_COOKIE=5652788f757cc7d3a58ad99e00000151-1297437628.369831-548762654</value>
     <value type="QString">XDM_MANAGED=method=classic</value>
     <value type="QString">XMODIFIERS=@im=none</value>
    </valuelist>

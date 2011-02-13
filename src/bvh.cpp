@@ -642,13 +642,15 @@ void BVH::bvhWriteFrame(BVHNode* node,QTextStream& out,int frame)
 
 void BVH::bvhWrite(Animation* anim, const QString& file)
 {
-  int i;
   QFile f(file);
   f.open(QFile::WriteOnly);
   QTextStream out(&f);
   out.setNumberFlags(QTextStream::ForcePoint);
   out.setRealNumberPrecision(7);
 
+
+  bvhWriteToTextStream(anim, out);
+/*edu: DEBUG so far
   BVHNode* root=anim->getMotion();
   positionNode=anim->getNode(0);
 
@@ -660,16 +662,38 @@ void BVH::bvhWrite(Animation* anim, const QString& file)
   out << "Frames:\t" << anim->getNumberOfFrames() << endl;
   out << "Frame Time:\t" << anim->frameTime() << endl;
 
-  for(i=0;i<anim->getNumberOfFrames();i++)
+  for(int i=0;i<anim->getNumberOfFrames();i++)
   {
     bvhWriteFrame(root,out,i);
     out << endl;
   }
+*/
 
   f.close();
 }
 
-void BVH::avmWriteKeyFrame(BVHNode* root,QTextStream& out)
+void BVH::bvhWriteToTextStream(Animation* anim, QTextStream& outStream)
+{
+  BVHNode* root=anim->getMotion();
+  positionNode=anim->getNode(0);
+
+  outStream << "HIERARCHY" << endl;
+  bvhWriteNode(root, outStream, 0);
+
+  outStream << "MOTION" << endl;
+
+  outStream << "Frames:\t" << anim->getNumberOfFrames() << endl;
+  outStream << "Frame Time:\t" << anim->frameTime() << endl;
+
+  for(int i=0;i<anim->getNumberOfFrames();i++)
+  {
+    bvhWriteFrame(root, outStream, i);
+    outStream << endl;
+  }
+}
+
+
+void BVH::avmWriteKeyFrame(BVHNode* root, QTextStream& out)
 {
   const QList<int> keys=root->keyframeList();
   // no key frames (usually at joint ends), just write a 0\n line

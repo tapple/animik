@@ -42,7 +42,13 @@ bool Avbl::SaveToFile(QList<TimelineTrail*> trails, QString fileName)
       animElm.setAttribute("position", currentItem->beginIndex());
 
       QDomElement bvhElm = document.createElement("bvhData");
-      QDomCDATASection cData = document.createCDATASection("TODO: BVH does it directly to a file :( Must adjust it to get a QString");
+      QString bvhData;
+      QTextStream outStream(&bvhData, QIODevice::WriteOnly);
+      outStream << endl;
+      BVH temp;
+      temp.bvhWriteToTextStream(currentItem->getAnimation(), outStream);
+      outStream.flush();
+      QDomCDATASection cData = document.createCDATASection(bvhData);
       //TODO: whole CDATA approach is rather temporary. Should be heavy 'objective' (in XML way)
       bvhElm.appendChild(cData);
       animElm.appendChild(bvhElm);
@@ -95,6 +101,8 @@ QList<TrailItem*> Avbl::LoadFromFile(QString fileName)
   QDomDocument document;
   QFile file(fileName);
 
+  QList<TrailItem*> result;
+
   if (!file.open(QIODevice::ReadOnly))
     throw new QString("I/O exception: Can't open file " + fileName);
   if (!document.setContent(&file))      //TODO: the method can do much more to describe error
@@ -107,15 +115,17 @@ QList<TrailItem*> Avbl::LoadFromFile(QString fileName)
   file.close();
 
   QDomElement avbl = document.documentElement().firstChildElement("avbl");
-  QDomElement trailsDesc = avbl.elementsByTagName("trailsDescription");
-  int trailsCount = trailsDesc.attribute("count", "3");
-  TrailItem** loadedItems = new TrailItem*[trailsCount];
+  QDomElement trailsDesc = avbl.elementsByTagName("trailsDescription").at(0).toElement();
+  int trailsCount = trailsDesc.attribute("count", "3").toInt();
+  TrailItem*** loadedItems = new TrailItem**[trailsCount];          //uaaaa
   QDomNodeList trails = trailsDesc.elementsByTagName("trail");
   for(int t=0; t<trailsCount; t++)
   {
     int numItems = trails.at(t).toElement().attribute("itemsCount", "0").toInt();
     if(numItems>0)
-      TrailItem[t] = new TrailItem[numItems];
+      loadedItems[t] = new TrailItem*[numItems+1];    //it's "+1" to make place for an end mark
+
+    loadedItems[numItems] = 0;                        //end mark
   }
 
   QDomNodeList items = avbl.elementsByTagName("animation");
@@ -131,21 +141,36 @@ QList<TrailItem*> Avbl::LoadFromFile(QString fileName)
     QString name = itemElm.attribute("name", "--unknown--");
     int trailIndex = itemElm.attribute("trail", "-1").toInt();
     int beginIndex = itemElm.attribute("position", "-1").toInt();
-    int trailOrder = itemElm.attribute("trailOrder", "-1");
+    int trailOrder = itemElm.attribute("trailOrder", "-1").toInt();
 
-    TrailItem tempItem(wa, name, beginIndex, false);
+    TrailItem* tempItem = new TrailItem(wa, name, beginIndex, false);
+    loadedItems[trailIndex][trailOrder] = tempItem;
   }
 
-
-
-  return linkLoadedItems(loadedItems, trailsCount);
+  return result;
 }
 
 
-
-QList<TrailItem*> Avbl::linkLoadedItems(TrailItem** sortedItems, int trailsCount)
+/** @param sortedItems - first dimension are trails. Second dimensions are TrailItems inside trails. Those
+                         are pointers (third "dimension"). The length of second dimension is delimited
+                         with NULL (0) mark on the end (after last TrailItem) */
+QList<TrailItem*> Avbl::linkLoadedItems(TrailItem*** sortedItems, int trailsCount)
 {
-  //TODO
+  for(int trail=0; trail<trailsCount; trail++)
+  {
+    for(int item=0; ; item++)
+    {
+      if(item==0)
+        sortedItems[trail][item]->setPreviousItem(0);     //_firstItem
+
+      if(sortedItems[trail][item]==0)
+        break;      //we hit end mark
+
+      sortedItems[trail][item]->setNextItem(sortedItems[trail][item+1]);
+      if(sortedItems[trail][item+1]!=0)
+        sortedItems[trail][item+1]->setPreviousItem(sortedItems[trail][item]);
+    }
+  }
 }
 
 

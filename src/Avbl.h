@@ -28,7 +28,7 @@ private:
   bool hasErrors;
   QString errorMessage;
 
-  QList<TrailItem*> linkLoadedItems(TrailItem** sortedItems, int trailsCount);
+  QList<TrailItem*> linkLoadedItems(TrailItem*** sortedItems, int trailsCount);
   void createBoneWeightsElement(QDomDocument document, QDomElement parentElement,
                                 BVHNode* limb, int frames);
 };
