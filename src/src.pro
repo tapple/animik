@@ -32,7 +32,8 @@ SOURCES += animation.cpp \
     WeightedAnimation.cpp \
     TrailJoiner.cpp \
     MixZonesDialog.cpp \
-    OptionalMessageBox.cpp
+    OptionalMessageBox.cpp \
+    Avbl.cpp
 HEADERS += animation.h \
     animationview.h \
     bvh.h \
@@ -64,7 +65,8 @@ HEADERS += animation.h \
     WeightedAnimation.h \
     TrailJoiner.h \
     MixZonesDialog.h \
-    OptionalMessageBox.h
+    OptionalMessageBox.h \
+    Avbl.h
 FORMS += mainapplicationform.ui \
     settingsdialogform.ui \
     KeyFramerTab.ui \
@@ -79,7 +81,8 @@ FORMS += mainapplicationform.ui \
 RESOURCES += icons.qrc
 TEMPLATE = app
 TARGET = ../bin/qavimator
-QT += opengl
+QT += opengl \
+      xml
 
 # LIBS += -lglut \
 # -lGLU

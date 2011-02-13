@@ -88,6 +88,17 @@ bool BlenderTimeline::AddAnimation(WeightedAnimation* anim, QString title)
 }
 
 
+QList<TimelineTrail*> BlenderTimeline::Trails()
+{
+  return trails;
+}
+
+int BlenderTimeline::TrailCount()
+{
+  return trails.size();
+}
+
+
 void BlenderTimeline::fitStackWidgetToContent()
 {
   TimelineTrail* t = trails.at(0);

@@ -7,6 +7,7 @@
 #include <QCloseEvent>
 #include <QStringListModel>
 
+#include "Avbl.h"
 #include "BlenderTab.h"
 #include "ui_BlenderTab.h"
 #include "qavimator.h"
@@ -69,7 +70,7 @@ void BlenderTab::Save()
 
 void BlenderTab::SaveAs()
 {
-  sorry();
+  fileSaveAs();
 }
 
 void BlenderTab::Cut()
@@ -232,6 +233,58 @@ void BlenderTab::fileAdd(const QString& name)
 
 //TODO?    connect(anim,SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
   }
+}
+
+
+// Menu Action: File / Save As...
+void BlenderTab::fileSaveAs()         //Ugly code repetition. TODO: think of it (I mean act)
+{
+   //// For some unknown reason passing "this" locks up the OSX qavimator window. Possibly a QT4 bug, needs investigation
+#ifdef __APPLE__
+   QString file=QFileDialog::getSaveFileName(NULL, tr("Save Composition File"), CurrentFile,
+                                             "Composition Files (*.avbl)", 0,
+                                             QFileDialog::DontConfirmOverwrite);
+#else
+   QString file=QFileDialog::getSaveFileName(this, tr("Save Composition File"), CurrentFile,
+                                             "Composition Files (*.avbl)", 0,
+                                             QFileDialog::DontConfirmOverwrite);
+#endif
+
+  if(!file.isEmpty())
+  {
+    QFileInfo fileInfo(file);
+
+    // make sure file has proper extension (either .bvh or .avm)
+    QString extension=fileInfo.suffix().toLower();
+    if(extension!="avbl")
+      file+=".avbl";
+
+    // if the file didn't exist yet or the user accepted to overwrite it, save it.
+    if(checkFileOverwrite(fileInfo))
+    {
+      setCurrentFile(file);
+      Settings::Instance()->setLastPath(fileInfo.path());
+
+      Avbl* saver = new Avbl();
+      bool saved = saver->SaveToFile(blenderTimeline->Trails(), file);
+
+      mainWindow->fileExportForSecondLifeAction->setEnabled(true);      //TODO: why?
+    }
+  }
+}
+
+
+// checks if a file already exists at the given path and displays a warning message
+// returns true if it's ok to save/overwrite, else returns false
+bool BlenderTab::checkFileOverwrite(const QFileInfo& fileInfo)      //VERY UGLY CODE CLONE (FROM KeyFramerTab). TODO: parent class? Or some FileHelper?
+{
+  // get file info
+  if(fileInfo.exists())
+  {
+    int answer=QMessageBox::question(this,tr("File Exists"),tr("A file with the name \"%1\" does already exist. Do you want to overwrite it?").arg(fileInfo.fileName()),QMessageBox::Yes,QMessageBox::No,QMessageBox::NoButton);
+    if(answer==QMessageBox::No) return false;
+  }
+  return true;
 }
 
 

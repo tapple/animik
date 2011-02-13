@@ -8,7 +8,8 @@
 
 class qavimator;
 class QCloseEvent;
-class QStringList ;
+class QFileInfo;
+class QStringList;
 
 
 /*namespace Ui {
@@ -57,6 +58,7 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
      //edu: add AVM (also BVH?)
      void fileAdd();
      void fileAdd(const QString& fileName);
+     bool checkFileOverwrite(const QFileInfo& fileInfo);
 
      void fileExportForSecondLife();
      bool resolveUnsavedChanges();

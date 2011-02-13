@@ -23,6 +23,8 @@ class BlenderTimeline : public QFrame
 
     /** Add new animation to a track where fits first. Returns TRUE on success */
     bool AddAnimation(WeightedAnimation* anim, QString title);
+    QList<TimelineTrail*> Trails();
+    int TrailCount();
 
   signals:
     /** Warn about Animation and its first frame position */
