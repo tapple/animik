@@ -280,10 +280,7 @@ void KeyFramerTab::readSettings()
 //slot gets called by Animation when it's saved or modified
 void KeyFramerTab::onAnimationStateChanged(bool unsaved)
 {
-  QString a = unsaved ? "*" : "";
-  mainWindow->setWindowTitle("Animik [" + CurrentFile + a +"]");
-  QFileInfo fileInfo(CurrentFile);
-  setWindowTitle(fileInfo.fileName() + a);
+  setCurrentFile(CurrentFile);      //trick to update window header (with asterisk when unsaved)
 }
 
 // slot gets called by AnimationView::mousePressEvent()
@@ -359,7 +356,6 @@ void KeyFramerTab::partClicked(BVHNode* node, Rotation rot, Rotation globRot, Ro
     updateKeyBtn();
   }
 }
-
 
 // slot gets called by AnimationView::mouseMoveEvent()
 void KeyFramerTab::partDragged(BVHNode* node,double x,double y,double z)
@@ -1589,7 +1585,6 @@ bool KeyFramerTab::clearOpenFiles()         //TODO: will make sense with aux ani
   openFiles.clear();
   selectAnimationCombo->clear();
   animationIds.clear();
-//  setCurrentFile(/*oblt UntitledName()*/ "");
   longestRunningTime=0.0;
 
   return true;
@@ -1600,7 +1595,8 @@ bool KeyFramerTab::clearOpenFiles()         //TODO: will make sense with aux ani
 void KeyFramerTab::setCurrentFile(const QString& fileName)
 {
   CurrentFile=fileName;
-  mainWindow->setWindowTitle("Animik ["+CurrentFile+"]");
+  QString a = IsUnsaved() ? "*" : "";
+  mainWindow->setWindowTitle("Animik [" + CurrentFile + a + "]");
   QFileInfo fileInfo(fileName);
   setWindowTitle(fileInfo.fileName());
 }

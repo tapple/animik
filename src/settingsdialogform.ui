@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>479</width>
-    <height>240</height>
+    <width>499</width>
+    <height>307</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -90,6 +90,22 @@
            <widget class="QCheckBox" name="tPoseWarningCheckBox">
             <property name="text">
              <string>Show warning when adding animation with T-pose first frame</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string/>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QCheckBox" name="debugCheckBox">
+            <property name="text">
+             <string>DEBUG mode (additional outputs for developer)</string>
             </property>
            </widget>
           </item>

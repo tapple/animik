@@ -64,6 +64,8 @@ public:
 //    static void setEaseOut(bool on);
   bool easeOut() const;
 
+  bool Debug() const;
+  void setDebug(bool value);
 
 private:
   Settings();
@@ -84,6 +86,8 @@ private:
 
   bool m_easeIn;       //TODO: animation
   bool m_easeOut;      //      specific?
+
+  bool m_debug;
 };
 
 #endif

@@ -55,7 +55,6 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
      void fileOpen(const QString& fileName);
      void fileSaveAs();
 
-     //edu: add AVM (also BVH?)
      void fileAdd();
      void fileAdd(const QString& fileName);
      bool checkFileOverwrite(const QFileInfo& fileInfo);
@@ -70,6 +69,8 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
   private:
      void bindMenuActions();
      bool canShowWarn;
+     /** TRUE for unsaved content */
+     bool isDirty;
 
      /////////////edu: DEBUG /////////////
      void sorry();

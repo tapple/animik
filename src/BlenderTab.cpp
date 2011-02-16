@@ -21,6 +21,7 @@ BlenderTab::BlenderTab(qavimator* mainWindow, const QString& fileName, bool crea
 {
   setupUi(this);
   canShowWarn = false;
+  isDirty = false;
 
   setAttribute(Qt::WA_DeleteOnClose);
 
@@ -30,8 +31,9 @@ BlenderTab::BlenderTab(qavimator* mainWindow, const QString& fileName, bool crea
 
   if(createFile)
   {
-    CurrentFile = fileName;
-    fileNew();
+    isDirty = true;
+    setCurrentFile(fileName);
+//    fileNew();
     Save();
   }
   else
@@ -54,8 +56,7 @@ void BlenderTab::bindMenuActions()
 
 bool BlenderTab::IsUnsaved()
 {
-  //TODO
-  return true;
+  return isDirty;
 }
 
 void BlenderTab::AddFile()
@@ -65,7 +66,10 @@ void BlenderTab::AddFile()
 
 void BlenderTab::Save()
 {
-  sorry();
+  Avbl* saver = new Avbl();
+  bool saved = saver->SaveToFile(blenderTimeline->Trails(), CurrentFile);
+  isDirty = !saved;
+  setCurrentFile(CurrentFile);      //asterisk out
 }
 
 void BlenderTab::SaveAs()
@@ -139,10 +143,11 @@ void BlenderTab::onTabActivated()
 // convenience function to set window title in a defined way
 void BlenderTab::setCurrentFile(const QString& fileName)
 {
-  CurrentFile=fileName;
-  mainWindow->setWindowTitle("Animik ["+CurrentFile+"]");       //edu: Fuj! TODO: encapsulate.
-  QFileInfo fileInfo(fileName);
-  setWindowTitle(fileInfo.fileName());
+  CurrentFile = fileName;
+  QString a = isDirty ? "*" : "";
+  mainWindow->setWindowTitle("Animik [" + CurrentFile + a +"]");
+  QFileInfo fileInfo(CurrentFile);
+  setWindowTitle(fileInfo.fileName() + a);
 }
 
 // Menu action: File / Open ...
@@ -215,11 +220,12 @@ void BlenderTab::fileSaveAs()         //Ugly code repetition. TODO: think of it 
     // if the file didn't exist yet or the user accepted to overwrite it, save it.
     if(checkFileOverwrite(fileInfo))
     {
-      setCurrentFile(file);
       Settings::Instance()->setLastPath(fileInfo.path());
 
       Avbl* saver = new Avbl();
       bool saved = saver->SaveToFile(blenderTimeline->Trails(), file);
+      isDirty = !saved;
+      setCurrentFile(file);
 
       mainWindow->fileExportForSecondLifeAction->setEnabled(true);      //TODO: why?
     }
@@ -339,6 +345,8 @@ void BlenderTab::on_zoomOutButton_clicked()
 // --------------- other slots ------------------ //
 void BlenderTab::onTimelineAnimationChanged(WeightedAnimation* anim)
 {
+  isDirty = true;
+  setCurrentFile(CurrentFile);    //update asterisk
   blenderAnimationView->setAnimation(anim);
 }
 

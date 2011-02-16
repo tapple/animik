@@ -32,6 +32,7 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent)
   easeInCheckbox->setChecked(Settings::Instance()->easeIn());
   easeOutCheckbox->setChecked(Settings::Instance()->easeOut());
   tPoseWarningCheckBox->setChecked(Settings::Instance()->tPoseWarning());
+  debugCheckBox->setChecked(Settings::Instance()->Debug());
 }
 
 SettingsDialog::~SettingsDialog()
@@ -50,6 +51,7 @@ void SettingsDialog::on_applyButton_clicked()
   Settings::setEaseOut(easeOutCheckbox->isChecked());     */
 
   Settings::Instance()->setTPoseWarning(tPoseWarningCheckBox->isChecked());
+  Settings::Instance()->setDebug(debugCheckBox->isChecked());
 
   Settings::Instance()->WriteSettings();
 
@@ -93,4 +95,10 @@ void SettingsDialog::on_easeOutCheckbox_toggled(bool state)
 void SettingsDialog::on_tPoseWarningCheckBox_toggled(bool checked)
 {
   qDebug("tPoseWarning toggled(%d)", checked);
+}
+
+
+void SettingsDialog::on_debugCheckBox_toggled(bool checked)
+{
+  qDebug("DEBUG mode toggled(%d)", checked);
 }

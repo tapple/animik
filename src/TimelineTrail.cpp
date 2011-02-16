@@ -6,10 +6,11 @@
 #include <QPalette>
 #include <QSize>
 #include "bvh.h"
+#include "MixZonesDialog.h"
+#include "settings.h"
 #include "TimelineTrail.h"
 #include "TrailItem.cpp"
 #include "TrailJoiner.h"
-#include "MixZonesDialog.h"
 
 #define TRACK_HEIGHT     72
 #define FRAME_HEIGHT     TRACK_HEIGHT-6
@@ -299,80 +300,83 @@ void TimelineTrail::drawTrailItem(TrailItem* item)
     selFrameColor = QColor("#725518");
   }
 
-  //DEBUG
-  if(item->isShadow())
+  if(Settings::Instance()->Debug() && item->isShadow())
     boxColor = QColor("#55bb55");
-  //EOD
 
-
-  p.fillRect(item->beginIndex()*_positionWidth+2, TOP_MARGIN+BORDER_WIDTH,
-             item->frames()*_positionWidth-2, FRAME_HEIGHT, boxColor);
-
-  //emphasize the first frame if it's T-pose
-  if(item->getAnimation()->isFirstFrameTPose())
-    p.fillRect(item->beginIndex()*_positionWidth+2, TOP_MARGIN+BORDER_WIDTH, _positionWidth-1,
-               FRAME_HEIGHT, QColor("#84365D"));
-
-  QRectF border(item->beginIndex()*_positionWidth+1, TOP_MARGIN+1,
-                item->frames()*_positionWidth, FRAME_HEIGHT);
-
-  int begin = item->beginIndex();
-  //if selected frame falls inside this animation, highlight the frame
-  if(currentPosition>=begin && currentPosition<=item->endIndex())
+  if(Settings::Instance()->Debug() || !item->isShadow())
   {
-    p.fillRect(currentPosition*_positionWidth+1, TOP_MARGIN+BORDER_WIDTH,
-               _positionWidth, FRAME_HEIGHT-BORDER_WIDTH, selFrameColor);
-  }
+    int dbg = item->isShadow() ? (TOP_MARGIN+BORDER_WIDTH) : 0;
 
-  //border must go almost last for correct overlapping
-  QPen borderPen(QColor("#000000"));
-  borderPen.setWidth(BORDER_WIDTH);
-  p.setPen(borderPen);
-  p.drawRoundedRect(border, 4, 4);
+    p.fillRect(item->beginIndex()*_positionWidth+2, TOP_MARGIN+BORDER_WIDTH-dbg,
+               item->frames()*_positionWidth-2, FRAME_HEIGHT+dbg, boxColor);
 
-  //show frame weights, as last
-  if(item==selectedItem)
-  {
-    int end = item->endIndex();
-    double hFactor = ((double)FRAME_HEIGHT-BORDER_WIDTH) / MAX_WEIGHT;
-    QColor barColor("#999999");
+    //emphasize the first frame if it's T-pose
+    if(item->getAnimation()->isFirstFrameTPose())
+      p.fillRect(item->beginIndex()*_positionWidth+2, TOP_MARGIN+BORDER_WIDTH, _positionWidth-1,
+                 FRAME_HEIGHT, QColor("#84365D"));
 
-    for(int i=begin; i<=end; i++)
+    QRectF border(item->beginIndex()*_positionWidth+1, TOP_MARGIN+1,
+                  item->frames()*_positionWidth, FRAME_HEIGHT);
+
+    int begin = item->beginIndex();
+    //if selected frame falls inside this animation, highlight the frame
+    if(currentPosition>=begin && currentPosition<=item->endIndex())
     {
-      int barHeight = (int)(item->getWeight(i-begin)*hFactor);
-      if(i==currentPosition)
-      {
-        p.fillRect(i*_positionWidth+2, TOP_MARGIN+BORDER_WIDTH+(FRAME_HEIGHT-BORDER_WIDTH)-barHeight,
-                   _positionWidth-2, barHeight, QColor("#0080ff"));
-      }
-      else
-      {
-        p.fillRect(i*_positionWidth+2, TOP_MARGIN+BORDER_WIDTH+(FRAME_HEIGHT-BORDER_WIDTH)-barHeight,
-                   _positionWidth-2, barHeight, barColor);
-      }
+      p.fillRect(currentPosition*_positionWidth+1, TOP_MARGIN+BORDER_WIDTH,
+                 _positionWidth, FRAME_HEIGHT-BORDER_WIDTH, selFrameColor);
+    }
 
-      //Weight value for selected frame is show as the very last thing
-      if(currentPosition>=begin && currentPosition<=end)
-      {
-        int w = item->getWeight(currentPosition-begin);
-        QPen textPen(QColor("#f8f8f8"));
-        QFont f ("Arial", 11, QFont::Normal);
-        p.setPen(textPen);
-        p.setFont(f);
+    //border must go almost last for correct overlapping
+    QPen borderPen(QColor("#000000"));
+    borderPen.setWidth(BORDER_WIDTH);
+    p.setPen(borderPen);
+    p.drawRoundedRect(border, 4, 4);
 
-       //for some galactic reason the center alignment doesn't work as expected, so must be done manually
-        if(w==100)
-          p.drawText(currentPosition*_positionWidth-_positionWidth, TRACK_HEIGHT-TOP_MARGIN-BORDER_WIDTH-TEXT_SIZE,
-                     _positionWidth*3, TEXT_SIZE, Qt::AlignJustify, QString::number(w));
-        else if(w<=10)
-          p.drawText(currentPosition*_positionWidth, TRACK_HEIGHT-TOP_MARGIN-BORDER_WIDTH-TEXT_SIZE,
-                     _positionWidth, TEXT_SIZE, Qt::AlignJustify, QString::number(w));
-        else    //10-99
-          p.drawText(currentPosition*_positionWidth-(_positionWidth/2), TRACK_HEIGHT-TOP_MARGIN-BORDER_WIDTH-TEXT_SIZE,
-                     _positionWidth*2, TEXT_SIZE, Qt::AlignJustify, QString::number(w));
+    //show frame weights, as last
+    if(item==selectedItem)
+    {
+      int end = item->endIndex();
+      double hFactor = ((double)FRAME_HEIGHT-BORDER_WIDTH) / MAX_WEIGHT;
+      QColor barColor("#999999");
+
+      for(int i=begin; i<=end; i++)
+      {
+        int barHeight = (int)(item->getWeight(i-begin)*hFactor);
+        if(i==currentPosition)
+        {
+          p.fillRect(i*_positionWidth+2, TOP_MARGIN+BORDER_WIDTH+(FRAME_HEIGHT-BORDER_WIDTH)-barHeight,
+                     _positionWidth-2, barHeight, QColor("#0080ff"));
+        }
+        else
+        {
+          p.fillRect(i*_positionWidth+2, TOP_MARGIN+BORDER_WIDTH+(FRAME_HEIGHT-BORDER_WIDTH)-barHeight,
+                     _positionWidth-2, barHeight, barColor);
+        }
+
+        //Weight value for selected frame is show as the very last thing
+        if(currentPosition>=begin && currentPosition<=end)
+        {
+          int w = item->getWeight(currentPosition-begin);
+          QPen textPen(QColor("#f8f8f8"));
+          QFont f ("Arial", 11, QFont::Normal);
+          p.setPen(textPen);
+          p.setFont(f);
+
+         //for some galactic reason the center alignment doesn't work as expected, so must be done manually
+          if(w==100)
+            p.drawText(currentPosition*_positionWidth-_positionWidth, TRACK_HEIGHT-TOP_MARGIN-BORDER_WIDTH-TEXT_SIZE,
+                       _positionWidth*3, TEXT_SIZE, Qt::AlignJustify, QString::number(w));
+          else if(w<=10)
+            p.drawText(currentPosition*_positionWidth, TRACK_HEIGHT-TOP_MARGIN-BORDER_WIDTH-TEXT_SIZE,
+                       _positionWidth, TEXT_SIZE, Qt::AlignJustify, QString::number(w));
+          else    //10-99
+            p.drawText(currentPosition*_positionWidth-(_positionWidth/2), TRACK_HEIGHT-TOP_MARGIN-BORDER_WIDTH-TEXT_SIZE,
+                       _positionWidth*2, TEXT_SIZE, Qt::AlignJustify, QString::number(w));
+        }
       }
     }
-  }
+
+  }//if(Debug())
 }
 /***********************************************************************************/
 
@@ -381,7 +385,7 @@ TrailItem* TimelineTrail::findItemOnPosition(int positionIndex)
 {
   TrailItem* currentItem = _firstItem;
 
-  while(currentItem != 0)
+  while(currentItem != NULL)
   {
     int begin = currentItem->beginIndex();
     if(positionIndex>=begin && positionIndex<=currentItem->endIndex())
@@ -394,22 +398,22 @@ TrailItem* TimelineTrail::findItemOnPosition(int positionIndex)
 
 TrailItem* TimelineTrail::findPreviousItem(int beforePosition)
 {
-  if(_firstItem==0/*==_lastItem*/)
-    return 0;
+  if(_firstItem==NULL/*==_lastItem*/)
+    return NULL;
   if(_firstItem->beginIndex() > beforePosition)
-    return 0;         //belongs to beginning
+    return NULL;         //belongs to beginning
   if(_firstItem==_lastItem)
   {
     if(_firstItem->endIndex() < beforePosition)
       return _firstItem;
     else
-      return 0;
+      return NULL;
   }
 
   TrailItem* currentItem = _firstItem;
-  while(currentItem != 0)
+  while(currentItem != NULL)
   {
-    if(currentItem->nextItem()==0)
+    if(currentItem->nextItem() == NULL)
       return currentItem;
     if(currentItem->nextItem()->beginIndex() > beforePosition)
       return currentItem;
@@ -422,22 +426,22 @@ TrailItem* TimelineTrail::findPreviousItem(int beforePosition)
 
 TrailItem* TimelineTrail::findNextItem(int afterPosition)
 {
-  if(_lastItem==0/*==_firstItem*/)
-    return 0;
+  if(_lastItem == NULL /*==_firstItem*/)
+    return NULL;
   if(_lastItem->endIndex() < afterPosition)
-    return 0;           //belongs to very end
+    return NULL;           //belongs to very end
   if(_firstItem==_lastItem)
   {
     if(_lastItem->beginIndex() > afterPosition)
      return _lastItem;
     else
-      return 0;
+      return NULL;
   }
 
   TrailItem* currentItem = _lastItem;
-  while(currentItem != 0)
+  while(currentItem != NULL)
   {
-    if(currentItem->previousItem()==0)
+    if(currentItem->previousItem() == NULL)
       return currentItem;
     if(currentItem->previousItem()->endIndex() < afterPosition)
       return currentItem;
@@ -450,8 +454,8 @@ TrailItem* TimelineTrail::findNextItem(int afterPosition)
 
 void TimelineTrail::cleanupAfterMove()
 {
-  if(draggingItem != 0)
-    draggingItem = 0;
+  if(draggingItem != NULL)
+    draggingItem = NULL;
 
   draggingOverPosition = -1;
   QCursor defCur;
@@ -462,8 +466,8 @@ void TimelineTrail::cleanupAfterMove()
 /**************************** BUILD RESULTING ANIMATION ****************************/
 WeightedAnimation* TimelineTrail::getSummaryAnimation()
 {
-  if(_firstItem==0 || draggingItem!=0 || addingNewItem)
-    return 0;
+  if(_firstItem==NULL || draggingItem!=NULL || addingNewItem)
+    return NULL;
 
   clearShadowItems();
   TrailJoiner joiner(_firstItem);
@@ -476,7 +480,7 @@ WeightedAnimation* TimelineTrail::getSummaryAnimation()
 void TimelineTrail::clearShadowItems()
 {
   TrailItem* currentItem = _firstItem;
-  while(currentItem != 0)
+  while(currentItem != NULL)
   {
     if(currentItem->isShadow())
     {

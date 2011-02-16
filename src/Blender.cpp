@@ -4,6 +4,7 @@
 
 #include "Blender.h"
 #include "bvh.h"
+#include "settings.h"
 #include "TrailItem.cpp"
 #include "WeightedAnimation.h"
 
@@ -112,6 +113,18 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
         TrailItem* shadowItem = new TrailItem(mixInShadow, "shadow",
                                               currentItem->beginIndex()-framesNum, true);
         result.append(shadowItem);
+
+        //When in user invoked DEBUG mode, shadow items are embeded in time-line, so I can check them visualy
+        if(Settings::Instance()->Debug())
+        {
+          if(currentItem->previousItem() != NULL)       //else it's _firstItem => I'm unable to reset that
+          {
+            currentItem->previousItem()->setNextItem(shadowItem);
+            shadowItem->setPreviousItem(currentItem->previousItem());
+            currentItem->setPreviousItem(shadowItem);
+            shadowItem->setNextItem(currentItem);
+          }
+        }
       }
       //Gap between end of previous and begin of current. But mix-in of the previous is bigger than the gap
       else if(items[i]->mixIn() > (currentItem->beginIndex() - items[i]->endIndex() - 1))
@@ -126,7 +139,6 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
         interpolatePosture(items[i]->getAnimation(), items[i]->frames()-1, currentItem->getAnimation(),
                            0, mixInShadow);
 
-
         for(int n=0; n<framesNum; n++)
         {
           int value = (n+1) / framesNum;
@@ -136,6 +148,17 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
         TrailItem* shadowItem = new TrailItem(mixInShadow, "shadow",
                                               items[i]->endIndex()-framesNum+1, true);
         result.append(shadowItem);
+
+        if(Settings::Instance()->Debug())
+        {
+          if(currentItem->previousItem() != NULL)       //else it's _firstItem => I'm unable to reset that
+          {
+            currentItem->previousItem()->setNextItem(shadowItem);
+            shadowItem->setPreviousItem(currentItem->previousItem());
+            currentItem->setPreviousItem(shadowItem);
+            shadowItem->setNextItem(currentItem);
+          }
+        }
       }
       //else gap is too big.
     }
@@ -185,6 +208,16 @@ QList<TrailItem*> Blender::createMixOutsImpliedShadowItems(QList<TrailItem*> ite
         TrailItem* shadowItem = new TrailItem(mixInShadow, "shadow",
                                               items[i]->endIndex()+1, true);
         result.append(shadowItem);
+
+        //show shadow items on time-line for debug purposes
+        if(Settings::Instance()->Debug())
+        {
+          if(items[i]->nextItem() != NULL)            //isn't _lastItem
+            items[i]->nextItem()->setPreviousItem(shadowItem);
+          shadowItem->setPreviousItem(items[i]);
+          shadowItem->setNextItem(items[i]->nextItem());
+          items[i]->setNextItem(shadowItem);
+        }
       }
       //Gap smaller than mix-out
       else if(currentItem->mixOut() > (currentItem->beginIndex() - items[i]->endIndex() - 1))
@@ -208,6 +241,15 @@ QList<TrailItem*> Blender::createMixOutsImpliedShadowItems(QList<TrailItem*> ite
         TrailItem* shadowItem = new TrailItem(mixInShadow, "shadow",
                                               currentItem->beginIndex(), true);
         result.append(shadowItem);
+
+        if(Settings::Instance()->Debug())
+        {
+          if(items[i]->nextItem() != NULL)            //isn't _lastItem
+            items[i]->nextItem()->setPreviousItem(shadowItem);
+          shadowItem->setPreviousItem(items[i]);
+          shadowItem->setNextItem(items[i]->nextItem());
+          items[i]->setNextItem(shadowItem);
+        }
       }
       //else gap is too big
     }

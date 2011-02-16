@@ -449,7 +449,7 @@ int AnimationView::pickPart(int x, int y)
   GLint viewport[4];
   GLuint depth=~0;
 
-  glGetIntegerv(GL_VIEWPORT,viewport);
+  glGetIntegerv(GL_VIEWPORT, viewport);
   glSelectBuffer(bufSize, selectBuf);
   (void) glRenderMode(GL_SELECT);
   glInitNames();
@@ -457,7 +457,7 @@ int AnimationView::pickPart(int x, int y)
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
-  gluPickMatrix(x,(viewport[3]-y),5.0,5.0,viewport);
+  gluPickMatrix(x, (viewport[3]-y), 5.0, 5.0, viewport);
   setProjection();
   camera.setModelView();
   drawAnimations();

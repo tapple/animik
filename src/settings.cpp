@@ -42,6 +42,8 @@ Settings::Settings()
   m_tPoseWarning = true;
 
   m_easeIn = m_easeOut = false;
+
+  m_debug = false;
 }
 
 Settings::~Settings()
@@ -78,8 +80,8 @@ void Settings::ReadSettings()
   protectFirstFrame=true;     */
 
   // OpenGL presets
-/*  Settings::setFog(true);
-  Settings::setFloorTranslucency(33);   */
+  Settings::setFog(true);
+  Settings::setFloorTranslucency(33);
 
 
   // defaults for ease in/ease out
@@ -104,13 +106,9 @@ void Settings::ReadSettings()
     m_lastPath=settings.value("/last_path").toString();
     recentFiles = settings.value("/recent_file").toStringList();
 
-    // OpenGL settings
-/*rbsh    Settings::setFog(settings.value("/fog").toBool());
-    Settings::setFloorTranslucency(settings.value("/floor_translucency").toInt());
-
     // settings for ease in/ease outFrame
-    Settings::setEaseIn(settings.value("/ease_in").toBool());
-    Settings::setEaseOut(settings.value("/ease_out").toBool());     */
+    m_easeIn = settings.value("/ease_in").toBool();
+    m_easeOut = settings.value("/ease_out").toBool();
 
     m_fog = settings.value("/fog").toBool();
     m_floorTranslucency = settings.value("/floor_translucency").toInt();
@@ -118,6 +116,8 @@ void Settings::ReadSettings()
 
     m_easeIn = settings.value("/ease_in").toBool();
     m_easeOut = settings.value("/ease_out").toBool();
+
+    m_debug = settings.value("/debug").toBool();
 
     // sanity
     if(width<50) width=50;
@@ -181,6 +181,8 @@ void Settings::WriteSettings()
 
   settings.setValue("/tpose_warning", m_tPoseWarning);
 
+  settings.setValue("/debug", m_debug);
+
   settings.endGroup();
 }
 
@@ -210,3 +212,7 @@ bool Settings::tPoseWarning() const               { return m_tPoseWarning; }
 bool Settings::easeIn() const                     { return m_easeIn; }
 //void Settings::setEaseOut(bool on)             { m_easeOut=on; }
 bool Settings::easeOut() const                    { return m_easeOut; }
+
+/** Debug mode. If on, additional outputs are available and shown to the user */
+bool Settings::Debug() const                      { return m_debug; }
+void Settings::setDebug(bool value)               { m_debug = value; }

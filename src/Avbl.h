@@ -11,6 +11,9 @@ class TimelineTrail;
 class TrailItem;
 
 
+/** This is not a data class for AVBL files. Rather it's just helper for them (save/load).
+    It's methods are supposed to be called in 'static' manner. */
+
 class Avbl
 {
 public:
