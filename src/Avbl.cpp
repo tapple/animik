@@ -32,47 +32,49 @@ bool Avbl::SaveToFile(QList<TimelineTrail*> trails, QString fileName)
     TrailItem* currentItem = trails.at(trail)->firstItem();
     int orderOnTrail = 0;     //zero-based position index denoting order of the item on its trail
                               //it's here to ease trail's items re-linking later when parsing
-
     while(currentItem!=0)
     {
-      QDomElement animElm = document.createElement("animation");
-      animElm.setAttribute("name", currentItem->Name);
-      animElm.setAttribute("trail", trail);
-      animElm.setAttribute("trailOrder", orderOnTrail);
-      animElm.setAttribute("position", currentItem->beginIndex());
-
-      QDomElement bvhElm = document.createElement("bvhData");
-      QString bvhData;
-      QTextStream outStream(&bvhData, QIODevice::WriteOnly);
-      outStream << endl;
-      BVH temp;
-      temp.bvhWriteToTextStream(currentItem->getAnimation(), outStream);
-      outStream.flush();
-      QDomCDATASection cData = document.createCDATASection(bvhData);
-      //TODO: whole CDATA approach is rather temporary. Should be heavy 'objective' (in XML way)
-      bvhElm.appendChild(cData);
-      animElm.appendChild(bvhElm);
-
-      QDomElement fWeightsElm = document.createElement("frameWeights");
-      for(int i=0; i<currentItem->frames(); i++)
+      if(!currentItem->isShadow())
       {
-        QDomElement fWeight = document.createElement("frame");
-        fWeight.setAttribute("number", i);
-        fWeight.setAttribute("weight", currentItem->getWeight(i));
-        fWeightsElm.appendChild(fWeight);
+        QDomElement animElm = document.createElement("animation");
+        animElm.setAttribute("name", currentItem->Name);
+        animElm.setAttribute("trail", trail);
+        animElm.setAttribute("trailOrder", orderOnTrail);
+        animElm.setAttribute("position", currentItem->beginIndex());
+
+        QDomElement bvhElm = document.createElement("bvhData");
+        QString bvhData;
+        QTextStream outStream(&bvhData, QIODevice::WriteOnly);
+        outStream << endl;
+        BVH temp;
+        temp.bvhWriteToTextStream(currentItem->getAnimation(), outStream);
+        outStream.flush();
+        QDomCDATASection cData = document.createCDATASection(bvhData);
+        bvhElm.appendChild(cData);
+        animElm.appendChild(bvhElm);
+
+        QDomElement fWeightsElm = document.createElement("frameWeights");
+        for(int i=0; i<currentItem->frames(); i++)
+        {
+          QDomElement fWeight = document.createElement("frame");
+          fWeight.setAttribute("number", i);
+          fWeight.setAttribute("weight", currentItem->getWeight(i));
+          fWeightsElm.appendChild(fWeight);
+        }
+        animElm.appendChild(fWeightsElm);
+
+        QDomElement bWeightsElm = document.createElement("boneWeights");
+        BVHNode* root = currentItem->getAnimation()->getMotion();
+        createBoneWeightsElement(document, bWeightsElm, root, currentItem->frames());
+        animElm.appendChild(bWeightsElm);
+
+        rootElm.appendChild(animElm);
+        document.appendChild(rootElm);
+
+        orderOnTrail++;
       }
-      animElm.appendChild(fWeightsElm);
-
-      QDomElement bWeightsElm = document.createElement("boneWeights");
-      BVHNode* root = currentItem->getAnimation()->getMotion();
-      createBoneWeightsElement(document, bWeightsElm, root, currentItem->frames());
-      animElm.appendChild(bWeightsElm);
-
-      rootElm.appendChild(animElm);
-      document.appendChild(rootElm);
 
       currentItem = currentItem->nextItem();
-      orderOnTrail++;
     }
 
     QDomElement trailElm = document.createElement("trail");
@@ -94,27 +96,26 @@ bool Avbl::SaveToFile(QList<TimelineTrail*> trails, QString fileName)
 }
 
 
-QList<TrailItem*> Avbl::LoadFromFile(QString fileName)
+QList<TrailItem*>* Avbl::LoadFromFile(QString fileName)
 {
   hasErrors = false;
   errorMessage = "";
   QDomDocument document;
   QFile file(fileName);
 
-  QList<TrailItem*> result;
-
   if (!file.open(QIODevice::ReadOnly))
     throw new QString("I/O exception: Can't open file " + fileName);
-  if (!document.setContent(&file))      //TODO: the method can do much more to describe error
+  if (!document.setContent(&file))      //TODO: the method can do much more to describe an error
   {
     hasErrors = true;
     errorMessage = "Error parsing input document";
     file.close();
-    throw new QString("XML exception: Error parsing XML file" + fileName);
+    throw new QString("XML exception: Error parsing XML file " + fileName);
   }
   file.close();
 
-  QDomElement avbl = document.documentElement().firstChildElement("avbl");
+  QDomElement avbl = document.documentElement();
+
   QDomElement trailsDesc = avbl.elementsByTagName("trailsDescription").at(0).toElement();
   int trailsCount = trailsDesc.attribute("count", "3").toInt();
   TrailItem*** loadedItems = new TrailItem**[trailsCount];          //uaaaa
@@ -122,10 +123,9 @@ QList<TrailItem*> Avbl::LoadFromFile(QString fileName)
   for(int t=0; t<trailsCount; t++)
   {
     int numItems = trails.at(t).toElement().attribute("itemsCount", "0").toInt();
-    if(numItems>0)
-      loadedItems[t] = new TrailItem*[numItems+1];    //it's "+1" to make place for an end mark
-
-    loadedItems[numItems] = 0;                        //end mark
+    int order = trails.at(t).toElement().attribute("order", "-1").toInt();
+    loadedItems[order] = new TrailItem*[numItems+1];    //it's "+1" to make place for an end mark
+    loadedItems[order][numItems] = 0;                     //end mark
   }
 
   QDomNodeList items = avbl.elementsByTagName("animation");
@@ -135,9 +135,13 @@ QList<TrailItem*> Avbl::LoadFromFile(QString fileName)
     QDomNode bvhData = itemElm.elementsByTagName("bvhData").at(0);
     QDomCDATASection cData = bvhData.firstChild().toCDATASection();
     QString bvh = cData.data();
+    bvh = bvh.simplified();        //a hack for a very, very nasty bug (some kind of lazy eval for data() or what)
+
     BVH* b = new BVH();
-    BVHNode* _what_ = b->bvhReadFromString(bvh);
-    WeightedAnimation* wa = new WeightedAnimation(b, "");     //Is in 'b' really what WeightedAnimation needs? TODO: resolve.
+    WeightedAnimation* wa = new WeightedAnimation(b, "");
+    wa->loadBVHFromString(bvh);
+    wa->setNumberOfFrames(b->lastLoadedNumberOfFrames);
+
     QString name = itemElm.attribute("name", "--unknown--");
     int trailIndex = itemElm.attribute("trail", "-1").toInt();
     int beginIndex = itemElm.attribute("position", "-1").toInt();
@@ -147,6 +151,7 @@ QList<TrailItem*> Avbl::LoadFromFile(QString fileName)
     loadedItems[trailIndex][trailOrder] = tempItem;
   }
 
+  QList<TrailItem*>* result = linkLoadedItems(loadedItems, trailsCount);
   return result;
 }
 
@@ -154,23 +159,30 @@ QList<TrailItem*> Avbl::LoadFromFile(QString fileName)
 /** @param sortedItems - first dimension are trails. Second dimensions are TrailItems inside trails. Those
                          are pointers (third "dimension"). The length of second dimension is delimited
                          with NULL (0) mark on the end (after last TrailItem) */
-QList<TrailItem*> Avbl::linkLoadedItems(TrailItem*** sortedItems, int trailsCount)
+QList<TrailItem*>* Avbl::linkLoadedItems(TrailItem*** sortedItems, int trailsCount)
 {
+  QList<TrailItem*>* result = new QList<TrailItem*>;
+
   for(int trail=0; trail<trailsCount; trail++)
   {
     for(int item=0; ; item++)
     {
-      if(item==0)
-        sortedItems[trail][item]->setPreviousItem(0);     //_firstItem
-
       if(sortedItems[trail][item]==0)
-        break;      //we hit end mark
+        break;      //we've hit end mark
+
+      if(item==0)
+      {
+        sortedItems[trail][item]->setPreviousItem(0);     //_firstItem
+        result->append(sortedItems[trail][item]);
+      }
 
       sortedItems[trail][item]->setNextItem(sortedItems[trail][item+1]);
       if(sortedItems[trail][item+1]!=0)
         sortedItems[trail][item+1]->setPreviousItem(sortedItems[trail][item]);
     }
   }
+
+  return result;
 }
 
 

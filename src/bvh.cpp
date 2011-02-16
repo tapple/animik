@@ -287,7 +287,6 @@ void BVH::parseLimFile(BVHNode* root,const QString& limFile) const
 void BVH::setAllKeyFramesHelper(BVHNode* node,int numberOfFrames) const
 {
 //  qDebug("BVH::setAllKeyFramesHelper()");
-
   for(int i=0;i<numberOfFrames;i++)
   {
     const Rotation* rot=node->getCachedRotation(i);
@@ -301,7 +300,7 @@ void BVH::setAllKeyFramesHelper(BVHNode* node,int numberOfFrames) const
     setAllKeyFramesHelper(node->child(i),numberOfFrames);
 }
 
-void BVH::setAllKeyFrames(Animation* anim) const
+void BVH::setAllKeyFrames(Animation* anim) const            //edu: unused method
 {
   qDebug("BVH::setAllKeyFrames()");
 
@@ -323,18 +322,17 @@ BVHNode* BVH::bvhRead(const QString& file)
   inputFile = animationFile.readAll();
   animationFile.close();
 
-
-
-  return bvhReadFromString(inputFile);      //DEBUG so far
+  return bvhReadFromString(inputFile);
 }
 
 
-BVHNode* BVH::bvhReadFromString(QString bvhFileData)
+BVHNode* BVH::bvhReadFromString(const QString& bvhFileData)
 {
+  tokenPos = 0;
   inputFile = bvhFileData.simplified();
   tokens = inputFile.split(' ');
 
-  expect_token("HIERARCHY");
+  bool debug = expect_token("HIERARCHY");
 
   BVHNode* root=bvhReadNode(/*edu*/0);
 
@@ -647,27 +645,7 @@ void BVH::bvhWrite(Animation* anim, const QString& file)
   QTextStream out(&f);
   out.setNumberFlags(QTextStream::ForcePoint);
   out.setRealNumberPrecision(7);
-
-
   bvhWriteToTextStream(anim, out);
-/*edu: DEBUG so far
-  BVHNode* root=anim->getMotion();
-  positionNode=anim->getNode(0);
-
-  out << "HIERARCHY" << endl;
-  bvhWriteNode(root,out,0);
-
-  out << "MOTION" << endl;
-
-  out << "Frames:\t" << anim->getNumberOfFrames() << endl;
-  out << "Frame Time:\t" << anim->frameTime() << endl;
-
-  for(int i=0;i<anim->getNumberOfFrames();i++)
-  {
-    bvhWriteFrame(root,out,i);
-    out << endl;
-  }
-*/
 
   f.close();
 }

@@ -1088,7 +1088,7 @@ void KeyFramerTab::fileAdd(const QString& name)
       return;
     }
     addToOpenFiles(file);
-    Animation* anim=new Animation(animationView->getBVH(),file);
+    Animation* anim = new Animation(animationView->getBVH(), file);
     animationIds.append(anim);
     calculateLongestRunningTime();
 

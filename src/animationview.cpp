@@ -42,7 +42,7 @@
 #define CTRL  2
 #define ALT   4
 
-AnimationView::AnimationView(QWidget* parent,const char* /* name */,Animation* anim)
+AnimationView::AnimationView(QWidget* parent, const char* /* name */, Animation* anim)
  : QGLWidget(parent)
 {
   figureFiles << MALE_BVH << FEMALE_BVH;
@@ -50,7 +50,7 @@ AnimationView::AnimationView(QWidget* parent,const char* /* name */,Animation* a
   bvh=new BVH();
   if(!bvh)
   {
-    qDebug("AnimationView::AnimationView(): BVH initialisation failed.");
+    throw new QString/*qDebug*/("AnimationView::AnimationView(): BVH initialisation failed.");
     return;
   }
 
@@ -103,7 +103,8 @@ AnimationView::AnimationView(QWidget* parent,const char* /* name */,Animation* a
   leftMouseButton=false;
   frameProtected=false;
   modifier=0;
-  if(anim) setAnimation(anim);
+  if(anim)
+    setAnimation(anim);
   setMouseTracking(true);
   setFocusPolicy(Qt::StrongFocus);
 
@@ -250,7 +251,8 @@ void AnimationView::setFPS(int fps)
   } // for
 }
 
-const Prop* AnimationView::addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs,double xr,double yr,double zr,int attach)
+const Prop* AnimationView::addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,
+                                   double zs,double xr,double yr,double zr,int attach)
 {
   QString name;
   QString baseName;

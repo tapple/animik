@@ -21,6 +21,8 @@ class TimelineTrail : public QFrame
     /** Add new animation on first gap big enough. Returns TRUE on success
         or FALSE if there's not enough space on this trail. */
     bool AddAnimation(WeightedAnimation* anim, QString title);
+    /** Clear content of this trail and set new with given first TrailItem */
+    void ResetContent(TrailItem* first);
     int animationCount() { return _animationCount; }
     TrailItem* firstItem() { return _firstItem; }
     TrailItem* lastItem() { return _lastItem; }

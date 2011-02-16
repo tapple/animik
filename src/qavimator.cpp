@@ -221,7 +221,7 @@ void qavimator::fileOpen(const QString& name)
     if(name.endsWith(".avm", Qt::CaseInsensitive) || name.endsWith(".bvh", Qt::CaseInsensitive))
       filetype = NewFileDialog::AVM;
     else if(name.endsWith(".avbl", Qt::CaseInsensitive))
-      throw new QString("Not implemented yet");
+      filetype = NewFileDialog::AVBL;
     else
       throw new QString("Unknown file extension");
 

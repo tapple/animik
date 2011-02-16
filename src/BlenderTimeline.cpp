@@ -88,6 +88,13 @@ bool BlenderTimeline::AddAnimation(WeightedAnimation* anim, QString title)
 }
 
 
+void BlenderTimeline::ConstructTimeLine(QList<TrailItem*>* trails)
+{
+  for(int i=0; i<this->trails.size() && i<trails->size(); i++)
+    this->trails.at(i)->ResetContent(trails->at(i));
+}
+
+
 QList<TimelineTrail*> BlenderTimeline::Trails()
 {
   return trails;

@@ -18,7 +18,7 @@ public:
 
   /** Returns TRUE on success */
   bool SaveToFile(QList<TimelineTrail*> trails, QString fileName);
-  QList<TrailItem*> LoadFromFile(QString fileName);
+  QList<TrailItem*>* LoadFromFile(QString fileName);
 
   bool HasErrors() const { return hasErrors; }
   QString ErrorMessage() const { return errorMessage; }
@@ -28,7 +28,7 @@ private:
   bool hasErrors;
   QString errorMessage;
 
-  QList<TrailItem*> linkLoadedItems(TrailItem*** sortedItems, int trailsCount);
+  QList<TrailItem*>* linkLoadedItems(TrailItem*** sortedItems, int trailsCount);
   void createBoneWeightsElement(QDomDocument document, QDomElement parentElement,
                                 BVHNode* limb, int frames);
 };

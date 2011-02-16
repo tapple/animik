@@ -161,30 +161,8 @@ void BlenderTab::fileAdd()
   fileAdd(QString::null);
 }
 
-QString BlenderTab::selectFileToOpen(const QString& caption)        //TODO: resolve the ugly code multiplication
-{
-   //// For some unknown reason passing "this" locks up the OSX qavimator window. Possibly a QT4 bug, needs investigation
-#ifdef __APPLE__
-  QString file=QFileDialog::getOpenFileName(NULL,caption, Settings::Instance()->lastPath(), FILE_FILTER);
-#else
-   QString file=QFileDialog::getOpenFileName(this,caption,Settings::Instance()->lastPath(), FILE_FILTER);
-#endif
-  if(!file.isEmpty())
-  {
-    QFileInfo fileInfo(file);
-    if(!fileInfo.exists())
-    {
-      QMessageBox::warning(this,QObject::tr("Load Animation File"),
-                           QObject::tr("<qt>Animation file not found:<br />%1</qt>").arg(file));
-      file=QString::null;
-    }
-    else
-      Settings::Instance()->setLastPath(fileInfo.path());
-  }
 
-  return file;
-}
-
+/** Open saved AVBL file from hard drive. */
 void BlenderTab::fileAdd(const QString& name)
 {
   QString file=name;
@@ -198,40 +176,15 @@ void BlenderTab::fileAdd(const QString& name)
     if(!QFile::exists(file))
     {
       QMessageBox::warning(this, QObject::tr("Load Animation File"),
-                           QObject::tr("<qt>Animation file not found:<br />%1</qt>").arg(file));
+                           QObject::tr("<qt>Blended animation file not found:<br />%1</qt>").arg(file));
       return;
     }
 
     setCurrentFile(file);
 
-/*TODO    if(avblFile->getLoopInPoint()==-1)
-    {
-      // first set loop out point to avoid clamping of loop in point
-      setLoopOutPoint(anim->getNumberOfFrames());
-
-      if(protectFirstFrame)
-      {
-//        qDebug("qavimator::fileAdd(): adding loop points for protected frame 1 animation");
-        anim->setFrame(1);
-        setCurrentFrame(1);
-        setLoopInPoint(2);
-      }
-      else
-      {
-//        qDebug("qavimator::fileAdd(): adding loop points for unprotected frame 1 animation");
-        blenderTimeline->setFrame(0);
-        setCurrentFrame(0);
-        setLoopInPoint(1);
-      }
-    }
-    else
-    {
-//      qDebug("qavimator::fileAdd(): reading saved loop points");
-      setLoopInPoint(anim->getLoopInPoint()+1);
-      setLoopOutPoint(anim->getLoopOutPoint()+1);
-    }     */
-
-//TODO?    connect(anim,SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
+    Avbl loader;
+    QList<TrailItem*>* trails = loader.LoadFromFile(file);
+    blenderTimeline->ConstructTimeLine(trails);
   }
 }
 
@@ -271,6 +224,31 @@ void BlenderTab::fileSaveAs()         //Ugly code repetition. TODO: think of it 
       mainWindow->fileExportForSecondLifeAction->setEnabled(true);      //TODO: why?
     }
   }
+}
+
+
+QString BlenderTab::selectFileToOpen(const QString& caption)        //TODO: resolve the ugly code multiplication
+{
+   //// For some unknown reason passing "this" locks up the OSX qavimator window. Possibly a QT4 bug, needs investigation
+#ifdef __APPLE__
+  QString file=QFileDialog::getOpenFileName(NULL,caption, Settings::Instance()->lastPath(), FILE_FILTER);
+#else
+   QString file=QFileDialog::getOpenFileName(this,caption,Settings::Instance()->lastPath(), FILE_FILTER);
+#endif
+  if(!file.isEmpty())
+  {
+    QFileInfo fileInfo(file);
+    if(!fileInfo.exists())
+    {
+      QMessageBox::warning(this,QObject::tr("Load Animation File"),
+                           QObject::tr("<qt>Animation file not found:<br />%1</qt>").arg(file));
+      file=QString::null;
+    }
+    else
+      Settings::Instance()->setLastPath(fileInfo.path());
+  }
+
+  return file;
 }
 
 

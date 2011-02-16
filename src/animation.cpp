@@ -37,6 +37,7 @@
 /** The 'model' class for an avatar animation. Maintains the motion data
     and related parameters (loop/ease in/out, rotation limits...), solves IK etc.
   */
+
 Animation::Animation(BVH* newBVH,const QString& bvhFile) :
   frame(0),totalFrames(0),mirrored(false)
 {
@@ -92,6 +93,7 @@ Animation::Animation(BVH* newBVH,const QString& bvhFile) :
   connect(&timer,SIGNAL(timeout()),this,SLOT(playbackTimeout()));
 }
 
+
 Animation::~Animation()
 {
   qDebug("Animation::~Animation(%lx)",(unsigned long) this);
@@ -109,6 +111,18 @@ void Animation::loadBVH(const QString& bvhFile)
   frames=bvh->animRead(bvhFile,limFile);
   setFrame(0);
 }
+
+
+
+void Animation::loadBVHFromString(const QString& bvhData)
+{
+  frames = bvh->bvhReadFromString(bvhData);
+  bvh->parseLimFile(frames, dataPath + "/" + LIMITS_FILE);
+  setFrame(0);
+}
+
+
+
 
 void Animation::saveBVH(const QString& bvhFile)
 {

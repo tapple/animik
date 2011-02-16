@@ -5,11 +5,6 @@
 #include <QPainter>
 #include <QPalette>
 #include <QSize>
-
-
-#include <QMessageBox>      //This is DEBUG, TODO: delete
-
-
 #include "bvh.h"
 #include "TimelineTrail.h"
 #include "TrailItem.cpp"
@@ -105,6 +100,24 @@ bool TimelineTrail::AddAnimation(WeightedAnimation* anim, QString title)
   trailContentChange();
   repaint();
   return true;
+}
+
+
+void TimelineTrail::ResetContent(TrailItem *first)
+{
+  //no deletion is performed because this should be always used to an empty trail
+  _firstItem = first;
+
+  //let's find last item
+  TrailItem* currentItem=_firstItem;
+  while(currentItem->nextItem() != NULL)
+    currentItem = currentItem->nextItem();
+  _lastItem = currentItem;
+  
+  if(_lastItem->endIndex() >= positionCount())
+    coerceExtension(_lastItem->endIndex() - positionCount() +1);
+
+  trailContentChange();
 }
 
 

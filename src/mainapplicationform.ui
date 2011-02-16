@@ -24,6 +24,9 @@
       <property name="viewMode">
        <enum>QMdiArea::TabbedView</enum>
       </property>
+      <property name="documentMode">
+       <bool>true</bool>
+      </property>
      </widget>
     </item>
    </layout>

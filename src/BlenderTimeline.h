@@ -23,6 +23,8 @@ class BlenderTimeline : public QFrame
 
     /** Add new animation to a track where fits first. Returns TRUE on success */
     bool AddAnimation(WeightedAnimation* anim, QString title);
+    /** Clean and rebuild time-line content from given list of linked TrailItems */
+    void ConstructTimeLine(QList<TrailItem*>* trails);
     QList<TimelineTrail*> Trails();
     int TrailCount();
 

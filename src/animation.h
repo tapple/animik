@@ -63,6 +63,7 @@ class Animation : public QObject
     ~Animation();
 
     void loadBVH(const QString& bvhFile);
+    void loadBVHFromString(const QString& bvhData);
     void saveBVH(const QString& bvhFile);
     int getNumberOfFrames();
     void setNumberOfFrames(int num);
