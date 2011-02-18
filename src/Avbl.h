@@ -1,6 +1,7 @@
 #ifndef AVBL_H
 #define AVBL_H
 
+#include <QHash>
 #include <QList>
 #include <QString>
 
@@ -32,8 +33,9 @@ private:
   QString errorMessage;
 
   QList<TrailItem*>* linkLoadedItems(TrailItem*** sortedItems, int trailsCount);
-  void createBoneWeightsElement(QDomDocument document, QDomElement parentElement,
+  void createLimbWeightsElement(QDomDocument document, QDomElement parentElement,
                                 BVHNode* limb, int frames);
+  void loadLimbWeights(BVHNode* limb, QHash<QString, QDomElement>* bones);
 };
 
 #endif // AVBL_H

@@ -70,7 +70,7 @@ class AnimationView : public QGLWidget
   Q_OBJECT
 
   public:
-    AnimationView(QWidget* parent=0,const char* name=0,Animation* anim=0);
+    AnimationView(QWidget* parent=0, const char* name=0, Animation* anim=0, bool isPicking = true);
     ~AnimationView();
 
     // exports the BVH class handler (ugly, need to find a better way)
@@ -95,6 +95,10 @@ class AnimationView : public QGLWidget
     void setFrame(int frame);
     void stepForward();
     void setFPS(int fps);
+
+    /** When FALSE, any selected limb on figure is not highlighted and circle drags are not drawn */
+    bool pickingParts() const { return _pickingParts; }
+    void setPickingParts(bool picking) { _pickingParts = picking; }
 
     // getAnimation returns the *current* animation
     Animation* getAnimation() { return currentAnimation; }
@@ -216,6 +220,10 @@ class AnimationView : public QGLWidget
     void clearSelected();
     int pickPart(int x, int y);
     void drawCircle(int axis, float radius, int width);
+
+
+  private:
+    bool _pickingParts;
 };
 
 #endif

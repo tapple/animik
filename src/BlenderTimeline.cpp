@@ -9,6 +9,7 @@
 #include <QScrollArea>
 #include "Blender.h"
 #include "BlenderTimeline.h"
+#include "NoArrowsScrollArea.h"
 #include "TimelineTrail.h"
 #include "TrailItem.cpp"
 #include "LimbsWeightForm.h"
@@ -23,7 +24,7 @@ BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(pare
   trailFramesCount = MIN_TRAIL_FRAMES;
   resultAnimation = 0;
 
-  scrollArea = new QScrollArea(0);
+  scrollArea = new NoArrowsScrollArea(this);
   scrollArea->setBackgroundRole(QPalette::Dark);
   scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);        //TODO: AsNeeded?
@@ -31,7 +32,7 @@ BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(pare
   scrollLayout->setMargin(1);
   scrollLayout->setSpacing(2);
 
-  stackWidget = new QWidget(this);
+  stackWidget = new QWidget(/*this*/scrollArea);
 
   for(int i=0; i<BLENDING_TRACKS; i++)
   {
@@ -41,7 +42,6 @@ BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(pare
     connect(tt, SIGNAL(currentPositionChanged(int)), this, SLOT(setCurrentFrame(int)));
     connect(tt, SIGNAL(selectedItemChanged()), this, SLOT(unselectOldItem()));
     connect(tt, SIGNAL(backgroundClicked()), this, SLOT(unselectOldItem()));
-    connect(tt, SIGNAL(positionCenter(int)), this, SLOT(scrollTo(int)));
     connect(tt, SIGNAL(movingItem(TrailItem*)), this, SLOT(startItemReposition(TrailItem*)));
     connect(tt, SIGNAL(droppedItem()), this, SLOT(endItemReposition()));
     connect(tt, SIGNAL(adjustLimbsWeight(/*TODO: frameData*/)), this, SLOT(showLimbsWeightForm(/*TODO: frameData*/)));
@@ -51,7 +51,7 @@ BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(pare
     connect(tt, SIGNAL(trailAnimationChanged(WeightedAnimation*, int)),             //TODO: the signal is soon to be obsolete. Don't forget to delete this then
             this, SLOT(onTrailAnimationChanged(WeightedAnimation*, int)));
 
-    connect(tt, SIGNAL(trailContentChanged(TrailItem*)), this, SLOT(onTrailContentChanged(TrailItem*)));
+    connect(tt, SIGNAL(trailContentChanged(TrailItem*)), this, SLOT(onTrailContentChanged()));
 
     trails.append(tt);
     scrollLayout->addWidget(tt);
@@ -136,6 +136,12 @@ void BlenderTimeline::keyPressEvent(QKeyEvent* e)
   e->ignore();
 }
 
+void BlenderTimeline::ensurePlayFrameVisibility(int position)
+{
+  scrollArea->ensureVisible(TimelineTrail::positionWidth()*position, 0, TimelineTrail::positionWidth()*5, 0);
+}
+
+
 // -------------------------- SLOTS -------------------------- //
 void BlenderTimeline::setCurrentFrame(int frameIndex)
 {
@@ -147,6 +153,8 @@ void BlenderTimeline::setCurrentFrame(int frameIndex)
 
   foreach(TimelineTrail* trail, trails)
     trail->setCurrentPosition(frameIndex);
+
+  ensurePlayFrameVisibility(frameIndex);
 }
 
 void BlenderTimeline::unselectOldItem()
@@ -154,12 +162,6 @@ void BlenderTimeline::unselectOldItem()
   foreach(TimelineTrail* trail, trails)
     if(trail != sender())
       trail->cancelTrailSelection();
-}
-
-void BlenderTimeline::scrollTo(int x)
-{
-  QSize size = scrollArea->size();
-  scrollArea->ensureVisible(x, 0, size.width()/4, size.height());
 }
 
 void BlenderTimeline::startItemReposition(TrailItem* draggingItem)
@@ -207,7 +209,7 @@ void BlenderTimeline::onTrailAnimationChanged(WeightedAnimation* anim, int begin
   emit resultingAnimationChanged(anim);
 }
 
-void BlenderTimeline::onTrailContentChanged(TrailItem* firstItem)
+void BlenderTimeline::onTrailContentChanged()
 {
   int count = trails.size();
   int minBeginIndex = 999999999;

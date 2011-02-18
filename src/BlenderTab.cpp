@@ -20,6 +20,7 @@ BlenderTab::BlenderTab(qavimator* mainWindow, const QString& fileName, bool crea
   : QWidget(0), AbstractDocumentTab(mainWindow)
 {
   setupUi(this);
+  blenderAnimationView->setPickingParts(false);
   canShowWarn = false;
   isDirty = false;
 
@@ -288,6 +289,10 @@ void BlenderTab::keyPressEvent(QKeyEvent* e)
     blenderPlayer->stepBackward();
   else if(e->key()==Qt::Key_Right && blenderPlayer->state()==PLAYSTATE_STOPPED)
     blenderPlayer->stepForward();
+  else if(e->key()==Qt::Key_Home && blenderPlayer->state()==PLAYSTATE_STOPPED)
+    blenderPlayer->skipToFirst();
+  else if(e->key()==Qt::Key_End && blenderPlayer->state()==PLAYSTATE_STOPPED)
+    blenderPlayer->skipToLast();
   else
     e->ignore();            //send it to parent
 }

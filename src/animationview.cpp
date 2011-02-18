@@ -42,7 +42,7 @@
 #define CTRL  2
 #define ALT   4
 
-AnimationView::AnimationView(QWidget* parent, const char* /* name */, Animation* anim)
+AnimationView::AnimationView(QWidget* parent, const char* /* name */, Animation* anim, bool isPicking)
  : QGLWidget(parent)
 {
   figureFiles << MALE_BVH << FEMALE_BVH;
@@ -54,7 +54,8 @@ AnimationView::AnimationView(QWidget* parent, const char* /* name */, Animation*
     return;
   }
 
-  currentAnimation=0;
+  currentAnimation=NULL;
+  _pickingParts = isPicking;
 
   // fake glut initialization
   int args=1;
@@ -512,7 +513,7 @@ void AnimationView::mouseMoveEvent(QMouseEvent* event)
       QCursor::setPos(clickPos);
     }
 
-    if(partSelected)
+    if(partSelected && _pickingParts)
     {
       if(partSelected<OBJECT_START)
       {
@@ -704,9 +705,9 @@ void AnimationView::mouseDoubleClickEvent(QMouseEvent* event)
     if(mirrorSelected)
       getAnimation()->setMirrored(true);
   }
-  else if(selected && selected < OBJECT_START)
+  else if(_pickingParts && selected && selected < OBJECT_START)
     getAnimation()->setIK(getAnimation()->getNode(selected),
-                     !getAnimation()->getIK(getAnimation()->getNode(selected)));
+                          !getAnimation()->getIK(getAnimation()->getNode(selected)));
   repaint();
 }
 
@@ -919,7 +920,7 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
         default: break;
       }
 
-      if(mode==MODE_ROT_AXES && !selecting && partSelected==selectName)
+      if(_pickingParts && mode==MODE_ROT_AXES && !selecting && partSelected==selectName)
       {
         switch(motion->channelType[i])
         {

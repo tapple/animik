@@ -9,8 +9,7 @@ class QAction;
 class TrailItem;
 
 
-/** One trail of blender timeline. Emits signal with sum of all
-    contained animations */
+/** One trail of blender timeline. Holds animations to be concatenated in result. */
 class TimelineTrail : public QFrame
 {
   Q_OBJECT
@@ -30,11 +29,10 @@ class TimelineTrail : public QFrame
 
     /** Frame position width in pixels. Some (parent) widget need to know
         before paint. */
-    int positionWidth() { return _positionWidth; }
+    static int positionWidth() { return _positionWidth; }
 
   signals:
     void resized(const QSize& newSize);
-    void positionCenter(int pos);
     /** Let other trails know current position changed so they synchronize */
     void currentPositionChanged(int newPositionIndex);
     /** Let other trails know current TrailItem changed so they unselect theirs */
@@ -52,6 +50,8 @@ class TimelineTrail : public QFrame
 
     /** Summary animation was changed */
     void trailAnimationChanged(WeightedAnimation* animation, int firstFrame);         //TODO: should become obsolete soon
+
+    /** A change on this trail was made requiring overall animation to be recalculated */
     void trailContentChanged(TrailItem* firstItem);
 
 
@@ -74,7 +74,7 @@ class TimelineTrail : public QFrame
     /** current position (frame) of playback */
     int currentPosition;
     /** width of one frame position in pixels */
-    int _positionWidth;
+    static int _positionWidth;
     /** currently highlighted TrailItem */
     TrailItem* selectedItem;
     /** Not-null indicates that user is dragging an animation above timeline

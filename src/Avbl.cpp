@@ -41,6 +41,8 @@ bool Avbl::SaveToFile(QList<TimelineTrail*> trails, QString fileName)
         animElm.setAttribute("trail", trail);
         animElm.setAttribute("trailOrder", orderOnTrail);
         animElm.setAttribute("position", currentItem->beginIndex());
+        animElm.setAttribute("mixIn", currentItem->mixIn());
+        animElm.setAttribute("mixOut", currentItem->mixOut());
 
         QDomElement bvhElm = document.createElement("bvhData");
         QString bvhData;
@@ -65,7 +67,7 @@ bool Avbl::SaveToFile(QList<TimelineTrail*> trails, QString fileName)
 
         QDomElement bWeightsElm = document.createElement("boneWeights");
         BVHNode* root = currentItem->getAnimation()->getMotion();
-        createBoneWeightsElement(document, bWeightsElm, root, currentItem->frames());
+        createLimbWeightsElement(document, bWeightsElm, root, currentItem->frames());
         animElm.appendChild(bWeightsElm);
 
         rootElm.appendChild(animElm);
@@ -146,13 +148,61 @@ QList<TrailItem*>* Avbl::LoadFromFile(QString fileName)
     int trailIndex = itemElm.attribute("trail", "-1").toInt();
     int beginIndex = itemElm.attribute("position", "-1").toInt();
     int trailOrder = itemElm.attribute("trailOrder", "-1").toInt();
+    int mixIn = itemElm.attribute("mixIn", "-1").toInt();
+    int mixOut = itemElm.attribute("mixOut", "-1").toInt();
 
     TrailItem* tempItem = new TrailItem(wa, name, beginIndex, false);
+    tempItem->setMixIn(mixIn);
+    tempItem->setMixOut(mixOut);
+
+
+    //TODO: frames/limbs weights
+    QDomElement frameWeightsElm = itemElm.elementsByTagName("frameWeights").at(0).toElement();
+    QDomNodeList frameWeights = frameWeightsElm.elementsByTagName("frame");
+    for(int fw=0; fw<frameWeights.size(); fw++)
+    {
+      QDomElement fWeight = frameWeights.at(fw).toElement();
+      int index = fWeight.attribute("number", "-1").toInt();
+      int weight = fWeight.attribute("weight", "-1").toInt();
+      tempItem->getAnimation()->setFrameWeight(index, weight);
+    }
+
+/*TODO. When there will be limb weights
+    QDomElement boneWeightsElm = itemElm.elementsByTagName("boneWeights").at(0).toElement();
+    QDomNodeList bones = boneWeightsElm.elementsByTagName("bone");
+    QHash<QString, QDomElement> bonesTable;
+    for(int b=0; b<bones.size(); b++)
+    {
+      QDomElement bonesElm = bones.at(b).toElement();
+      QString boneName = bonesElm.attribute("name", "--unknown--");
+      bonesTable.insert(boneName, bonesElm);
+    }
+
+    BVHNode* root = tempItem->getAnimation()->getMotion();
+    loadLimbWeights(root, &bonesTable);
+    //TODO: and what about position pseudo-node?
+*/
+
     loadedItems[trailIndex][trailOrder] = tempItem;
   }
 
   QList<TrailItem*>* result = linkLoadedItems(loadedItems, trailsCount);
   return result;
+}
+
+
+void Avbl::loadLimbWeights(BVHNode* limb, QHash<QString, QDomElement>* bones)
+{
+  QString name = limb->name();
+  QDomElement bonesElm = bones->value(name);
+  QDomNodeList boneWeights = bonesElm.elementsByTagName("frame");
+  for(int bw=0; bw<boneWeights.size(); bw++)
+  {
+    QDomElement bWeight = boneWeights.at(bw).toElement();
+    int index = bWeight.attribute("number", "-1").toInt();
+    int weight = bWeight.attribute("weight", "-1").toInt();
+//TODO    limb->setWeight(index, weight);
+  }
 }
 
 
@@ -186,8 +236,8 @@ QList<TrailItem*>* Avbl::linkLoadedItems(TrailItem*** sortedItems, int trailsCou
 }
 
 
-void Avbl::createBoneWeightsElement(QDomDocument document, QDomElement parentElement,
-                                    BVHNode* limb, int frames)
+void Avbl::createLimbWeightsElement(QDomDocument document, QDomElement parentElement, BVHNode* limb,
+                                    int frames)
 {
   QDomElement limbElm = document.createElement("bone");
   limbElm.setAttribute("name", limb->name());
@@ -203,5 +253,5 @@ void Avbl::createBoneWeightsElement(QDomDocument document, QDomElement parentEle
   parentElement.appendChild(limbElm);
 
   for(int x=0; x<limb->numChildren(); x++)
-    createBoneWeightsElement(document, parentElement, limb->child(x), frames);
+    createLimbWeightsElement(document, parentElement, limb->child(x), frames);
 }

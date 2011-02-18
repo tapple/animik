@@ -24,12 +24,14 @@
 #define MAX_WEIGHT       100.0 //max frame weight
 
 
+int TimelineTrail::_positionWidth = MIN_FRAME_WIDTH;
+
 
 TimelineTrail::TimelineTrail(QWidget* parent, Qt::WindowFlags) : QFrame(parent)
 {
   offscreen=0;
   currentPosition=0;
-  _positionWidth = MIN_FRAME_WIDTH;
+//  _positionWidth = MIN_FRAME_WIDTH;
   _firstItem = 0;
   _lastItem = 0;
   draggingItem = 0;
@@ -39,6 +41,7 @@ TimelineTrail::TimelineTrail(QWidget* parent, Qt::WindowFlags) : QFrame(parent)
   addingNewItem = false;
   //we need to receive mouseMoveEvent even when no button down
   setMouseTracking(true);
+  //receive key press events
   setFocusPolicy(Qt::WheelFocus);
 
   //Actions that may appear in context menu
@@ -153,7 +156,7 @@ void TimelineTrail::setCurrentPosition(int position)
   if(position != currentPosition)
   {
     currentPosition=position;
-    emit positionCenter(currentPosition*_positionWidth);
+    emit currentPositionChanged(position);
     repaint();
   }
 
@@ -309,10 +312,10 @@ void TimelineTrail::drawTrailItem(TrailItem* item)
     int dbg = item->isShadow() ? (TOP_MARGIN+BORDER_WIDTH) : 0;
 
     p.fillRect(item->beginIndex()*_positionWidth+2, TOP_MARGIN+BORDER_WIDTH-dbg,
-               item->frames()*_positionWidth-2, FRAME_HEIGHT+dbg, boxColor);
+               item->frames()*_positionWidth-2, FRAME_HEIGHT+dbg+dbg, boxColor);
 
     //emphasize the first frame if it's T-pose
-    if(item->getAnimation()->isFirstFrameTPose())
+    if(!item->isShadow() && item->getAnimation()->isFirstFrameTPose())
       p.fillRect(item->beginIndex()*_positionWidth+2, TOP_MARGIN+BORDER_WIDTH, _positionWidth-1,
                  FRAME_HEIGHT, QColor("#84365D"));
 
@@ -539,8 +542,14 @@ void TimelineTrail::adjustFrameWeight(int cursorYPosition)
   {
     float weight = 100.0 * (float)touch / real_frame_height;
     int frameIndex = currentPosition - selectedItem->beginIndex();
-    selectedItem->getAnimation()->setFrameWeight(frameIndex, 100 - (int)weight);
-    repaint(currentPosition*_positionWidth-10, 0, _positionWidth+20, TRACK_HEIGHT);
+    int oldWeight = selectedItem->getAnimation()->getFrameWeight(frameIndex);
+    int newWeight = 100 - (int)weight;
+    if(oldWeight != newWeight)
+    {
+      selectedItem->getAnimation()->setFrameWeight(frameIndex, newWeight);
+      emit trailContentChanged(_firstItem);
+      repaint(currentPosition*_positionWidth-10, 0, _positionWidth+20, TRACK_HEIGHT);
+    }
   }
 }
 
@@ -610,12 +619,7 @@ void TimelineTrail::leaveEvent(QEvent *)
 
 void TimelineTrail::keyPressEvent(QKeyEvent* e)
 {
-  if(e->key()==Qt::Key_Left && blenderPlayer->state()==PLAYSTATE_STOPPED)
-    blenderPlayer->stepBackward();
-  else if(e->key()==Qt::Key_Right && blenderPlayer->state()==PLAYSTATE_STOPPED)
-    blenderPlayer->stepForward();
-  else
-    e->ignore();            //send it to parent
+  e->ignore();            //send it to parent
 }
 
 void TimelineTrail::mousePressEvent(QMouseEvent* e)
@@ -752,6 +756,7 @@ void TimelineTrail::setMixZones()
   {
     selectedItem->setMixIn(mzd->mixIn());
     selectedItem->setMixOut(mzd->mixOut());
+    emit trailContentChanged(_firstItem);
   }
 }
 

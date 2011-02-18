@@ -422,7 +422,6 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
     itemsInInterval.append(i);
   }
 
-  int resultFrame = 0;                  //current frame of target animation
   int frameOffset = sortedItems.first()->beginIndex();
 
   while(intervalEndFrame != lastFrameIndex)
@@ -485,22 +484,19 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
     }
     else                                      //no items in this section = we have an empty gap!
     {
-      int debugIndx = findFirstItemAfter(sortedItems, intervalStartFrame);
-      intervalEndFrame = sortedItems.at(debugIndx)->beginIndex() - 1;
+      int itemIndex = findFirstItemAfter(sortedItems, intervalStartFrame);
+      intervalEndFrame = sortedItems.at(itemIndex)->beginIndex() - 1;
     }
 
 
     //THE BLENDING ITSELF
     if(itemsInInterval.isEmpty())         //we need to fill the gap
     {
-//DEBUG      if(resultFrame < 1)                 //just a vain check, there's no place for it in 'production' code
-//DEBUG        throw new QString("Invalid state exception: 'resultFrame' must be more than 0. Is " + QString::number(resultFrame));
-
       int toFrame = intervalEndFrame - frameOffset;
       BVHNode* position = result->getNode(0);
-      copyKeyFrame(position, /*DEBUG resultFrame*/intervalStartFrame-frameOffset-1, toFrame);
+      copyKeyFrame(position, intervalStartFrame-frameOffset-1, toFrame);
       BVHNode* root = result->getMotion();
-      copyKeyFrame(root, /*DEBUG resultFrame*/intervalStartFrame-frameOffset-1, toFrame);
+      copyKeyFrame(root, intervalStartFrame-frameOffset-1, toFrame);
     }
     else if(itemsInInterval.size() == 1)  //only one animation to blend. we can afford to take
     {                                     //just its first frame as key frame of result

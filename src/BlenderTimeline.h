@@ -3,15 +3,15 @@
 
 #include <QFrame>
 #include <QList>
-
 #include "WeightedAnimation.h"
 
 class QKeyEvent;
-class QScrollArea;
+//class QScrollArea;
 class QSize;
+class LimbsWeightForm;
+class NoArrowsScrollArea;
 class TimelineTrail;
 class TrailItem;
-class LimbsWeightForm;
 
 
 class BlenderTimeline : public QFrame
@@ -45,17 +45,16 @@ class BlenderTimeline : public QFrame
 
 
     void onTrailAnimationChanged(WeightedAnimation* anim, int beginFrame);
-    void onTrailContentChanged(TrailItem* firstItem);
+    void onTrailContentChanged();
 
 
     void onPlayFrameChanged(int playFrame);
 
   protected:
-    QScrollArea* scrollArea;
+    NoArrowsScrollArea* scrollArea;
     QWidget* stackWidget;
     QList<TimelineTrail*> trails;
     LimbsWeightForm* limbsForm;
-    void scrollTo(int x);
     virtual void paintEvent(QPaintEvent*);
     virtual void keyPressEvent(QKeyEvent *);
 
@@ -66,6 +65,7 @@ class BlenderTimeline : public QFrame
     WeightedAnimation* resultAnimation;
 
     void fitStackWidgetToContent();
+    void ensurePlayFrameVisibility(int position);
 };
 
 

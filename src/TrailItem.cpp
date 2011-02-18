@@ -11,8 +11,13 @@ class TrailItem
   public:
     TrailItem(WeightedAnimation* animation, QString name, int begin, bool isShadow)
     {
-      this->Name = name;
       this->animation = animation;
+      if(isShadow)          //if is helper animation, remove it's mix-in/-out
+      {
+        this->animation->setMixIn(0);
+        this->animation->setMixOut(0);
+      }
+      this->Name = name;
       this->begin = begin;
       _selectedFrame = -1;
       previous = 0;

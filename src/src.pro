@@ -33,7 +33,8 @@ SOURCES += animation.cpp \
     TrailJoiner.cpp \
     MixZonesDialog.cpp \
     OptionalMessageBox.cpp \
-    Avbl.cpp
+    Avbl.cpp \
+    NoArrowsScrollArea.cpp
 HEADERS += animation.h \
     animationview.h \
     bvh.h \
@@ -66,7 +67,8 @@ HEADERS += animation.h \
     TrailJoiner.h \
     MixZonesDialog.h \
     OptionalMessageBox.h \
-    Avbl.h
+    Avbl.h \
+    NoArrowsScrollArea.h
 FORMS += mainapplicationform.ui \
     settingsdialogform.ui \
     KeyFramerTab.ui \
@@ -82,7 +84,7 @@ RESOURCES += icons.qrc
 TEMPLATE = app
 TARGET = ../bin/qavimator
 QT += opengl \
-      xml
+    xml
 
 # LIBS += -lglut \
 # -lGLU
