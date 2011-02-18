@@ -18,7 +18,7 @@ class Player : public QWidget
 {
     Q_OBJECT
 
-public:
+  public:
     Player(QWidget *parent = 0);
     ~Player();
 
@@ -31,6 +31,12 @@ public:
     int fps() { return animation->fps(); }
     void setFPS(int fps) { animation->setFPS(fps); }
 
+    void playOrPause();
+    void stepForward();
+    void stepBackward();
+    void skipToFirst();
+    void skipToLast();
+
   signals:
     void playbackFrameChanged(int currentFrame);      //(NOT)TODO: don't attach this to the resulting Animation* !!! (else you'll get signal loop)
                                                       //UPDATE: actually this is most probably obsolete signal as AnimationView listens to its Animation changes
@@ -39,7 +45,7 @@ public:
     void setPlaybackFrame(int frame);
     void onAnimationChanged(WeightedAnimation* animation);
 
-protected:
+  protected:
     WeightedAnimation* animation;
     PlayState _state;
     QTimer timer;
@@ -50,11 +56,6 @@ protected:
                                                             //        for AnimaionView that sends them further to Animation
     int playFrame();
     int totalFrames();
-    void playOrPause();
-    void stepForward();
-    void stepBackward();
-    void skipToFirst();
-    void skipToLast();
     void updateLabel();
     void setButtonsEnabled(bool enabled);
 

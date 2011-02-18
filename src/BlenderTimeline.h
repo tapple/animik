@@ -6,6 +6,7 @@
 
 #include "WeightedAnimation.h"
 
+class QKeyEvent;
 class QScrollArea;
 class QSize;
 class TimelineTrail;
@@ -41,7 +42,12 @@ class BlenderTimeline : public QFrame
     void setFramesCount(int newCount);
     void startItemReposition(TrailItem* draggingItem);
     void endItemReposition();
+
+
     void onTrailAnimationChanged(WeightedAnimation* anim, int beginFrame);
+    void onTrailContentChanged(TrailItem* firstItem);
+
+
     void onPlayFrameChanged(int playFrame);
 
   protected:
@@ -51,6 +57,7 @@ class BlenderTimeline : public QFrame
     LimbsWeightForm* limbsForm;
     void scrollTo(int x);
     virtual void paintEvent(QPaintEvent*);
+    virtual void keyPressEvent(QKeyEvent *);
 
   private:
     int animationBeginPosition;        //the offset denoting first frame of the overall animation

@@ -47,6 +47,8 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
   protected:
      // prevent closing of main window if there are unsaved changes
      virtual void closeEvent(QCloseEvent* event);
+     /** Handling key presses mainly for time-line */
+     virtual void keyPressEvent(QKeyEvent *);
 
      void setCurrentFile(const QString& fileName);
      QString selectFileToOpen(const QString& caption);

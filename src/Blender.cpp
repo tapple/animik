@@ -43,7 +43,7 @@ WeightedAnimation* Blender::BlendTrails(TrailItem** trails, int trailsCount)
 
 /** Returns list of TrailItems such that its size is equal to overall TrailItems number (one Item
     at one list position, original lists are merged to one array).
-    Original linked list references are preserved. */
+    Original linked list references are preserved. Also, possible shadow items are lost. */
 QList<TrailItem*> Blender::lineUpTimelineTrails(TrailItem** trails, int trailsCount)
 {
   QList<TrailItem*> result;
@@ -88,19 +88,22 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
 
       if(currentItem->endIndex() <= items[i]->endIndex())
         continue;         //wrong overlap order
+      if(currentItem->beginIndex() == items[i]->beginIndex())
+        continue;         //they start on the same position. No mix-in here
 
       //overlaping or touching
       if(items[i]->endIndex()+1 >= currentItem->beginIndex() && items[i]->mixIn() > 0)
       {
         int beginsDiff = currentItem->beginIndex() - items[i]->beginIndex();
         int framesNum = items[i]->mixIn() > beginsDiff ? beginsDiff
-                                                             : items[i]->mixIn();
+                                                       : items[i]->mixIn();
 
         WeightedAnimation* mixInShadow = new WeightedAnimation(new BVH(), "");
         mixInShadow->setNumberOfFrames(framesNum);
 
         //adjust shadow skeleton posture
-        int crossPoint = items[i]->frames() - (items[i]->endIndex() - currentItem->beginIndex());
+        int crossPoint = items[i]->frames() - (items[i]->endIndex() - currentItem->beginIndex());                 //TODO: possible BUG. What if they just touch?
+                                                                                                                  //SURELY BUG! THIS CAN BE NEGATIVE!
         interpolatePosture(items[i]->getAnimation(), crossPoint, currentItem->getAnimation(), 0, mixInShadow);
 
         //set shadows frame weights (going backwards from last frame to first)
@@ -110,7 +113,7 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
           mixInShadow->setFrameWeight(n, value);
         }
 
-        TrailItem* shadowItem = new TrailItem(mixInShadow, "shadow",
+        TrailItem* shadowItem = new TrailItem(mixInShadow, "(1)mix in shadow for "+currentItem->Name,
                                               currentItem->beginIndex()-framesNum, true);
         result.append(shadowItem);
 
@@ -145,7 +148,7 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
           mixInShadow->setFrameWeight(n, value);
         }
 
-        TrailItem* shadowItem = new TrailItem(mixInShadow, "shadow",
+        TrailItem* shadowItem = new TrailItem(mixInShadow, "(2)mix in shadow for "+currentItem->Name,
                                               items[i]->endIndex()-framesNum+1, true);
         result.append(shadowItem);
 
@@ -191,21 +194,25 @@ QList<TrailItem*> Blender::createMixOutsImpliedShadowItems(QList<TrailItem*> ite
         int framesNum = currentItem->mixOut() > endsDiff ? endsDiff
                                                          : currentItem->mixOut();
 
-        WeightedAnimation* mixInShadow = new WeightedAnimation(new BVH(), "");
-        mixInShadow->setNumberOfFrames(framesNum);
+        WeightedAnimation* mixOutShadow = new WeightedAnimation(new BVH(), "");
+        mixOutShadow->setNumberOfFrames(framesNum);
 
         //adjust shadow skeleton posture
-        int crossPoint = items[i]->endIndex() - currentItem->beginIndex() - 1;
+        int curAnimFrame;
+        if(items[i]->endIndex()+1 == currentItem->beginIndex())     //thei're touching. TODO: shouldn't this case be actually in the latter branch? (touching+gap)
+          curAnimFrame = 0;
+        else
+          curAnimFrame = items[i]->endIndex() - currentItem->beginIndex() + 1;
         interpolatePosture(items[i]->getAnimation(), items[i]->frames()-1, currentItem->getAnimation(),
-                           crossPoint, mixInShadow);
+                           curAnimFrame, mixOutShadow);
 
         for(int n=0; n<framesNum; n++)
         {
           int value = (currentItem->mixOut()-n) / currentItem->mixOut();
-          mixInShadow->setFrameWeight(n, value);
+          mixOutShadow->setFrameWeight(n, value);
         }
 
-        TrailItem* shadowItem = new TrailItem(mixInShadow, "shadow",
+        TrailItem* shadowItem = new TrailItem(mixOutShadow, "(1)mix out shadow for "+currentItem->Name,
                                               items[i]->endIndex()+1, true);
         result.append(shadowItem);
 
@@ -225,20 +232,20 @@ QList<TrailItem*> Blender::createMixOutsImpliedShadowItems(QList<TrailItem*> ite
         int gap = currentItem->beginIndex()-items[i]->endIndex()-1;
         int framesNum = currentItem->mixOut() - gap;
 
-        WeightedAnimation* mixInShadow = new WeightedAnimation(new BVH(), "");
-        mixInShadow->setNumberOfFrames(framesNum);
+        WeightedAnimation* mixOutShadow = new WeightedAnimation(new BVH(), "");
+        mixOutShadow->setNumberOfFrames(framesNum);
 
         //adjust shadow skeleton posture
         interpolatePosture(items[i]->getAnimation(), items[i]->frames()-1, currentItem->getAnimation(),
-                           0, mixInShadow);
+                           0, mixOutShadow);
 
         for(int n=1; n<=framesNum; n++)
         {
           int value = n / currentItem->mixOut();
-          mixInShadow->setFrameWeight(framesNum-n, value);
+          mixOutShadow->setFrameWeight(framesNum-n, value);
         }
 
-        TrailItem* shadowItem = new TrailItem(mixInShadow, "shadow",
+        TrailItem* shadowItem = new TrailItem(mixOutShadow, "(2)mix out shadow for "+currentItem->Name,
                                               currentItem->beginIndex(), true);
         result.append(shadowItem);
 
@@ -310,38 +317,42 @@ QList<TrailItem*> Blender::mergeAndSortItemsByBeginIndex(QList<TrailItem*> realI
 
   while(true)
   {
-    int lowestIndex = 999999999;             //begin index of left-most item
-    QList<TrailItem*>* lowestItemList = 0;   //list that contains the item
+    int lowestBeginIndex = 999999999;           //begin index of left-most item
+    QList<TrailItem*>* lowestItemList = NULL;   //list that contains the item
+    int itemIndex = -1;                         //index of an item in the list
 
     for(int r=0; r<realItems.size(); r++)
     {
-      if(realItems.at(r)->beginIndex() < lowestIndex)
+      if(realItems.at(r)->beginIndex() < lowestBeginIndex)
       {
         lowestItemList = &realItems;
-        lowestIndex = realItems.at(r)->beginIndex();
+        lowestBeginIndex = realItems.at(r)->beginIndex();
+        itemIndex = r;
       }
     }
     for(int i=0; i<mixInItems.size(); i++)             //BLEH! code repetition. TODO: think of it
     {
-      if(mixInItems.at(i)->beginIndex() < lowestIndex)
+      if(mixInItems.at(i)->beginIndex() < lowestBeginIndex)
       {
         lowestItemList = &mixInItems;
-        lowestIndex = mixInItems.at(i)->beginIndex();
+        lowestBeginIndex = mixInItems.at(i)->beginIndex();
+        itemIndex = i;
       }
     }
     for(int o=0; o<mixOutItems.size(); o++)             //here as well
     {
-      if(mixOutItems.at(o)->beginIndex() < lowestIndex)
+      if(mixOutItems.at(o)->beginIndex() < lowestBeginIndex)
       {
         lowestItemList = &mixOutItems;
-        lowestIndex = mixOutItems.at(o)->beginIndex();
+        lowestBeginIndex = mixOutItems.at(o)->beginIndex();
+        itemIndex = o;
       }
     }
 
-    if(lowestItemList != 0)
+    if(lowestItemList != NULL)
     {
-      result.append(lowestItemList->at(lowestIndex));
-      lowestItemList->removeAt(lowestIndex);
+      result.append(lowestItemList->at(itemIndex));
+      lowestItemList->removeAt(itemIndex);
     }
     else break;
   }
@@ -390,7 +401,7 @@ int Blender::findHighestEndIndex(QList<TrailItem*> items)
 /** Performs the actual blending.
     All animations are blended together depending on their placement on time-line and weight parameters.
     Gaps between items are filled.
-    @param sortedItems - unlinked TrailItems sorted by their begin index (from time-line)
+    @param sortedItems - TrailItems sorted by their begin index (position on time-line)
     @param result - the target animation which will host the blended postures
     @param lastFrameIndex - time-line index of the last frame of right-most reaching animation */
 void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, int lastFrameIndex)
@@ -400,8 +411,16 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
 
   int currentItemIndex = 0;
   int intervalStartFrame = 999999999;
-  int intervalEndFrame = sortedItems.at(currentItemIndex)->beginIndex();
-  QList<int> itemsInInterval;           //indices (to sortedItems) of items involved in current interval
+  int intervalEndFrame = sortedItems.at(currentItemIndex)->beginIndex() - 1;
+  QList<int> itemsInInterval;                   //indices (to sortedItems) of items involved in current interval
+
+  //initial section fill with items that begin on the same leftmost time-line position
+  for(int i=0; ; i++)
+  {
+    if(sortedItems.at(i)->beginIndex() > (intervalEndFrame+1))
+      break;
+    itemsInInterval.append(i);
+  }
 
   int resultFrame = 0;                  //current frame of target animation
   int frameOffset = sortedItems.first()->beginIndex();
@@ -420,54 +439,68 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
       }
     }
 
+    //Add to the section all items, that are beginning right with it
+    for(int i=0; i<sortedItems.size(); i++)
+    {
+      if(sortedItems.at(i)->beginIndex() == intervalStartFrame)
+        itemsInInterval.append(i);
+      else if(sortedItems.at(i)->beginIndex() > intervalStartFrame)
+        break;
+    }
 
     if(!itemsInInterval.isEmpty())
     {
       //find section's end
-      int minEndFrame = 999999999;            //first find next end of items currently inside section
-      for(int a; a<itemsInInterval.size(); a++)
+      int minEndFramePos = 999999999;            //first find next end of items currently inside section
+      for(int a=0; a<itemsInInterval.size(); a++)
       {
-        if(sortedItems[itemsInInterval[a]]->endIndex() < minEndFrame)
-          minEndFrame = sortedItems[itemsInInterval[a]]->endIndex();
+        if(sortedItems[itemsInInterval[a]]->endIndex() < minEndFramePos)
+          minEndFramePos = sortedItems[itemsInInterval[a]]->endIndex();
       }
 
       int nextIndex = itemsInInterval.last()+1;
       while(true)
       {
-        if(sortedItems[nextIndex]->beginIndex() > minEndFrame)              //next item is to far
+        if(nextIndex >= sortedItems.size())                                 //there are no more items after
+          break;                                                            //this section
+
+        if(sortedItems[nextIndex]->beginIndex() > minEndFramePos)           //next item is to far
           break;
-        if(sortedItems[nextIndex]->beginIndex() == intervalStartFrame)      //the item begins right with this
+/*Done few lines above        if(sortedItems[nextIndex]->beginIndex() == intervalStartFrame)      //the item begins right with this
         {                                                                   //section (probably was a reason
           itemsInInterval.append(nextIndex);                                //to end the previous)
-        }
-        if(sortedItems[nextIndex]->endIndex() < minEndFrame)                //we've already fully included this
+        }*/
+        if(sortedItems[nextIndex]->endIndex() < minEndFramePos)             //we've already fully included this
         {                                                                   //animation in blending
           nextIndex++;
           continue;
         }
-        if(sortedItems[nextIndex]->beginIndex() <= minEndFrame)             //item's begin index delimits
+        if(sortedItems[nextIndex]->beginIndex() <= minEndFramePos)          //item's begin index delimits
         {                                                                   //the section (will be processed
-          minEndFrame = sortedItems[nextIndex]->beginIndex() - 1;           //in following section pass)
+          minEndFramePos = sortedItems[nextIndex]->beginIndex() - 1;        //in next section pass)
           break;
         }
       }
-      intervalEndFrame = minEndFrame;
+      intervalEndFrame = minEndFramePos;
     }
     else                                      //no items in this section = we have an empty gap!
-      intervalEndFrame = sortedItems[findFirstItemAfter(sortedItems, intervalStartFrame)]->beginIndex() - 1;
+    {
+      int debugIndx = findFirstItemAfter(sortedItems, intervalStartFrame);
+      intervalEndFrame = sortedItems.at(debugIndx)->beginIndex() - 1;
+    }
 
 
     //THE BLENDING ITSELF
     if(itemsInInterval.isEmpty())         //we need to fill the gap
     {
-      if(resultFrame < 1)                 //just a vain check, there's no place for it in 'production' code
-        throw new QString("Invalid state exception: 'resultFrame' must be more than 0");
+//DEBUG      if(resultFrame < 1)                 //just a vain check, there's no place for it in 'production' code
+//DEBUG        throw new QString("Invalid state exception: 'resultFrame' must be more than 0. Is " + QString::number(resultFrame));
 
       int toFrame = intervalEndFrame - frameOffset;
       BVHNode* position = result->getNode(0);
-      copyKeyFrame(position, resultFrame, toFrame);
+      copyKeyFrame(position, /*DEBUG resultFrame*/intervalStartFrame-frameOffset-1, toFrame);
       BVHNode* root = result->getMotion();
-      copyKeyFrame(root, resultFrame, toFrame);
+      copyKeyFrame(root, /*DEBUG resultFrame*/intervalStartFrame-frameOffset-1, toFrame);
     }
     else if(itemsInInterval.size() == 1)  //only one animation to blend. we can afford to take
     {                                     //just its first frame as key frame of result
@@ -569,7 +602,7 @@ int Blender::findFirstItemAfter(QList<TrailItem*> sortedItems, int afterPosition
 }
 
 
-/** A helper to clone all BVHNode frame data inside an animation from one frame to another.
+/** A helper to clone all BVHNode frame data inside one animation from one frame to another.
     Meant to be used to fill time-line gaps */
 void Blender::copyKeyFrame(BVHNode* limb, int fromFrame, int toFrame)
 {

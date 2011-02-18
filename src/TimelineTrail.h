@@ -48,8 +48,13 @@ class TimelineTrail : public QFrame
     /** Announce done position change for an item so it's original holder
         can release/reposition it or new one can adopt it. */
     void droppedItem();
+
+
     /** Summary animation was changed */
-    void trailAnimationChanged(WeightedAnimation* animation, int firstFrame);
+    void trailAnimationChanged(WeightedAnimation* animation, int firstFrame);         //TODO: should become obsolete soon
+    void trailContentChanged(TrailItem* firstItem);
+
+
 
   public slots:
     void setCurrentPosition(int position);
@@ -87,10 +92,12 @@ class TimelineTrail : public QFrame
     QAction* mixZonesAction;
     QAction* limbWeightsAction;
 
+
     /** After any change of position or number of animations at this trail,
         the resulting summary animation is gained with this method.
         Returns 0 if there's no item left. */
-    WeightedAnimation* getSummaryAnimation();
+    WeightedAnimation* getSummaryAnimation();           //TODO: as I made heavy changes in the process of blending, this should became obsolete soon
+
     void clearShadowItems();
     void trailContentChange();
 
@@ -102,6 +109,7 @@ class TimelineTrail : public QFrame
     /** Reimplemented for moving an item. Potential new location is "shadowed" */
     virtual void mouseMoveEvent(QMouseEvent* me);
     virtual void leaveEvent(QEvent*);
+    virtual void keyPressEvent(QKeyEvent *);
 
 
   private:

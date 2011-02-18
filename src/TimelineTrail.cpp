@@ -39,6 +39,7 @@ TimelineTrail::TimelineTrail(QWidget* parent, Qt::WindowFlags) : QFrame(parent)
   addingNewItem = false;
   //we need to receive mouseMoveEvent even when no button down
   setMouseTracking(true);
+  setFocusPolicy(Qt::WheelFocus);
 
   //Actions that may appear in context menu
   deleteItemAction = new QAction(tr("Delete animation"), this);
@@ -477,7 +478,7 @@ WeightedAnimation* TimelineTrail::getSummaryAnimation()
 
 /** After placement change, some auxiliary items placed by TrailJoiner may become invalid.
     It's better just to erase them all. Done by this method. */
-void TimelineTrail::clearShadowItems()
+void TimelineTrail::clearShadowItems()                //Shouldn't this rather be done in the Blender class? TODO: resolve it.
 {
   TrailItem* currentItem = _firstItem;
   while(currentItem != NULL)
@@ -607,6 +608,16 @@ void TimelineTrail::leaveEvent(QEvent *)
   repaint();
 }
 
+void TimelineTrail::keyPressEvent(QKeyEvent* e)
+{
+  if(e->key()==Qt::Key_Left && blenderPlayer->state()==PLAYSTATE_STOPPED)
+    blenderPlayer->stepBackward();
+  else if(e->key()==Qt::Key_Right && blenderPlayer->state()==PLAYSTATE_STOPPED)
+    blenderPlayer->stepForward();
+  else
+    e->ignore();            //send it to parent
+}
+
 void TimelineTrail::mousePressEvent(QMouseEvent* e)
 {
   int clickedFrame = e->x()/_positionWidth;
@@ -701,8 +712,12 @@ void TimelineTrail::mouseReleaseEvent(QMouseEvent *)
 
 void TimelineTrail::trailContentChange()
 {
-  WeightedAnimation* result = getSummaryAnimation();
-  emit trailAnimationChanged(result, _firstItem ? _firstItem->beginIndex() : -1);
+//  WeightedAnimation* result = getSummaryAnimation();
+//  emit trailAnimationChanged(result, _firstItem ? _firstItem->beginIndex() : -1);
+
+
+  clearShadowItems();
+  emit trailContentChanged(_firstItem);
 }
 
 
@@ -747,7 +762,7 @@ void TimelineTrail::onMovingItem(TrailItem* draggedItem)
   draggingItem=draggedItem;     //in case of sender, this is not needed
 
   //remove helper items so they're not in way of the one being dragged
-  clearShadowItems();           //BUG! ON WIN32 THIS CAUSES SIGSEGV!!!
+  clearShadowItems();
 }
 
 void TimelineTrail::onDroppedItem()

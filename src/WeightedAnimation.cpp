@@ -45,7 +45,7 @@ int WeightedAnimation::getFrameWeight(int frameIndex)
 {
   if(frameIndex < 0 || frameIndex >= totalFrames)
   {
-    throw new QString("Argument exception: frameIndex exceeds frames count");
+    throw new QString("(WeightedAnimation::getFrameWeight) Argument exception: frameIndex exceeds frames count");
   }
   return frameWeights[frameIndex];
 }
@@ -53,7 +53,7 @@ int WeightedAnimation::getFrameWeight(int frameIndex)
 void WeightedAnimation::setFrameWeight(int frameIndex, int weight)
 {
   if(frameIndex < 0 || frameIndex >= totalFrames)
-    throw new QString("Argument exception: frameIndex exceeds frames count");
+    throw new QString("(WeightedAnimation::setFrameWeight) Argument exception: frameIndex exceeds frames count");
 
   else if(weight<0 || weight>100)
     throw new QString("Argument exception: frame weight out of range: " +

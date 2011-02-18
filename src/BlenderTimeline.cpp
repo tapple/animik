@@ -5,7 +5,9 @@
 #define MIN_TRAIL_FRAMES     150  //edu: trail is 150 frames long
 
 #include <QHBoxLayout>
+#include <QKeyEvent>
 #include <QScrollArea>
+#include "Blender.h"
 #include "BlenderTimeline.h"
 #include "TimelineTrail.h"
 #include "TrailItem.cpp"
@@ -29,9 +31,7 @@ BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(pare
   scrollLayout->setMargin(1);
   scrollLayout->setSpacing(2);
 
-
   stackWidget = new QWidget(this);
-
 
   for(int i=0; i<BLENDING_TRACKS; i++)
   {
@@ -46,14 +46,20 @@ BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(pare
     connect(tt, SIGNAL(droppedItem()), this, SLOT(endItemReposition()));
     connect(tt, SIGNAL(adjustLimbsWeight(/*TODO: frameData*/)), this, SLOT(showLimbsWeightForm(/*TODO: frameData*/)));
     connect(tt, SIGNAL(positionsCountChanged(int)), this, SLOT(setFramesCount(int)));
-    connect(tt, SIGNAL(trailAnimationChanged(WeightedAnimation*, int)),
+
+
+    connect(tt, SIGNAL(trailAnimationChanged(WeightedAnimation*, int)),             //TODO: the signal is soon to be obsolete. Don't forget to delete this then
             this, SLOT(onTrailAnimationChanged(WeightedAnimation*, int)));
+
+    connect(tt, SIGNAL(trailContentChanged(TrailItem*)), this, SLOT(onTrailContentChanged(TrailItem*)));
 
     trails.append(tt);
     scrollLayout->addWidget(tt);
   }
 
+  setFocusPolicy(Qt::WheelFocus);         //I need this if I want to handle key press event
   stackWidget->setFocusPolicy(Qt::WheelFocus);
+  scrollArea->setFocusPolicy(Qt::WheelFocus);
   stackWidget->setLayout(scrollLayout);
   scrollArea->setWidget(stackWidget);
   needsReshape = true;
@@ -125,6 +131,11 @@ void BlenderTimeline::paintEvent(QPaintEvent*)
   }
 }
 
+void BlenderTimeline::keyPressEvent(QKeyEvent* e)
+{
+  e->ignore();
+}
+
 // -------------------------- SLOTS -------------------------- //
 void BlenderTimeline::setCurrentFrame(int frameIndex)
 {
@@ -180,7 +191,10 @@ void BlenderTimeline::setFramesCount(int newCount)
   repaint();
 }
 
-void BlenderTimeline::onTrailAnimationChanged(WeightedAnimation* anim, int beginFrame)
+
+
+
+void BlenderTimeline::onTrailAnimationChanged(WeightedAnimation* anim, int beginFrame)          //This is never called. TODO: cleanup
 {
   //DEBUG so far, TODO: recalculate overall animation
   //TODO: find a mechanism to set the real offset
@@ -192,6 +206,36 @@ void BlenderTimeline::onTrailAnimationChanged(WeightedAnimation* anim, int begin
   animationBeginPosition = beginFrame;
   emit resultingAnimationChanged(anim);
 }
+
+void BlenderTimeline::onTrailContentChanged(TrailItem* firstItem)
+{
+  int count = trails.size();
+  int minBeginIndex = 999999999;
+  TrailItem** rails = new TrailItem*[count];
+
+  //construct array form needed by Blender and find first frame position of result
+  for(int i=0; i<count; i++)
+  {
+    rails[i] = trails.at(i)->firstItem();
+    if(trails.at(i)->firstItem() != NULL && trails.at(i)->firstItem()->beginIndex() < minBeginIndex)
+      minBeginIndex = trails.at(i)->firstItem()->beginIndex();
+  }
+  animationBeginPosition = minBeginIndex;
+
+  if(resultAnimation)
+    disconnect(resultAnimation, SIGNAL(currentFrame(int)), 0, 0);     //edu: is this needed?
+
+  Blender* blender = new Blender();
+  resultAnimation = blender->BlendTrails(rails, count);
+
+  if(resultAnimation)
+    connect(resultAnimation, SIGNAL(currentFrame(int)), this, SLOT(onPlayFrameChanged(int)));
+  emit resultingAnimationChanged(resultAnimation);
+}
+
+
+
+
 
 void BlenderTimeline::onPlayFrameChanged(int playFrame)
 {

@@ -27,6 +27,7 @@ Bugs:
     trail. Clicking on its frame doesn't change the posture anymore.
     UPDATE: THIS SHOULD JUST START WORK WHEN I MERGE ANIMATION ON A TRAIL CORRECTLY.
   * Somehow it's possible to have the same file in the Animation list multiple times. Needs investigation first.
+  * When new AVBL is created (and saved) it doesn't absolutely contain anything. Should describe empty time-line in a valid way.
 
 
 Bug-o-feature:

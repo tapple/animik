@@ -185,11 +185,11 @@ void BlenderTab::fileAdd(const QString& name)
       return;
     }
 
-    setCurrentFile(file);
-
     Avbl loader;
     QList<TrailItem*>* trails = loader.LoadFromFile(file);
     blenderTimeline->ConstructTimeLine(trails);
+    isDirty = false;
+    setCurrentFile(file);
   }
 }
 
@@ -279,6 +279,17 @@ void BlenderTab::closeEvent(QCloseEvent* event)
     event->ignore();
   else
     event->accept();
+}
+
+
+void BlenderTab::keyPressEvent(QKeyEvent* e)
+{
+  if(e->key()==Qt::Key_Left && blenderPlayer->state()==PLAYSTATE_STOPPED)
+    blenderPlayer->stepBackward();
+  else if(e->key()==Qt::Key_Right && blenderPlayer->state()==PLAYSTATE_STOPPED)
+    blenderPlayer->stepForward();
+  else
+    e->ignore();            //send it to parent
 }
 
 bool BlenderTab::resolveUnsavedChanges()
