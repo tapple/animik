@@ -508,17 +508,17 @@ TrailItem* TimelineTrail::cutItem(TrailItem* current)
 {
   if(current==_firstItem && current==_lastItem)     //was only one on this trail
   {
-    _firstItem = _lastItem = 0;
+    _firstItem = _lastItem = NULL;
   }
   else if(current==_firstItem)                      //was first on trail
   {
     _firstItem = current->nextItem();
-    current->nextItem()->setPreviousItem(0);
+    current->nextItem()->setPreviousItem(NULL);
   }
   else if(current==_lastItem)                       //last on trail
   {
     _lastItem = current->previousItem();
-    current->previousItem()->setNextItem(0);
+    current->previousItem()->setNextItem(NULL);
   }
   else    //somewhere in middle (current->previousItem() && current->nextItem())
   {
@@ -526,9 +526,9 @@ TrailItem* TimelineTrail::cutItem(TrailItem* current)
     current->nextItem()->setPreviousItem(current->previousItem());
   }
   //This is probably not necessary
-  current->setPreviousItem(0);
-  current->setNextItem(0);
-  selectedItem = 0;
+  current->setPreviousItem(NULL);
+  current->setNextItem(NULL);
+  selectedItem = NULL;
   return current;
 }
 
@@ -581,7 +581,7 @@ void TimelineTrail::paintEvent(QPaintEvent*)
 
 void TimelineTrail::contextMenuEvent(QContextMenuEvent *event)
 {
-  if(/*rightMouseDown &&*/ selectedItem!=0)
+  if(/*rightMouseDown &&*/ selectedItem!=NULL && !selectedItem->isShadow())
   {
     QMenu menu(this);
     menu.addAction(deleteItemAction);
@@ -681,7 +681,7 @@ void TimelineTrail::mousePressEvent(QMouseEvent* e)
     currentPosition = clickedFrame;
     emit currentPositionChanged(currentPosition);
   }
-  else if(selectedItem != 0)     //second click on selected frame, user wishes to set weight
+  else if(selectedItem != 0 && !selectedItem->isShadow())     //second click on selected frame, user wishes to set weight
   {
     settingWeight = true;
     adjustFrameWeight(e->y());

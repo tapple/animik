@@ -43,7 +43,7 @@ WeightedAnimation* Blender::BlendTrails(TrailItem** trails, int trailsCount)
 
 /** Returns list of TrailItems such that its size is equal to overall TrailItems number (one Item
     at one list position, original lists are merged to one array).
-    Original linked list references are preserved. Also, possible shadow items are lost. */
+    Original linked list references are preserved. Also, possible shadow items are cleared. */
 QList<TrailItem*> Blender::lineUpTimelineTrails(TrailItem** trails, int trailsCount)
 {
   QList<TrailItem*> result;
@@ -51,6 +51,7 @@ QList<TrailItem*> Blender::lineUpTimelineTrails(TrailItem** trails, int trailsCo
   for(int trail=0; trail<trailsCount; trail++)
   {
     TrailItem* currentItem = trails[trail];   //take first item in current trail
+    clearShadowItems(currentItem);            //lose all previous helper items
 
     while(currentItem!=0)       //disconnect it from original linked list
     {
@@ -69,6 +70,29 @@ QList<TrailItem*> Blender::lineUpTimelineTrails(TrailItem** trails, int trailsCo
 }
 
 
+void Blender::clearShadowItems(TrailItem* firstItem)
+{
+  if(firstItem==NULL)
+    return;
+
+  TrailItem* currentItem = firstItem;
+  while(currentItem != NULL)
+  {
+    if(currentItem->isShadow())
+    {
+      if(currentItem->previousItem() != NULL)
+        currentItem->previousItem()->setNextItem(currentItem->nextItem());
+      if(currentItem->nextItem() != NULL)
+        currentItem->nextItem()->setPreviousItem(currentItem->previousItem());
+
+      delete currentItem;
+    }
+
+    currentItem = currentItem->nextItem();
+  }
+}
+
+
 /** Returns list of new artificial 'shadow' TrailItems. These are created to accomplish the mix-in
     functionality of two overlaping animations (the former is "blended in" the latter one). The shadow
     helpers will have lineary increasing frame weights to achieve gradual in-blending.
@@ -80,16 +104,18 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
 
   QList<TrailItem*> result;
 
-  for(int item=1; item<items.size(); item++)
+  for(int item=0; item<items.size(); item++)
   {
-    for(int i=0; i<item; i++)       //for all previous items: resolve if crossing current item
+    for(int i=0; i<items.size(); i++)       //for all previous items: resolve if crossing current item
     {                               //implies creating mix-in shadow item
       TrailItem* currentItem = items[item];
 
-      if(currentItem->endIndex() <= items[i]->endIndex())
-        continue;         //wrong overlap order
-      if(currentItem->beginIndex() == items[i]->beginIndex())
-        continue;         //they start on the same position. No mix-in here
+      if(i==item)                                             //won't combine with self
+        continue;
+      if(currentItem->endIndex() <= items[i]->endIndex())     //wrong overlap order
+        continue;
+      if(currentItem->beginIndex() == items[i]->beginIndex()) //they start on the same position.
+        continue;                                             //No mix-in here
 
       //overlaping or touching
       if(items[i]->endIndex()+1 >= currentItem->beginIndex() && items[i]->mixIn() > 0)
@@ -109,8 +135,8 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
         //set shadows frame weights (going backwards from last frame to first)
         for(int n=framesNum-1; n>=0; n--)
         {
-          int value = (n+1 + (items[i]->mixIn() - framesNum) ) / items[i]->mixIn();
-          mixInShadow->setFrameWeight(n, value);
+          double value = (double)(n+1 + (items[i]->mixIn() - framesNum) ) / (double)items[i]->mixIn();
+          mixInShadow->setFrameWeight(n, (int)(value*100));
         }
 
         TrailItem* shadowItem = new TrailItem(mixInShadow, "(1)mix in shadow for "+currentItem->Name,
@@ -126,6 +152,14 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
             shadowItem->setPreviousItem(currentItem->previousItem());
             currentItem->setPreviousItem(shadowItem);
             shadowItem->setNextItem(currentItem);
+          }
+          else                    //dirty tricksh*t. Cause it absolutelly doesn't matter how an item
+          {                       //is linked. Its' beginIndex() tells how it'll be drawn
+            if(currentItem->nextItem() != NULL)
+              currentItem->nextItem()->setPreviousItem(shadowItem);
+            shadowItem->setNextItem(currentItem->nextItem());
+            shadowItem->setPreviousItem(currentItem);
+            currentItem->setNextItem(shadowItem);
           }
         }
       }
@@ -144,8 +178,8 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
 
         for(int n=0; n<framesNum; n++)
         {
-          int value = (n+1) / framesNum;
-          mixInShadow->setFrameWeight(n, value);
+          double value = (double)(n+1) / (double)framesNum;
+          mixInShadow->setFrameWeight(n, (int)(value*100));
         }
 
         TrailItem* shadowItem = new TrailItem(mixInShadow, "(2)mix in shadow for "+currentItem->Name,
@@ -160,6 +194,14 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
             shadowItem->setPreviousItem(currentItem->previousItem());
             currentItem->setPreviousItem(shadowItem);
             shadowItem->setNextItem(currentItem);
+          }
+          else                    //dirty tricksh*t
+          {
+            if(currentItem->nextItem() != NULL)
+              currentItem->nextItem()->setPreviousItem(shadowItem);
+            shadowItem->setNextItem(currentItem->nextItem());
+            shadowItem->setPreviousItem(currentItem);
+            currentItem->setNextItem(shadowItem);
           }
         }
       }
@@ -178,14 +220,16 @@ QList<TrailItem*> Blender::createMixOutsImpliedShadowItems(QList<TrailItem*> ite
 
   QList<TrailItem*> result;
 
-  for(int item=1; item<items.size(); item++)
+  for(int item=0; item<items.size(); item++)
   {
-    for(int i=0; i<item; i++)
+    for(int i=0; i<items.size(); i++)
     {
       TrailItem* currentItem = items[item];
 
-      if(currentItem->endIndex() <= items[i]->endIndex())
-        continue;   //wrong overlap order
+      if(i==item)                                           //won't combine with self
+        continue;
+      if(currentItem->endIndex() <= items[i]->endIndex())   //wrong overlap order
+        continue;
 
       //overlapping or touching
       if(items[i]->endIndex()+1 >= currentItem->beginIndex() && currentItem->mixOut() > 0)
@@ -199,17 +243,18 @@ QList<TrailItem*> Blender::createMixOutsImpliedShadowItems(QList<TrailItem*> ite
 
         //adjust shadow skeleton posture
         int curAnimFrame;
-        if(items[i]->endIndex()+1 == currentItem->beginIndex())     //thei're touching. TODO: shouldn't this case be actually in the latter branch? (touching+gap)
+        if(items[i]->endIndex()+1 == currentItem->beginIndex())     //they're touching. TODO: shouldn't this case be actually in the latter branch? (touching+gap)
           curAnimFrame = 0;
         else
           curAnimFrame = items[i]->endIndex() - currentItem->beginIndex() + 1;
+
         interpolatePosture(items[i]->getAnimation(), items[i]->frames()-1, currentItem->getAnimation(),
                            curAnimFrame, mixOutShadow);
 
         for(int n=0; n<framesNum; n++)
         {
-          int value = (currentItem->mixOut()-n) / currentItem->mixOut();
-          mixOutShadow->setFrameWeight(n, value);
+          double value = (double)(currentItem->mixOut()-n) / (double)currentItem->mixOut();
+          mixOutShadow->setFrameWeight(n, (int)(value*100));
         }
 
         TrailItem* shadowItem = new TrailItem(mixOutShadow, "(1)mix out shadow for "+currentItem->Name,
@@ -241,8 +286,8 @@ QList<TrailItem*> Blender::createMixOutsImpliedShadowItems(QList<TrailItem*> ite
 
         for(int n=1; n<=framesNum; n++)
         {
-          int value = n / currentItem->mixOut();
-          mixOutShadow->setFrameWeight(framesNum-n, value);
+          double value = (double)n / (double)currentItem->mixOut();
+          mixOutShadow->setFrameWeight(framesNum-n, (int)(value*100));
         }
 
         TrailItem* shadowItem = new TrailItem(mixOutShadow, "(2)mix out shadow for "+currentItem->Name,

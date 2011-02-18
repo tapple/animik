@@ -24,7 +24,8 @@ public:
   WeightedAnimation* BlendTrails(TrailItem** trails, int trailsCount);
 
 private:
-    QList<TrailItem*> lineUpTimelineTrails(TrailItem** trails, int trailsCount);
+  QList<TrailItem*> lineUpTimelineTrails(TrailItem** trails, int trailsCount);
+  void clearShadowItems(TrailItem* firstItem);
   QList<TrailItem*> createMixInsImpliedShadowItems(QList<TrailItem*> items);
   QList<TrailItem*> createMixOutsImpliedShadowItems(QList<TrailItem*> items);
   void interpolatePosture(WeightedAnimation* anim1, int frame1, WeightedAnimation* anim2, int frame2,
