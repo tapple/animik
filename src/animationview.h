@@ -70,7 +70,7 @@ class AnimationView : public QGLWidget
   Q_OBJECT
 
   public:
-    AnimationView(QWidget* parent=0, const char* name=0, Animation* anim=0, bool isPicking = true);
+    AnimationView(QWidget* parent=0, const char* name=0, Animation* anim=0);
     ~AnimationView();
 
     // exports the BVH class handler (ugly, need to find a better way)
@@ -96,9 +96,22 @@ class AnimationView : public QGLWidget
     void stepForward();
     void setFPS(int fps);
 
-    /** When FALSE, any selected limb on figure is not highlighted and circle drags are not drawn */
-    bool pickingParts() const { return _pickingParts; }
-    void setPickingParts(bool picking) { _pickingParts = picking; }
+    //Additional flags determining on/off state of some optional features. The difference is mainly
+    //implied by different usages of this widget in blending and key-framing GUIs.
+    /** When FALSE, circle drags are not drawn around selected limb of figure. */
+    bool useRotationHelpers() const                   { return _useRotationHelpers; }
+    void setUseRotationHelpers(bool rotHelpers)       { _useRotationHelpers = rotHelpers; }
+    /** TRUE means it's possible to lock an effector (by double-click) in further IK calculation */
+    bool useIK() const                                { return _useIK; }
+    void setUseIK(bool useIK)                         { _useIK = useIK; }
+    /** TRUE means that it's possible to select (pick) multiple limbs of avatar's body. */
+    bool multiPartPicking() const                     { return _multiPartPicking; }
+    void setMultiPartPicking(bool multiPick)          { _multiPartPicking = multiPick; }
+    /** Determines whether verbose debugging info about currently picked part should be shown.
+        The information will be accessed only if DEBUG mode was also activated in Settings. */
+    bool showingPartInfo() const                      { return _partInfo; }
+    void setShowingPartInfo(bool partInfo)            { _partInfo = partInfo; }
+
 
     // getAnimation returns the *current* animation
     Animation* getAnimation() { return currentAnimation; }
@@ -126,6 +139,7 @@ class AnimationView : public QGLWidget
     void partClicked(BVHNode* node, Rotation rot, Rotation globRot, RotationLimits rotLimit, Position pos);
     void partClicked(int part);
     void propClicked(Prop* prop);
+    void partDoubleClicked(int selectedJointNumber);
 
     void partDragged(BVHNode* node,double changeX,double changeY,double changeZ);
 
@@ -187,13 +201,13 @@ class AnimationView : public QGLWidget
     unsigned int nextPropId;
 
     QList<Prop*> propList;
-    QPoint clickPos;           // holds the mouse click position for dragging
-    QPoint returnPos;          // holds the mouse position to return to after dragging
+    QPoint clickPos;               // holds the mouse click position for dragging
+    QPoint returnPos;              // holds the mouse position to return to after dragging
 
-    QStringList figureFiles;   // holds the names of the BVH files for male/female skeleton models
+    QStringList figureFiles;       // holds the names of the BVH files for male/female skeleton models
 
     QList<Animation*> animList;
-    Animation* currentAnimation; // this is the "currently selected" animation
+    Animation* currentAnimation;   // this is the "currently selected" animation
     Camera camera;
     double changeX, changeY, changeZ;
     BVHNode* joints[Animation::NUM_FIGURES];      //edu: general BVH joints taken from default (male/female) figures
@@ -204,11 +218,11 @@ class AnimationView : public QGLWidget
     unsigned int partHighlighted;
     unsigned int partSelected;
     unsigned int mirrorSelected;
-    unsigned int propSelected;  // needs an own variable, because we will drag the handle, not the prop
-    unsigned int propDragging;  // holds the actual drag handle id
+    unsigned int propSelected;     // needs an own variable, because we will drag the handle, not the prop
+    unsigned int propDragging;     // holds the actual drag handle id
 
-    int dragX, dragY;           // holds the last mouse drag offset
-    int oldDragX, oldDragY;     // holds the mouse position before the last drag
+    int dragX, dragY;              // holds the last mouse drag offset
+    int oldDragX, oldDragY;        // holds the mouse position before the last drag
 
     int drawMode;
     bool xSelect, ySelect, zSelect;
@@ -223,7 +237,10 @@ class AnimationView : public QGLWidget
 
 
   private:
-    bool _pickingParts;
+    bool _useRotationHelpers;
+    bool _useIK;
+    bool _multiPartPicking;
+    bool _partInfo;
 };
 
 #endif

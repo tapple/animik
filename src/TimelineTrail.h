@@ -15,21 +15,22 @@ class TimelineTrail : public QFrame
   Q_OBJECT
 
   public:
-    TimelineTrail(QWidget* parent=0, Qt::WindowFlags f=0);
+    TimelineTrail(QWidget* parent=0, Qt::WindowFlags f=0, QString debugName="<0>");
 
     /** Add new animation on first gap big enough. Returns TRUE on success
         or FALSE if there's not enough space on this trail. */
     bool AddAnimation(WeightedAnimation* anim, QString title);
     /** Clear content of this trail and set new with given first TrailItem */
     void ResetContent(TrailItem* first);
-    int animationCount() { return _animationCount; }
-    TrailItem* firstItem() { return _firstItem; }
-    TrailItem* lastItem() { return _lastItem; }
-    int positionCount() { return positionsCount; }
+    int animationCount() const          { return _animationCount; }
+    TrailItem* firstItem() const        { return _firstItem; }
+    TrailItem* lastItem() const         { return _lastItem; }
+    TrailItem* getSelectedItem() const  { return selectedItem; }
+    int positionCount() const           { return positionsCount; }
 
     /** Frame position width in pixels. Some (parent) widget need to know
         before paint. */
-    static int positionWidth() { return _positionWidth; }
+    static int positionWidth()          { return _positionWidth; }
 
   signals:
     void resized(const QSize& newSize);
@@ -148,6 +149,9 @@ class TimelineTrail : public QFrame
     void drawBackground();
     void drawMovedItemShadow();
     void drawTrailItem(TrailItem* item);
+
+
+    QString _debugName;
 };
 
 #endif // TIMELINETRAIL_H

@@ -53,16 +53,10 @@ QList<TrailItem*> Blender::lineUpTimelineTrails(TrailItem** trails, int trailsCo
     TrailItem* currentItem = trails[trail];   //take first item in current trail
     clearShadowItems(currentItem);            //lose all previous helper items
 
-    while(currentItem!=0)       //disconnect it from original linked list
+    while(currentItem!=0)
     {
-//      TrailItem* toBeNext = currentItem->nextItem();
-
-//      if(currentItem->nextItem()!=0)                        //edu:
-//        currentItem->nextItem()->setPreviousItem(0);        //actually this shouldn't
-//      currentItem->setNextItem(0);                          //be needed at all        UPDATE: actually this MUSN'T be done at all
-
       result.append(currentItem);
-      currentItem = currentItem->nextItem(); //toBeNext;
+      currentItem = currentItem->nextItem();
     }
   }
 
@@ -107,15 +101,13 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
   for(int item=0; item<items.size(); item++)
   {
     for(int i=0; i<items.size(); i++)       //for all previous items: resolve if crossing current item
-    {                               //implies creating mix-in shadow item
+    {                                       //implies creating mix-in shadow item
       TrailItem* currentItem = items[item];
 
       if(i==item)                                             //won't combine with self
         continue;
-      if(currentItem->endIndex() <= items[i]->endIndex())     //wrong overlap order
+      if(currentItem->beginIndex() <= items[i]->beginIndex())     //wrong overlap order
         continue;
-      if(currentItem->beginIndex() == items[i]->beginIndex()) //they start on the same position.
-        continue;                                             //No mix-in here
 
       //overlaping or touching
       if(items[i]->endIndex()+1 >= currentItem->beginIndex() && items[i]->mixIn() > 0)
@@ -129,8 +121,8 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
 
         //adjust shadow skeleton posture
         int crossPoint = items[i]->frames() - (items[i]->endIndex() - currentItem->beginIndex());                 //TODO: possible BUG. What if they just touch?
-                                                                                                                  //SURELY BUG! THIS CAN BE NEGATIVE!
-        interpolatePosture(items[i]->getAnimation(), crossPoint, currentItem->getAnimation(), 0, mixInShadow);
+        interpolatePosture(items[i]->getAnimation(), crossPoint, currentItem->getAnimation(), 0,
+                           mixInShadow);
 
         //set shadows frame weights (going backwards from last frame to first)
         for(int n=framesNum-1; n>=0; n--)
@@ -143,10 +135,10 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
                                               currentItem->beginIndex()-framesNum, true);
         result.append(shadowItem);
 
-        //When in user invoked DEBUG mode, shadow items are embeded in time-line, so I can check them visualy
+        //When in user invoked DEBUG mode, shadow items are embeded in time-line, so user can check them visualy
         if(Settings::Instance()->Debug())
         {
-          if(currentItem->previousItem() != NULL)       //else it's _firstItem => I'm unable to reset that
+          if(currentItem->previousItem() != NULL)         //currentItem isn't the first in linked list
           {
             currentItem->previousItem()->setNextItem(shadowItem);
             shadowItem->setPreviousItem(currentItem->previousItem());
@@ -154,7 +146,7 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
             shadowItem->setNextItem(currentItem);
           }
           else                    //dirty tricksh*t. Cause it absolutelly doesn't matter how an item
-          {                       //is linked. Its' beginIndex() tells how it'll be drawn
+          {                       //is linked. Its beginIndex() tells how it'll be drawn
             if(currentItem->nextItem() != NULL)
               currentItem->nextItem()->setPreviousItem(shadowItem);
             shadowItem->setNextItem(currentItem->nextItem());

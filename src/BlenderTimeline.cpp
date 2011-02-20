@@ -36,7 +36,7 @@ BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(pare
 
   for(int i=0; i<BLENDING_TRACKS; i++)
   {
-    TimelineTrail* tt = new TimelineTrail(/*scrollArea*/stackWidget);
+    TimelineTrail* tt = new TimelineTrail(stackWidget, 0, QString::number(i+1));
     tt->setPositionCount(trailFramesCount);
     //if current frame of a trail has changed, sync all others
     connect(tt, SIGNAL(currentPositionChanged(int)), this, SLOT(setCurrentFrame(int)));
@@ -98,6 +98,44 @@ void BlenderTimeline::ConstructTimeLine(QList<TrailItem*>* trails)
 {
   for(int i=0; i<this->trails.size() && i<trails->size(); i++)
     this->trails.at(i)->ResetContent(trails->at(i));
+}
+
+TrailItem* BlenderTimeline::GetSelectedItem() const
+{
+  for(int i=0; i<trails.size(); i++)
+  {
+    if(trails.at(i)->getSelectedItem() != NULL)
+      return trails.at(i)->getSelectedItem();
+  }
+
+  return NULL;
+}
+
+
+void BlenderTimeline::RebuildResultingAnimation()
+{
+  int count = trails.size();
+  int minBeginIndex = 999999999;
+  TrailItem** rails = new TrailItem*[count];
+
+  //construct array form needed by Blender and find first frame position of result
+  for(int i=0; i<count; i++)
+  {
+    rails[i] = trails.at(i)->firstItem();
+    if(trails.at(i)->firstItem() != NULL && trails.at(i)->firstItem()->beginIndex() < minBeginIndex)
+      minBeginIndex = trails.at(i)->firstItem()->beginIndex();
+  }
+  animationBeginPosition = minBeginIndex;
+
+  if(resultAnimation)
+    disconnect(resultAnimation, SIGNAL(currentFrame(int)), 0, 0);     //edu: is this needed?
+
+  Blender* blender = new Blender();
+  resultAnimation = blender->BlendTrails(rails, count);
+
+  if(resultAnimation)
+    connect(resultAnimation, SIGNAL(currentFrame(int)), this, SLOT(onPlayFrameChanged(int)));
+  emit resultingAnimationChanged(resultAnimation);
 }
 
 
@@ -211,28 +249,7 @@ void BlenderTimeline::onTrailAnimationChanged(WeightedAnimation* anim, int begin
 
 void BlenderTimeline::onTrailContentChanged()
 {
-  int count = trails.size();
-  int minBeginIndex = 999999999;
-  TrailItem** rails = new TrailItem*[count];
-
-  //construct array form needed by Blender and find first frame position of result
-  for(int i=0; i<count; i++)
-  {
-    rails[i] = trails.at(i)->firstItem();
-    if(trails.at(i)->firstItem() != NULL && trails.at(i)->firstItem()->beginIndex() < minBeginIndex)
-      minBeginIndex = trails.at(i)->firstItem()->beginIndex();
-  }
-  animationBeginPosition = minBeginIndex;
-
-  if(resultAnimation)
-    disconnect(resultAnimation, SIGNAL(currentFrame(int)), 0, 0);     //edu: is this needed?
-
-  Blender* blender = new Blender();
-  resultAnimation = blender->BlendTrails(rails, count);
-
-  if(resultAnimation)
-    connect(resultAnimation, SIGNAL(currentFrame(int)), this, SLOT(onPlayFrameChanged(int)));
-  emit resultingAnimationChanged(resultAnimation);
+  RebuildResultingAnimation();
 }
 
 

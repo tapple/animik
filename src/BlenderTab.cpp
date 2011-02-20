@@ -7,25 +7,33 @@
 #include <QCloseEvent>
 #include <QStringListModel>
 
+#include "animationview.h"
 #include "Avbl.h"
 #include "BlenderTab.h"
-#include "ui_BlenderTab.h"
-#include "qavimator.h"
-#include "animationview.h"
-#include "settings.h"
+#include "LimbsWeightDialog.h"
 #include "OptionalMessageBox.h"
+#include "qavimator.h"
+#include "settings.h"
+#include "TrailItem.cpp"
+#include "ui_BlenderTab.h"
+
 
 
 BlenderTab::BlenderTab(qavimator* mainWindow, const QString& fileName, bool createFile)
   : QWidget(0), AbstractDocumentTab(mainWindow)
 {
   setupUi(this);
-  blenderAnimationView->setPickingParts(false);
+  blenderAnimationView->setUseRotationHelpers(false);
+  blenderAnimationView->setUseIK(false);
+  blenderAnimationView->setMultiPartPicking(true);
+  blenderAnimationView->setShowingPartInfo(true);
   canShowWarn = false;
   isDirty = false;
 
   setAttribute(Qt::WA_DeleteOnClose);
 
+  connect(mainWindow, SIGNAL(configurationChanged()), this, SLOT(onConfigChanged()));
+  connect(blenderAnimationView, SIGNAL(partDoubleClicked(int)), this, SLOT(onLimbDoubleClick(int)));
   connect(this, SIGNAL(resetCamera()), blenderAnimationView, SLOT(resetCamera()));
   connect(blenderTimeline, SIGNAL(resultingAnimationChanged(WeightedAnimation*)), blenderPlayer, SLOT(onAnimationChanged(WeightedAnimation*)));
   connect(blenderTimeline, SIGNAL(resultingAnimationChanged(WeightedAnimation*)), this, SLOT(onTimelineAnimationChanged(WeightedAnimation*)));
@@ -364,6 +372,25 @@ void BlenderTab::onTimelineAnimationChanged(WeightedAnimation* anim)
   isDirty = true;
   setCurrentFile(CurrentFile);    //update asterisk
   blenderAnimationView->setAnimation(anim);
+}
+
+/** There might be settings that affect the way the resulting animation is built.
+    So it must be reevaluated after changes in settings. Only known so far is switching DEBUG mode on/off. */
+void BlenderTab::onConfigChanged()
+{
+  blenderTimeline->RebuildResultingAnimation();
+}
+
+void BlenderTab::onLimbDoubleClick(int jointNumber)           //Lot TODO
+{
+  TrailItem* selectedItem = blenderTimeline->GetSelectedItem();
+  if(selectedItem == NULL)
+    return;
+
+  QList<BVHNode*> limbList;
+  limbList << selectedItem->getAnimation()->getNode(jointNumber);
+  LimbsWeightDialog* lwd = new LimbsWeightDialog(&limbList, 22, this);
+  lwd->exec();
 }
 
 // ---------------------------------------------- //

@@ -12,6 +12,10 @@
 #include "TrailItem.cpp"
 #include "TrailJoiner.h"
 
+
+#include <QMessageBox>        //DEBUG purposes
+
+
 #define TRACK_HEIGHT     72
 #define FRAME_HEIGHT     TRACK_HEIGHT-6
 #define TOP_MARGIN       2
@@ -27,14 +31,14 @@
 int TimelineTrail::_positionWidth = MIN_FRAME_WIDTH;
 
 
-TimelineTrail::TimelineTrail(QWidget* parent, Qt::WindowFlags) : QFrame(parent)
+TimelineTrail::TimelineTrail(QWidget* parent, Qt::WindowFlags, QString debugName) : QFrame(parent)
 {
-  offscreen=0;
-  currentPosition=0;
-//  _positionWidth = MIN_FRAME_WIDTH;
-  _firstItem = 0;
-  _lastItem = 0;
-  draggingItem = 0;
+  offscreen = NULL;
+  currentPosition = 0;
+  _firstItem = NULL;
+  _lastItem = NULL;
+  selectedItem = NULL;
+  draggingItem = NULL;
   draggingOverPosition = -1;
   settingWeight = false;
   leftMouseDown = rightMouseDown = false;
@@ -53,6 +57,9 @@ TimelineTrail::TimelineTrail(QWidget* parent, Qt::WindowFlags) : QFrame(parent)
   connect(mixZonesAction, SIGNAL(triggered()), this, SLOT(setMixZones()));
   limbWeightsAction = new QAction(tr("Set limbs' weights"), this);
   connect(limbWeightsAction, SIGNAL(triggered()), this, SLOT(showLimbsWeight()));
+
+
+  _debugName = debugName;
 }
 
 
@@ -128,7 +135,7 @@ void TimelineTrail::ResetContent(TrailItem *first)
 
 void TimelineTrail::setPositionCount(int positions)
 {
-  qDebug("TimelineTrail::setNumberOfFrames(%d==%d): %0lx", positionsCount, positions, (unsigned long) offscreen);
+//  qDebug("TimelineTrail::setPositionCount(%d==%d): %0lx", positionsCount, positions, (unsigned long) offscreen);
 
   if(positions==positionsCount)
     return;   //nothing to do
@@ -370,7 +377,7 @@ void TimelineTrail::drawTrailItem(TrailItem* item)
           if(w==100)
             p.drawText(currentPosition*_positionWidth-_positionWidth, TRACK_HEIGHT-TOP_MARGIN-BORDER_WIDTH-TEXT_SIZE,
                        _positionWidth*3, TEXT_SIZE, Qt::AlignJustify, QString::number(w));
-          else if(w<=10)
+          else if(w<10)
             p.drawText(currentPosition*_positionWidth, TRACK_HEIGHT-TOP_MARGIN-BORDER_WIDTH-TEXT_SIZE,
                        _positionWidth, TEXT_SIZE, Qt::AlignJustify, QString::number(w));
           else    //10-99
@@ -506,18 +513,39 @@ void TimelineTrail::clearShadowItems()                //Shouldn't this rather be
 
 TrailItem* TimelineTrail::cutItem(TrailItem* current)
 {
+  //Cutting shadow (helper) item. That never can be _firstItem of _lastItem, so must treat it bit specially
+  if(Settings::Instance()->Debug() && current->isShadow())
+  {
+    if(current->previousItem() != NULL)
+      current->previousItem()->setNextItem(current->nextItem());
+    if(current->nextItem() != NULL)
+      current->nextItem()->setPreviousItem(current->previousItem());
+    return current;
+  }
+
+
   if(current==_firstItem && current==_lastItem)     //was only one on this trail
   {
     _firstItem = _lastItem = NULL;
   }
   else if(current==_firstItem)                      //was first on trail
   {
-    _firstItem = current->nextItem();
+    //This is an ugly tax paid for that debug conditional code. I need to find REAL nextItem()
+    TrailItem* anItem = current->nextItem();
+    while(anItem->isShadow())
+      anItem = anItem->nextItem();
+
+    _firstItem = anItem;    //current->nextItem();
     current->nextItem()->setPreviousItem(NULL);
   }
   else if(current==_lastItem)                       //last on trail
   {
-    _lastItem = current->previousItem();
+    //First find REAL previousItem()
+    TrailItem* anItem = current->previousItem();
+    while(anItem->isShadow())
+      anItem = anItem->previousItem();
+
+    _lastItem = anItem;     //current->previousItem();
     current->previousItem()->setNextItem(NULL);
   }
   else    //somewhere in middle (current->previousItem() && current->nextItem())
@@ -569,7 +597,7 @@ void TimelineTrail::paintEvent(QPaintEvent*)
     drawMovedItemShadow();
 
   TrailItem* currentItem = _firstItem;
-  while(currentItem != 0)
+  while(currentItem != NULL)
   {
     drawTrailItem(currentItem);
     currentItem = currentItem->nextItem();
@@ -720,7 +748,7 @@ void TimelineTrail::trailContentChange()
 //  emit trailAnimationChanged(result, _firstItem ? _firstItem->beginIndex() : -1);
 
 
-  clearShadowItems();
+//  clearShadowItems();
   emit trailContentChanged(_firstItem);
 }
 

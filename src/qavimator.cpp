@@ -317,7 +317,6 @@ void qavimator::configure()
 //only re-emits further
 void qavimator::configChanged()
 {
-//rbsh  animationView->repaint();                 //TODO: inside Tabs of course
   emit configurationChanged();
 }
 

@@ -6,7 +6,6 @@
 #include "WeightedAnimation.h"
 
 class QKeyEvent;
-//class QScrollArea;
 class QSize;
 class LimbsWeightForm;
 class NoArrowsScrollArea;
@@ -26,6 +25,11 @@ class BlenderTimeline : public QFrame
     bool AddAnimation(WeightedAnimation* anim, QString title);
     /** Clean and rebuild time-line content from given list of linked TrailItems */
     void ConstructTimeLine(QList<TrailItem*>* trails);
+    /** External object may use this to explicitely reevaluate the time-line and rebuild
+        the overall animation. Supposed to be used for case of change in global application settings. */
+    /** Return currently selected TrailItem. If none was selected by user, NUUL is returned */
+    TrailItem* GetSelectedItem() const;
+    void RebuildResultingAnimation();
     QList<TimelineTrail*> Trails();
     int TrailCount();
 

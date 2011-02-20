@@ -38,50 +38,52 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
     virtual bool IsUnsaved();
 
   signals:
-     void resetCamera();
+    void resetCamera();
 
   public slots:
-     virtual void onTabActivated();
-     void onTimelineAnimationChanged(WeightedAnimation* anim);
+    virtual void onTabActivated();
+    void onTimelineAnimationChanged(WeightedAnimation* anim);
 
   protected:
-     // prevent closing of main window if there are unsaved changes
-     virtual void closeEvent(QCloseEvent* event);
-     /** Handling key presses mainly for time-line */
-     virtual void keyPressEvent(QKeyEvent *);
+    // prevent closing of main window if there are unsaved changes
+    virtual void closeEvent(QCloseEvent* event);
+    /** Handling key presses mainly for time-line */
+    virtual void keyPressEvent(QKeyEvent *);
 
-     void setCurrentFile(const QString& fileName);
-     QString selectFileToOpen(const QString& caption);
-     void fileNew();
-     void fileOpen();
-     void fileOpen(const QString& fileName);
-     void fileSaveAs();
+    void setCurrentFile(const QString& fileName);
+    QString selectFileToOpen(const QString& caption);
+    void fileNew();
+    void fileOpen();
+    void fileOpen(const QString& fileName);
+    void fileSaveAs();
 
-     void fileAdd();
-     void fileAdd(const QString& fileName);
-     bool checkFileOverwrite(const QFileInfo& fileInfo);
+    void fileAdd();
+    void fileAdd(const QString& fileName);
+    bool checkFileOverwrite(const QFileInfo& fileInfo);
 
-     void fileExportForSecondLife();
-     bool resolveUnsavedChanges();
+    void fileExportForSecondLife();
+    bool resolveUnsavedChanges();
 
-     void editCut();
-     void editCopy();
-     void editPaste();
+    void editCut();
+    void editCopy();
+    void editPaste();
 
   private:
-     void bindMenuActions();
-     bool canShowWarn;
-     /** TRUE for unsaved content */
-     bool isDirty;
+    void bindMenuActions();
+    bool canShowWarn;
+    /** TRUE for unsaved content */
+    bool isDirty;
 
-     /////////////edu: DEBUG /////////////
-     void sorry();
-     /////////////////////////////////////
+    /////////////edu: DEBUG /////////////
+    void sorry();
+    /////////////////////////////////////
 
   private slots:
     void on_animsList_AnimationFileTaken(QString filename, int orderInBatch, int batchSize);
     void on_zoomOutButton_clicked();
     void on_zoomInButton_clicked();
+    void onConfigChanged();
+    void onLimbDoubleClick(int jointNumber);
 };
 
 #endif // BLENDERTAB_H
