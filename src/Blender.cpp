@@ -72,6 +72,8 @@ void Blender::clearShadowItems(TrailItem* firstItem)
   TrailItem* currentItem = firstItem;
   while(currentItem != NULL)
   {
+    TrailItem* toBeNext = currentItem->nextItem();;
+
     if(currentItem->isShadow())
     {
       if(currentItem->previousItem() != NULL)
@@ -82,7 +84,7 @@ void Blender::clearShadowItems(TrailItem* firstItem)
       delete currentItem;
     }
 
-    currentItem = currentItem->nextItem();
+    currentItem = toBeNext;
   }
 }
 
