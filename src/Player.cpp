@@ -34,8 +34,17 @@ void Player::suspend(bool suspend)
 {
   if(_state==PLAYSTATE_STOPPED)
     return;
-  _state = suspend ? PLAYSTATE_SUSPENDED
-                   : PLAYSTATE_PLAYING;
+  if(suspend)
+  {
+    stateBeforeSuspend = _state;
+    _state = PLAYSTATE_SUSPENDED;
+    timer.stop();
+  }
+  else if(_state == PLAYSTATE_SUSPENDED /*&& suspend==false */)
+  {
+    _state = stateBeforeSuspend;
+    timer.start((int)(1.0/fps()*1000.0));
+  }
 }
 
 void Player::setPlaybackFrame(int frame)

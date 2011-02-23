@@ -503,6 +503,9 @@ void qavimator::on_mdiArea_subWindowActivated(QMdiSubWindow*)
   if(activeTab())
     activeTab()->onTabActivated();
 
+  foreach(AbstractDocumentTab* tab, openTabs())
+    if(tab != activeTab()) tab->onTabDeactivated();
+
   if(activeTab())
     setCurrentFile(activeTab()->CurrentFile + (activeTab()->IsUnsaved() ? "*" : ""));
 

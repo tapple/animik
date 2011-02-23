@@ -138,15 +138,21 @@ void BlenderTab::UpdateMenu()
 void BlenderTab::onTabActivated()
 {
   // hack to get 3D view back in shape
-//  qApp->processEvents();
+  //  qApp->processEvents();
   blenderAnimationView->makeCurrent();
   QSize oldSize = blenderAnimationView->size();
   blenderAnimationView->resize(oldSize.width(), oldSize.height()-1);
   qApp->processEvents();
   blenderAnimationView->resize(oldSize);
+  blenderPlayer->suspend(false);
 
   UpdateToolbar();
   UpdateMenu();
+}
+
+void BlenderTab::onTabDeactivated()
+{
+  blenderPlayer->suspend(true);
 }
 
 // convenience function to set window title in a defined way

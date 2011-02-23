@@ -67,6 +67,7 @@ signals:
 
 public slots:
     virtual void onTabActivated();
+    virtual void onTabDeactivated();
 
 protected slots:
     void readSettings();
@@ -293,6 +294,8 @@ protected:
 
     // holds the current playing status
     PlayState playstate;
+    /** PlayState before this tab was set inactive */
+    PlayState playstateBeforeSuspend;
 
     bool loop;
     bool jointLimits;

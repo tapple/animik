@@ -47,7 +47,6 @@ class Player : public QWidget
 
   protected:
     WeightedAnimation* animation;
-    PlayState _state;
     QTimer timer;
     bool loop;
     int loopIn;         //the class Animation has its
@@ -67,6 +66,9 @@ private:
     Ui::Player *ui;
     QIcon playIcon;
     QIcon pauseIcon;
+
+    PlayState _state;
+    PlayState stateBeforeSuspend;
 
 private slots:
     void on_endButton_clicked();

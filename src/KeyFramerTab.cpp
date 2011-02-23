@@ -240,9 +240,21 @@ void KeyFramerTab::onTabActivated()
   animationView->resize(oldSize.width(),oldSize.height()-1);
   qApp->processEvents();
   animationView->resize(oldSize);
+  if(playstate==PLAYSTATE_SUSPENDED)
+    setPlaystate(playstateBeforeSuspend);
 
   UpdateToolbar();
   UpdateMenu();
+}
+
+
+void KeyFramerTab::onTabDeactivated()
+{
+  if(playstate==PLAYSTATE_LOOPING || playstate==PLAYSTATE_PLAYING)
+  {
+    playstateBeforeSuspend = playstate;
+    setPlaystate(PLAYSTATE_SUSPENDED);
+  }
 }
 
 
@@ -799,7 +811,7 @@ void KeyFramerTab::enableInputs(bool state)
 void KeyFramerTab::frameTimeout()
 {
   // only if we are still playing
-  if(playstate!=PLAYSTATE_STOPPED)
+  if(playstate!=PLAYSTATE_STOPPED && playstate!=PLAYSTATE_SUSPENDED)
   {
     Animation* anim=animationView->getAnimation();
     if(anim)
@@ -862,6 +874,9 @@ void KeyFramerTab::nextPlaystate()
 
       break;
     }
+    case PLAYSTATE_SUSPENDED:
+      throw new QString("Invalid state exception: Can't be in state PLAYSTATE_SUSPENDED when the tab is active");
+    break;
     default:
       qDebug("qavimator::nextPlaystate(): unknown playstate %d",(int) playstate);
   }
@@ -1877,7 +1892,7 @@ void KeyFramerTab::setPlaystate(PlayState state)
   playstate=state;
 
   // set play button icons according to play state
-  if(state==PLAYSTATE_STOPPED)
+  if(state==PLAYSTATE_STOPPED || state==PLAYSTATE_SUSPENDED)
     playButton->setIcon(loop ? loopIcon : playIcon);
   else if(state==PLAYSTATE_LOOPING)
     playButton->setIcon(playIcon);

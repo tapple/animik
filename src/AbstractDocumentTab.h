@@ -38,7 +38,10 @@ public:
   //Update menu of main window
   virtual void UpdateMenu() = 0;
 
+  /** User activated this tab making it the current one */
   virtual void onTabActivated() = 0;
+  /** Tab lost focus (another tab was activated) */
+  virtual void onTabDeactivated() = 0;
 
 protected:
   qavimator* mainWindow;
