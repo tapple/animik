@@ -23,9 +23,6 @@ Bugs:
   * Spotted on Win32. Open AVM, selecte a part, alter rotation. Tab is marked with '*', but after selecting another part, it
     disappears (like being saved).
   * Player loop-ing is independent from underlying Animation. The looping set on the Player should actually set it to the animation.
-  * Open new AVBL, place an animation on the time-line. Clicking on a frame inside works (figure poses). Move the animation to another
-    trail. Clicking on its frame doesn't change the posture anymore.
-    UPDATE: THIS SHOULD JUST START WORK WHEN I MERGE ANIMATION ON A TRAIL CORRECTLY.
   * Somehow it's possible to have the same file in the Animation list multiple times. Needs investigation first.
   * When new AVBL is created (and saved) it doesn't absolutely contain anything. Should describe empty time-line in a valid way.
 
