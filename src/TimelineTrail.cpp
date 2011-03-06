@@ -326,6 +326,18 @@ void TimelineTrail::drawTrailItem(TrailItem* item)
       p.fillRect(item->beginIndex()*_positionWidth+2, TOP_MARGIN+BORDER_WIDTH, _positionWidth-1,
                  FRAME_HEIGHT, QColor("#84365D"));
 
+    //Write the name of animation onto it's rectangle for all except the selected one.
+    if(!item->isShadow() && item!=selectedItem)
+    {
+        QPen textPen(QColor("#a181c0"));
+        QFont f ("Arial", 13, QFont::Bold);
+        p.setPen(textPen);
+        p.setFont(f);
+
+        p.drawText(item->beginIndex()*_positionWidth+BORDER_WIDTH, TRACK_HEIGHT/3+TOP_MARGIN, item->frames()*_positionWidth,
+                   TRACK_HEIGHT/3, Qt::AlignLeft, item->Name);
+    }
+
     QRectF border(item->beginIndex()*_positionWidth+1, TOP_MARGIN+1,
                   item->frames()*_positionWidth, FRAME_HEIGHT);
 
