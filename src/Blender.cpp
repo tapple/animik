@@ -32,8 +32,8 @@ WeightedAnimation* Blender::BlendTrails(TrailItem** trails, int trailsCount)
   WeightedAnimation* result = new WeightedAnimation(new BVH(), "");
   result->setNumberOfFrames(newFramesCont);
 
-  if(origItems.size() == 1)                 //for a single animation I MUST do it like this.
-    cloneAnimation(origItems.at(0)->getAnimation(), result);     //Otherwise signal/slot apocalypse begins
+  if(origItems.size() == 1)                                     //for a single animation I MUST do it like this.
+    cloneAnimation(origItems.at(0)->getAnimation(), result);    //Otherwise signal/slot apocalypse begins
   else
     blend(items, result, endIndex);
 
@@ -106,9 +106,9 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
     {                                       //implies creating mix-in shadow item
       TrailItem* currentItem = items[item];
 
-      if(i==item)                                             //won't combine with self
+      if(i==item)                                               //won't combine with self
         continue;
-      if(currentItem->beginIndex() <= items[i]->beginIndex())     //wrong overlap order
+      if(currentItem->beginIndex() <= items[i]->beginIndex())   //wrong overlap order
         continue;
 
       //overlaping or touching
@@ -356,9 +356,9 @@ QList<TrailItem*> Blender::mergeAndSortItemsByBeginIndex(QList<TrailItem*> realI
 
   while(true)
   {
-    int lowestBeginIndex = 999999999;           //begin index of left-most item
-    QList<TrailItem*>* lowestItemList = NULL;   //list that contains the item
-    int itemIndex = -1;                         //index of an item in the list
+    int lowestBeginIndex = 999999999;           //Begin index of left-most item,
+    QList<TrailItem*>* lowestItemList = NULL;   //and list that contains that item
+    int itemIndex = -1;                         //Index of an item in the list
 
     for(int r=0; r<realItems.size(); r++)
     {
@@ -410,7 +410,8 @@ void Blender::cloneAnimation(WeightedAnimation* fromAnim, WeightedAnimation* toA
 
 void Blender::cloneAnimationHelper(int limbIndex, WeightedAnimation* fromAnim, WeightedAnimation * toAnim)
 {
-  QList<int> keys = fromAnim->getNode(limbIndex)->keyframeList();
+  BVHNode* limb = fromAnim->getNode(limbIndex);
+  QList<int> keys = limb->keyframeList();
   foreach(int i, keys)
   {
     FrameData data = fromAnim->getNode(limbIndex)->frameData(i);
@@ -418,6 +419,9 @@ void Blender::cloneAnimationHelper(int limbIndex, WeightedAnimation* fromAnim, W
     Rotation rot(data.rotation().x, data.rotation().y, data.rotation().z);
     toAnim->getNode(limbIndex)->addKeyframe(i, pos, rot);
   }
+
+  for(int x=0; x<limb->numChildren(); x++)
+    cloneAnimationHelper(fromAnim->getPartIndex(limb->child(x)), fromAnim, toAnim);
 }
 
 
@@ -480,7 +484,7 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
     //Add to the section all items, that are beginning right with it
     for(int i=0; i<sortedItems.size(); i++)
     {
-      if(sortedItems.at(i)->beginIndex() == intervalStartFrame)
+      if(sortedItems.at(i)->beginIndex() == intervalStartFrame && !itemsInInterval.contains(i))       //'contains(i)' ? Ugly! TODO: what about hash-set?
         itemsInInterval.append(i);
       else if(sortedItems.at(i)->beginIndex() > intervalStartFrame)
         break;
@@ -508,10 +512,18 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
         {                                                                   //section (probably was a reason
           itemsInInterval.append(nextIndex);                                //to end the previous)
         }*/
-        if(sortedItems[nextIndex]->endIndex() < minEndFramePos)             //we've already fully included this
-        {                                                                   //animation in blending
-          nextIndex++;
-          continue;
+        if(sortedItems[nextIndex]->endIndex() < minEndFramePos)
+        {
+          if(sortedItems[nextIndex]->beginIndex() > intervalStartFrame)     //whole item is 'inside', its begin delimits
+          {                                                                 //this section's end
+            minEndFramePos = sortedItems[nextIndex]->beginIndex() - 1;
+            break;
+          }
+          else                //we've already fully included this
+          {                   //animation in blending
+            nextIndex++;
+            continue;
+          }
         }
         if(sortedItems[nextIndex]->beginIndex() <= minEndFramePos)          //item's begin index delimits
         {                                                                   //the section (will be processed
@@ -536,17 +548,6 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
       copyKeyFrame(position, intervalStartFrame-frameOffset-1, toFrame);
       BVHNode* root = result->getMotion();
       copyKeyFrame(root, intervalStartFrame-frameOffset-1, toFrame);
-    }
-    else if(itemsInInterval.size() == 1)  //only one animation to blend. we can afford to take
-    {                                     //just its first frame as key frame of result
-      int resultStartFrame = intervalStartFrame - frameOffset;
-
-      BVHNode* position = result->getNode(0);
-      combineKeyFramesHelper(sortedItems, itemsInInterval, position, intervalStartFrame, result,
-                             resultStartFrame);
-      BVHNode* root = result->getMotion();
-      combineKeyFramesHelper(sortedItems, itemsInInterval, root, intervalStartFrame, result,
-                             resultStartFrame);
     }
     else
     {
@@ -575,7 +576,7 @@ void Blender::combineKeyFrames(QList<TrailItem*> sortedItems, QList<int> itemInd
   int lastTimeLineFrame = fromTimeLineFrame + sectionLength - 1;
   int timeLineFrame = fromTimeLineFrame;
 
-  while(timeLineFrame < lastTimeLineFrame)
+  while(timeLineFrame <= lastTimeLineFrame)
   {
     BVHNode* position = target->getNode(0);
     combineKeyFramesHelper(sortedItems, itemIndices, position, timeLineFrame, target, targetFrame);

@@ -117,6 +117,7 @@ void Animation::loadBVH(const QString& bvhFile)
 void Animation::loadBVHFromString(const QString& bvhData)
 {
   frames = bvh->bvhReadFromString(bvhData);
+  positionNode = bvh->lastLoadedPositionNode;
   bvh->parseLimFile(frames, dataPath + "/" + LIMITS_FILE);
   setFrame(0);
 }

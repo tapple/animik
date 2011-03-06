@@ -334,6 +334,9 @@ BVHNode* BVH::bvhReadFromString(const QString& bvhFileData)
 
   bool debug = expect_token("HIERARCHY");
 
+  // positions pseudonode
+  lastLoadedPositionNode=new BVHNode("position", 0);
+  lastLoadedPositionNode->type=BVH_POS;
   BVHNode* root=bvhReadNode(/*edu*/0);
 
   expect_token("MOTION");
@@ -351,6 +354,20 @@ BVHNode* BVH::bvhReadFromString(const QString& bvhFileData)
     assignChannels(root,i);
 
   setAllKeyFramesHelper(root,totalFrames);
+
+
+
+  //BVH format means we need to add position keyframes ourselves
+  for(int index=0;index<root->numKeyframes();index++)
+  {
+    const FrameData& frameData=root->keyframeDataByIndex(index);
+    int frameNum=frameData.frameNumber();
+    lastLoadedPositionNode->addKeyframe(frameNum,frameData.position(),Rotation());
+    lastLoadedPositionNode->setEaseIn(frameNum,frameData.easeIn());
+    lastLoadedPositionNode->setEaseOut(frameNum,frameData.easeOut());
+  }
+
+
 
   return(root);
 }
