@@ -23,6 +23,7 @@ bool Avbl::SaveToFile(QList<TimelineTrail*> trails, QString fileName)
     document.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"utf-8\"");
   document.appendChild(pi);
   QDomElement rootElm = document.createElement("avbl");
+  document.appendChild(rootElm);
   QDomElement trailsElm = document.createElement("trailsDescription");
   trailsElm.setAttribute("count", trails.size());
   rootElm.appendChild(trailsElm);
@@ -71,7 +72,6 @@ bool Avbl::SaveToFile(QList<TimelineTrail*> trails, QString fileName)
         animElm.appendChild(bWeightsElm);
 
         rootElm.appendChild(animElm);
-        document.appendChild(rootElm);
 
         orderOnTrail++;
       }
@@ -167,7 +167,6 @@ QList<TrailItem*>* Avbl::LoadFromFile(QString fileName)
       tempItem->getAnimation()->setFrameWeight(index, weight);
     }
 
-/*TODO. When there will be limb weights
     QDomElement boneWeightsElm = itemElm.elementsByTagName("boneWeights").at(0).toElement();
     QDomNodeList bones = boneWeightsElm.elementsByTagName("bone");
     QHash<QString, QDomElement> bonesTable;
@@ -181,7 +180,6 @@ QList<TrailItem*>* Avbl::LoadFromFile(QString fileName)
     BVHNode* root = tempItem->getAnimation()->getMotion();
     loadLimbWeights(root, &bonesTable);
     //TODO: and what about position pseudo-node?
-*/
 
     loadedItems[trailIndex][trailOrder] = tempItem;
   }
@@ -201,8 +199,11 @@ void Avbl::loadLimbWeights(BVHNode* limb, QHash<QString, QDomElement>* bones)
     QDomElement bWeight = boneWeights.at(bw).toElement();
     int index = bWeight.attribute("number", "-1").toInt();
     int weight = bWeight.attribute("weight", "-1").toInt();
-//TODO    limb->setWeight(index, weight);
+    limb->setKeyframeWeight(index, weight);
   }
+
+  for(int x=0; x<limb->numChildren(); x++)
+    loadLimbWeights(limb->child(x), bones);
 }
 
 
@@ -246,7 +247,7 @@ void Avbl::createLimbWeightsElement(QDomDocument document, QDomElement parentEle
   {
     QDomElement bWeight = document.createElement("frame");
     bWeight.setAttribute("number", i);
-    bWeight.setAttribute("weight", 123456);         //TODO: real limb weights
+    bWeight.setAttribute("weight", limb->frameData(i).weight());
     limbElm.appendChild(bWeight);
   }
 

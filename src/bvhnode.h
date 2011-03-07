@@ -51,6 +51,10 @@ struct FrameData
     void setPosition(const Position& pos);
     void setRotation(const Rotation& rot);
 
+    /** Limb weight in interval <0, 100>. Meant to be used in blending as a measure of relative importance. **/
+    int weight() const;
+    void setWeight(int w);
+
     bool easeIn() const;
     bool easeOut() const;
     void setEaseIn(bool state);
@@ -64,6 +68,8 @@ struct FrameData
 
     Rotation m_rotation;
     Position m_position;
+
+    int m_weight;
 
     bool m_easeIn;
     bool m_easeOut;
@@ -95,6 +101,10 @@ class BVHNode
     void deleteKeyframe(int frame);
     void setKeyframePosition(int frame,const Position& pos);
     void setKeyframeRotation(int frame,const Rotation& rot);
+
+    /** Set weight (relative importance used in blending) to this node in given frame.
+        Behaves like third key-frame-able attribute (beside position and rotation). **/
+    void setKeyframeWeight(int frame, int weight);
 //edu: never used?    void insertFrame(int frame); // moves all key frames starting at "frame" one frame further
     void deleteFrame(int frame); // removes frame at position and moves all further frames one down
     bool isKeyframe(int frame) const;

@@ -11,22 +11,32 @@ class BVHNode;
 
 
 namespace Ui {
-    class LimbsWeightDialog;
+  class LimbsWeightDialog;
 }
 
+
+/** A dialog to set weights for given set of BVHNodes. On accepting it effectively performs the weighting,
+    so the weight() property is only for informative purposes. **/
 class LimbsWeightDialog : public QDialog
 {
     Q_OBJECT
 
   public:
-    /** @param weightHint a limb weight to be preset. Only values in <0, 100> will be accepted */
-    LimbsWeightDialog(QList<BVHNode*>* limbs, int weightHint = -1, QWidget *parent = 0);
+    /** @param limbs list of BVHNodes to be weighted
+        @param frame index of key-frame for which the limbs are being weighted inside
+               their respective animation */
+    LimbsWeightDialog(QString animationName, QList<BVHNode*>* limbs, int frame, QWidget *parent = 0);
     ~LimbsWeightDialog();
 
-    int weight() { return _weight; }
+    int weight() const { return _weight; }
+
+  public slots:
+    virtual void accept();      //overriden from QDialog
 
   private:
     Ui::LimbsWeightDialog *ui;
+    QList<BVHNode*>* limbs;
+    int frame;
     int _weight;
 
   private slots:

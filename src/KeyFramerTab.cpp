@@ -220,6 +220,7 @@ void KeyFramerTab::UpdateMenu()
   //Note: actions shared with Toolbar are handled in UpdateToolbar()
   mainWindow->fileLoadPropsAction->setEnabled(true);
   mainWindow->fileSavePropsAction->setEnabled(propNameCombo->count());
+  mainWindow->fileExportForSecondLifeAction->setEnabled(true);
 
   mainWindow->toolsOptimizeBVHAction->setEnabled(true);
   mainWindow->toolsMirrorAction->setEnabled(true);
@@ -1192,13 +1193,15 @@ void KeyFramerTab::fileSaveAs()
 // Menu Action: File / Export For Second Life
 void KeyFramerTab::fileExportForSecondLife()
 {
-  //TODO: let the user choose the export file location
-  QFileInfo fileInfo(CurrentFile);
-  QString exportName=fileInfo.path()+"/"+fileInfo.baseName()+".bvh";
+  QString exportName = QFileDialog::getSaveFileName(this, "Save exported file", Settings::Instance()->lastPath(), BVH_FILTER);
 
-  qDebug("qavimator::fileExportForSecondLife(): exporting animation as '%s'.",exportName.toLatin1().constData());
-  animationView->getAnimation()->saveBVH(exportName);
-  QMessageBox::information(this,QObject::tr("Export for Second Life"),QObject::tr("Animation was exported for Second Life as:\n%1").arg(exportName));
+  if(exportName != "")
+  {
+    qDebug("fileExportForSecondLife(): exporting animation as '%s'.", exportName.toLatin1().constData());
+    if(!exportName.endsWith(".bvh", Qt::CaseInsensitive))
+      exportName += ".bvh";
+    animationView->getAnimation()->saveBVH(exportName);
+  }
 }
 
 

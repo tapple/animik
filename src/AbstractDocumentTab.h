@@ -2,10 +2,12 @@
 #define ABSTRACTDOCUMENTTAB_H
 
 #include <QWidget>
-
 #include "NewFileDialog.h"        //TODO
 
 class qavimator;
+
+
+#define BVH_FILTER  "SL animations (*.bvh)"
 
 
 /**

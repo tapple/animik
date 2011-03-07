@@ -23,13 +23,14 @@ class Player : public QWidget
     ~Player();
 
     /** Get current play state */
-    PlayState state() { return _state; }
-    void setFirstFrame(int first) { if(first<loopOut) loopIn = first; }
-    void setLastFrame(int last) { if(last>loopIn) loopOut = last; }
+    PlayState state()              { return _state; }
+    bool isPlaying() const         { return _state == PLAYSTATE_PLAYING || _state == PLAYSTATE_PLAYING; }
+    void setFirstFrame(int first)  { if(first<loopOut) loopIn = first; }
+    void setLastFrame(int last)    { if(last>loopIn) loopOut = last; }
     /** Suspend or wake the player */
     void suspend(bool suspend);
-    int fps() { return animation->fps(); }
-    void setFPS(int fps) { animation->setFPS(fps); }
+    int fps() const                { return animation->fps(); }
+    void setFPS(int fps)           { animation->setFPS(fps); }
 
     void playOrPause();
     void stepForward();

@@ -84,7 +84,7 @@ void BVHNode::addChild(BVHNode* newChild)
   children.append(newChild);
 }
 
-void BVHNode::insertChild(BVHNode* newChild,int index)
+void BVHNode::insertChild(BVHNode* newChild, int index)
 {
 // qDebug(QString("BVHNode(%1): insertChild(%2,%3)").arg(name()).arg(newChild->name()).arg(index));
   children.insert(index,newChild);
@@ -96,14 +96,14 @@ void BVHNode::removeChild(BVHNode* child)
   children.removeAll(child);
 }
 
-void BVHNode::addKeyframe(int frame,Position pos,Rotation rot)
+void BVHNode::addKeyframe(int frame, Position pos, Rotation rot)
 {
 //  qDebug(QString("addKeyframe(%1)").arg(frame));
   keyframes[frame]=FrameData(frame,pos,rot);
 //  if(frame==0 && name()=="hip") qDebug(QString("BVHNode::addKeyframe(%1,<%2,%3,%4>,<%5,%6,%7>) %8").arg(frame).arg(pos.x).arg(pos.y).arg(pos.z).arg(rot.x).arg(rot.y).arg(rot.z).arg(pos.bodyPart));
 }
 
-void BVHNode::setKeyframePosition(int frame,const Position& pos)
+void BVHNode::setKeyframePosition(int frame, const Position& pos)
 {
 //  qDebug(QString("setKeyframePosition(%1)").arg(frame));
   if(!isKeyframe(frame)) qDebug("setKeyframePosition(%d): not a keyframe!",frame);
@@ -114,7 +114,7 @@ void BVHNode::setKeyframePosition(int frame,const Position& pos)
   }
 }
 
-void BVHNode::setKeyframeRotation(int frame,const Rotation& rot)
+void BVHNode::setKeyframeRotation(int frame, const Rotation& rot)
 {
 //  qDebug(QString("setKeyframeRotation(%1)").arg(frame));
   if(!isKeyframe(frame)) qDebug("setKeyframeRotation(%d): not a keyframe!",frame);
@@ -122,6 +122,20 @@ void BVHNode::setKeyframeRotation(int frame,const Rotation& rot)
   {
     FrameData& key=keyframes[frame];
     key.setRotation(rot);
+  }
+}
+
+void BVHNode::setKeyframeWeight(int frame, int weight)
+{
+  if(isKeyframe(frame))
+  {
+    FrameData& key = keyframes[frame];
+    key.setWeight(weight);
+  }
+  else
+  {       //add new keyframe with interpolated position/rotation and given weight
+    keyframes[frame] = frameData(frame);
+    keyframes[frame].setWeight(weight);
   }
 }
 
@@ -594,6 +608,7 @@ FrameData::FrameData()
 {
 //  qDebug(QString("FrameData(%1)").arg((unsigned long)this));
   m_frameNumber=0;
+  m_weight = 50;
   m_easeIn=false;
   m_easeOut=false;
 }
@@ -604,55 +619,22 @@ FrameData::FrameData(int num,Position pos,Rotation rot)
   m_frameNumber=num;
   m_rotation=rot;
   m_position=pos;
+  m_weight = 50;      //default for those nodes, that don't need weights
   m_easeIn=false;
   m_easeOut=false;
 }
 
-int FrameData::frameNumber() const
-{
-  return m_frameNumber;
-}
-
-void FrameData::setFrameNumber(int frame)
-{
-  m_frameNumber=frame;
-}
-
-Position FrameData::position() const
-{
-  return m_position;
-}
-
-Rotation FrameData::rotation() const
-{
-  return m_rotation;
-}
-
-void FrameData::setEaseIn(bool state)
-{
-  m_easeIn=state;
-}
-
-void FrameData::setEaseOut(bool state)
-{
-  m_easeOut=state;
-}
-
-bool FrameData::easeIn() const
-{
-  return m_easeIn;
-}
-
-bool FrameData::easeOut() const
-{
-  return m_easeOut;
-}
-
-void FrameData::setPosition(const Position& pos)
-{
-  m_position=pos;
-}
-
+int FrameData::frameNumber() const                 { return m_frameNumber; }
+void FrameData::setFrameNumber(int frame)          { m_frameNumber=frame; }
+Position FrameData::position() const               { return m_position; }
+Rotation FrameData::rotation() const               { return m_rotation; }
+void FrameData::setEaseIn(bool state)              { m_easeIn=state; }
+void FrameData::setEaseOut(bool state)             { m_easeOut=state; }
+int FrameData::weight() const                      { return m_weight; }
+void FrameData::setWeight(int w)                   { m_weight = w; }
+bool FrameData::easeIn() const                     { return m_easeIn; }
+bool FrameData::easeOut() const                    { return m_easeOut; }
+void FrameData::setPosition(const Position& pos)   { m_position=pos; }
 void FrameData::setRotation(const Rotation& newRot)
 {
 //  qDebug(QString("FrameData::setRotation(<%1,%2,%3>)").arg(m_rotation.x).arg(m_rotation.y).arg(m_rotation.z));

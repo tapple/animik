@@ -27,9 +27,11 @@ class BlenderTimeline : public QFrame
     void ConstructTimeLine(QList<TrailItem*>* trails);
     /** External object may use this to explicitely reevaluate the time-line and rebuild
         the overall animation. Supposed to be used for case of change in global application settings. */
-    /** Return currently selected TrailItem. If none was selected by user, NUUL is returned */
-    TrailItem* GetSelectedItem() const;
     void RebuildResultingAnimation();
+    /** Return currently selected TrailItem. If none was selected by user, NUUL is returned */
+    TrailItem* getSelectedItem() const;
+    /** True if doesn't contain any animation */
+    bool isClear() const;
     QList<TimelineTrail*> Trails();
     int TrailCount();
 

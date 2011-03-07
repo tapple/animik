@@ -100,7 +100,7 @@ void BlenderTimeline::ConstructTimeLine(QList<TrailItem*>* trails)
     this->trails.at(i)->ResetContent(trails->at(i));
 }
 
-TrailItem* BlenderTimeline::GetSelectedItem() const
+TrailItem* BlenderTimeline::getSelectedItem() const
 {
   for(int i=0; i<trails.size(); i++)
   {
@@ -111,6 +111,14 @@ TrailItem* BlenderTimeline::GetSelectedItem() const
   return NULL;
 }
 
+
+bool BlenderTimeline::isClear() const
+{
+  for(int i=0; i<trails.count(); i++)
+    if(trails.at(i)->firstItem() != 0) return false;
+
+  return true;
+}
 
 void BlenderTimeline::RebuildResultingAnimation()
 {

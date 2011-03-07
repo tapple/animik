@@ -108,7 +108,7 @@ void BlenderTab::ResetView()
 
 void BlenderTab::ExportForSecondLife()
 {
-  sorry();
+  fileExportForSecondLife();
 }
 
 void BlenderTab::UpdateToolbar()
@@ -124,15 +124,16 @@ void BlenderTab::UpdateMenu()
   //Note: actions shared with Toolbar are handled in UpdateToolbar()
   mainWindow->fileLoadPropsAction->setEnabled(false);
   mainWindow->fileSavePropsAction->setEnabled(false);
+  mainWindow->fileExportForSecondLifeAction->setEnabled(!blenderTimeline->isClear());
 
   mainWindow->toolsOptimizeBVHAction->setEnabled(false);
   mainWindow->toolsMirrorAction->setEnabled(false);
 
   mainWindow->optionsJointLimitsAction->setEnabled(false);
-  mainWindow->optionsLoopAction->setEnabled(true);
+  mainWindow->optionsLoopAction->setEnabled(!blenderTimeline->isClear());
   mainWindow->optionsProtectFirstFrameAction->setEnabled(false);
   mainWindow->optionsShowTimelineAction->setEnabled(false);
-  mainWindow->optionsSkeletonAction->setEnabled(false);
+  mainWindow->optionsSkeletonAction->setEnabled(true);
 }
 
 void BlenderTab::onTabActivated()
@@ -311,6 +312,21 @@ void BlenderTab::keyPressEvent(QKeyEvent* e)
     e->ignore();            //send it to parent
 }
 
+// Menu Action: File / Export For Second Life
+void BlenderTab::fileExportForSecondLife()
+{
+  QString exportName = QFileDialog::getSaveFileName(this, "Save exported file", Settings::Instance()->lastPath(), BVH_FILTER);
+
+  if(exportName != "")
+  {
+    qDebug("BlenderTab::fileExportForSecondLife(): exporting animation as '%s'.", exportName.toLatin1().constData());
+    if(!exportName.endsWith(".bvh", Qt::CaseInsensitive))
+      exportName += ".bvh";
+    blenderAnimationView->getAnimation()->saveBVH(exportName);
+  }
+}
+
+
 bool BlenderTab::resolveUnsavedChanges()
 {
   if(IsUnsaved())
@@ -378,6 +394,7 @@ void BlenderTab::onTimelineAnimationChanged(WeightedAnimation* anim)
   isDirty = true;
   setCurrentFile(CurrentFile);    //update asterisk
   blenderAnimationView->setAnimation(anim);
+  UpdateMenu();                   //ex. export action
 }
 
 /** There might be settings that affect the way the resulting animation is built.
@@ -389,14 +406,20 @@ void BlenderTab::onConfigChanged()
 
 void BlenderTab::onLimbDoubleClick(int jointNumber)           //Lot TODO
 {
-  TrailItem* selectedItem = blenderTimeline->GetSelectedItem();
-  if(selectedItem == NULL)
-    return;
-
-  QList<BVHNode*> limbList;
-  limbList << selectedItem->getAnimation()->getNode(jointNumber);
-  LimbsWeightDialog* lwd = new LimbsWeightDialog(&limbList, 22, this);
-  lwd->exec();
+  TrailItem* selectedItem = blenderTimeline->getSelectedItem();
+  if(selectedItem != NULL && !blenderPlayer->isPlaying())
+  {
+    QList<BVHNode*> limbList;
+    limbList << selectedItem->getAnimation()->getNode(jointNumber);
+    LimbsWeightDialog* lwd = new LimbsWeightDialog(selectedItem->Name, &limbList,
+                                                   selectedItem->selectedFrame(), this);
+    if(lwd->exec() == QDialog::Accepted)
+    {
+      isDirty = true;
+      setCurrentFile(CurrentFile);      //asterisk
+      blenderTimeline->RebuildResultingAnimation();
+    }
+  }
 }
 
 // ---------------------------------------------- //
