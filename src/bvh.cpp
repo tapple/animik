@@ -355,8 +355,6 @@ BVHNode* BVH::bvhReadFromString(const QString& bvhFileData)
 
   setAllKeyFramesHelper(root,totalFrames);
 
-
-
   //BVH format means we need to add position keyframes ourselves
   for(int index=0;index<root->numKeyframes();index++)
   {
@@ -366,8 +364,6 @@ BVHNode* BVH::bvhReadFromString(const QString& bvhFileData)
     lastLoadedPositionNode->setEaseIn(frameNum,frameData.easeIn());
     lastLoadedPositionNode->setEaseOut(frameNum,frameData.easeOut());
   }
-
-
 
   return(root);
 }
