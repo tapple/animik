@@ -91,6 +91,8 @@ class BVH
     QList<Rotation> rotationCopyBuffer;
     Position positionCopyBuffer;
 
+    static QStringList getValidNodeNames();
+
   protected:
     QString inputFile;
     QStringList tokens;
@@ -99,7 +101,7 @@ class BVH
     // remember if the loaded animation is in old or new AVM format
     bool havePositionKeys;
 
-    QStringList validNodes;
+    static QStringList validNodes;
     BVHNode* positionNode;
 
     QString nextToken();

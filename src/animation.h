@@ -98,6 +98,7 @@ class Animation : public QObject
     BVHNode* getMotion();
     BVHNode* getEndSite(const QString& siteParentName);
     BVHNode* getNode(int jointNumber);
+    BVHNode* getNodeByName(QString name) const;
 
     void cutFrame();
     void copyFrame();

@@ -66,7 +66,7 @@ class TrailItem
     }
     /** Currently highlighted frame of animation. The value has meaning
         only if this item is also highlighted on a timeline. */
-    int selectedFrame() { return _selectedFrame; }
+    int selectedFrame() { return _selectedFrame; }            //TODO: no, no! The selected frame of underlying animation should be returned
     TrailItem* nextItem() { return next; }
     void setNextItem(TrailItem* nextItem) { this->next=nextItem; }
     TrailItem* previousItem() { return previous; }

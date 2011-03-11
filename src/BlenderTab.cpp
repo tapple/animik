@@ -404,15 +404,15 @@ void BlenderTab::onConfigChanged()
   blenderTimeline->RebuildResultingAnimation();
 }
 
-void BlenderTab::onLimbDoubleClick(int jointNumber)           //Lot TODO
+void BlenderTab::onLimbDoubleClick(int jointNumber)
 {
   TrailItem* selectedItem = blenderTimeline->getSelectedItem();
-  if(selectedItem != NULL && !blenderPlayer->isPlaying())
+  if(selectedItem != NULL && !selectedItem->isShadow() && !blenderPlayer->isPlaying())
   {
     QList<BVHNode*> limbList;
     limbList << selectedItem->getAnimation()->getNode(jointNumber);
-    LimbsWeightDialog* lwd = new LimbsWeightDialog(selectedItem->Name, &limbList,
-                                                   selectedItem->selectedFrame(), this);
+    LimbsWeightDialog* lwd = new LimbsWeightDialog(selectedItem->Name, &limbList, selectedItem->selectedFrame(),
+                                                   selectedItem->frames(), this);
     if(lwd->exec() == QDialog::Accepted)
     {
       isDirty = true;

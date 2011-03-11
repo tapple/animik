@@ -72,6 +72,7 @@ class BlenderTimeline : public QFrame
 
     void fitStackWidgetToContent();
     void ensurePlayFrameVisibility(int position);
+    TrailItem* selectedItem();
 };
 
 

@@ -187,6 +187,17 @@ void BlenderTimeline::ensurePlayFrameVisibility(int position)
   scrollArea->ensureVisible(TimelineTrail::positionWidth()*position, 0, TimelineTrail::positionWidth()*5, 0);
 }
 
+TrailItem* BlenderTimeline::selectedItem()
+{
+  foreach(TimelineTrail* trail, trails)
+  {
+    if(trail->getSelectedItem() != NULL)
+      return trail->getSelectedItem();
+  }
+
+  return NULL;
+}
+
 
 // -------------------------- SLOTS -------------------------- //
 void BlenderTimeline::setCurrentFrame(int frameIndex)
@@ -226,6 +237,7 @@ void BlenderTimeline::endItemReposition()
 //A TimelineTrail asked us to show and fill the limbs' weights form
 void BlenderTimeline::showLimbsWeightForm(/*TODO: frameData*/)
 {
+  limbsForm->UpdateContent(selectedItem()->getAnimation(), selectedItem()->selectedFrame());
   limbsForm->show();
 }
 

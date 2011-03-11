@@ -20,8 +20,19 @@
  */
 
 #include <QMessageBox>
-
 #include "bvh.h"
+
+
+
+QStringList BVH::validNodes = (QStringList() <<  "hip" << "abdomen" << "chest" << "neck" << "head"
+                                             << "lCollar" << "lShldr" << "lForeArm" << "lHand"
+                                             << "rCollar" << "rShldr" << "rForeArm" << "rHand"
+                                             << "lThigh" << "lShin" << "lFoot"
+                                             << "rThigh" << "rShin" << "rFoot"
+                                             << "Site");
+
+QStringList BVH::getValidNodeNames() { return BVH::validNodes; }
+
 
 BVH::BVH()
 {
@@ -37,12 +48,13 @@ BVH::BVH()
   bvhChannelName.append("Yrotation");
   bvhChannelName.append("Zrotation");
 
-  validNodes << "hip" << "abdomen" << "chest" << "neck" << "head"
+/*  validNodes << "hip" << "abdomen" << "chest" << "neck" << "head"
              << "lCollar" << "lShldr" << "lForeArm" << "lHand"
              << "rCollar" << "rShldr" << "rForeArm" << "rHand"
              << "lThigh" << "lShin" << "lFoot"
              << "rThigh" << "rShin" << "rFoot"
              << "Site";
+             */
 }
 
 BVH::~ BVH()

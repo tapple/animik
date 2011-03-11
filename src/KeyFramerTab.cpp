@@ -1616,7 +1616,7 @@ void KeyFramerTab::setCurrentFile(const QString& fileName)
   QString a = IsUnsaved() ? "*" : "";
   mainWindow->setWindowTitle("Animik [" + CurrentFile + a + "]");
   QFileInfo fileInfo(fileName);
-  setWindowTitle(fileInfo.fileName());
+  setWindowTitle(fileInfo.fileName() + a);
 }
 
 // this slot gets called from Animation::setFrame(int)

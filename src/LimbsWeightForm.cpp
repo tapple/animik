@@ -1,35 +1,89 @@
+#include "bvh.h"
+#include "bvhnode.h"
+#include "WeightedAnimation.h"
 #include "LimbsWeightForm.h"
 #include "ui_LimbsWeightForm.h"
 
 
 
-LimbsWeightForm::LimbsWeightForm(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::LimbsWeightForm)
+LimbsWeightForm::LimbsWeightForm(QWidget *parent) : QWidget(parent), ui(new Ui::LimbsWeightForm)
 {
-    ui->setupUi(this);
+  ui->setupUi(this);
+
+  ui->limbComboBox->blockSignals(true);
+  ui->limbComboBox->addItem("position");
+  ui->limbComboBox->addItems(BVH::getValidNodeNames());
+  ui->limbComboBox->removeItem(ui->limbComboBox->findText("Site"));    //I don't want "Site" to be there
+  ui->limbComboBox->blockSignals(false);
+  labels.insert("position", ui->positionWLabel);                       //TODO: I don't know, I just don't like this hard code.
+  labels.insert("hip", ui->hipWLabel);
+  labels.insert("abdomen", ui->abdomenWLabel);
+  labels.insert("chest", ui->chestWLabel);
+  labels.insert("neck", ui->neckWLabel);
+  labels.insert("head", ui->headWLabel);
+  labels.insert("lCollar", ui->lCollarWLabel);
+  labels.insert("lShldr", ui->lShldrWLabel);
+  labels.insert("lForeArm", ui->lForeArmWLabel);
+  labels.insert("lHand", ui->lHandWLabel);
+  labels.insert("rCollar", ui->rCollarWLabel);
+  labels.insert("rShldr", ui->rShldrWLabel);
+  labels.insert("rForeArm", ui->rForeArmWLabel);
+  labels.insert("rHand", ui->rHandWLabel);
+  labels.insert("lThigh", ui->lThighWLabel);
+  labels.insert("lShin", ui->lShinWLabel);
+  labels.insert("lFoot", ui->lFootWLabel);
+  labels.insert("rThigh", ui->rThighWLabel);
+  labels.insert("rShin", ui->rShinWLabel);
+  labels.insert("rFoot", ui->rFootWLabel);
 }
 
 LimbsWeightForm::~LimbsWeightForm()
 {
-    delete ui;
+  delete ui;
 }
 
 
-void LimbsWeightForm::changeEvent(QEvent *e)
+void LimbsWeightForm::UpdateContent(WeightedAnimation* animation, int frame)
 {
-    QWidget::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
+  if(animation == NULL)
+  {
+    anim = animation;
+    ui->contentWidget->setEnabled(false);
+  }
+  else
+  {
+    ui->contentWidget->setEnabled(true);
+    anim = animation;
+    this->frame = frame;
+    updateLabelsHelper(anim->getNode(0));
+    updateLabelsHelper(anim->getMotion());
+  }
+}
+
+
+void LimbsWeightForm::updateLabelsHelper(BVHNode* limb)
+{
+  labels.value(limb->name())->setText(QString::number(limb->frameData(frame).weight()));
+  for(int i=0; i<limb->numChildren(); i++)
+  {
+    if(limb->child(i)->name() != "Site")
+      updateLabelsHelper(limb->child(i));
+  }
 }
 
 void LimbsWeightForm::on_hideButton_clicked()
 {
   hide();
-  emit hidden();
+}
+
+void LimbsWeightForm::on_limbComboBox_currentIndexChanged(QString itemText)
+{
+  selectedLimb = anim->getNodeByName(itemText);
+  ui->weightSlider->setValue(selectedLimb->frameData(frame).weight());
+}
+
+void LimbsWeightForm::on_weightSlider_valueChanged(int value)
+{
+  selectedLimb->setKeyframeWeight(frame, value);
+  labels.value(selectedLimb->name())->setText(QString::number(selectedLimb->frameData(frame).weight()));
 }

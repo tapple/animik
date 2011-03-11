@@ -981,6 +981,14 @@ BVHNode* Animation::getNode(int jointNumber)
   return bvh->bvhFindNode(frames,getPartName(jointNumber));
 }
 
+
+BVHNode* Animation::getNodeByName(QString name) const
+{
+  if(name == positionNode->name())
+    return positionNode;
+  return bvh->bvhFindNode(frames, name);
+}
+
 /*edu: never used?
 void Animation::insertFrameHelper(BVHNode* joint,int frame)
 {
