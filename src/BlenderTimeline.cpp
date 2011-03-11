@@ -47,10 +47,8 @@ BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(pare
     connect(tt, SIGNAL(adjustLimbsWeight(/*TODO: frameData*/)), this, SLOT(showLimbsWeightForm(/*TODO: frameData*/)));
     connect(tt, SIGNAL(positionsCountChanged(int)), this, SLOT(setFramesCount(int)));
 
-
-    connect(tt, SIGNAL(trailAnimationChanged(WeightedAnimation*, int)),             //TODO: the signal is soon to be obsolete. Don't forget to delete this then
-            this, SLOT(onTrailAnimationChanged(WeightedAnimation*, int)));
-
+//    connect(tt, SIGNAL(trailAnimationChanged(WeightedAnimation*, int)),             //TODO: the signal is soon to be obsolete. Don't forget to delete this then
+//            this, SLOT(onTrailAnimationChanged(WeightedAnimation*, int)));
     connect(tt, SIGNAL(trailContentChanged(TrailItem*)), this, SLOT(onTrailContentChanged()));
 
     trails.append(tt);
@@ -65,6 +63,7 @@ BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(pare
   needsReshape = true;
 
   limbsForm = new LimbsWeightForm(this);
+  connect(limbsForm, SIGNAL(valueChanged()), this, SLOT(onTrailContentChanged()));
 
   QHBoxLayout* layout=new QHBoxLayout(this);
   layout->setMargin(0);
@@ -104,8 +103,8 @@ TrailItem* BlenderTimeline::getSelectedItem() const
 {
   for(int i=0; i<trails.size(); i++)
   {
-    if(trails.at(i)->getSelectedItem() != NULL)
-      return trails.at(i)->getSelectedItem();
+    TrailItem* sel = trails.at(i)->getSelectedItem();
+    if(sel != NULL) return sel;
   }
 
   return NULL;
@@ -147,6 +146,12 @@ void BlenderTimeline::RebuildResultingAnimation()
 }
 
 
+void BlenderTimeline::HideLimsForm()
+{
+  limbsForm->hide();
+}
+
+
 QList<TimelineTrail*> BlenderTimeline::Trails()
 {
   return trails;
@@ -157,6 +162,14 @@ int BlenderTimeline::TrailCount()
   return trails.size();
 }
 
+void BlenderTimeline::limitUserActions(bool limit)
+{
+  if(limit)
+    limbsForm->hide();
+
+  foreach(TimelineTrail* trail, trails)
+    trail->limitUserActions(limit);
+}
 
 void BlenderTimeline::fitStackWidgetToContent()
 {
@@ -187,26 +200,22 @@ void BlenderTimeline::ensurePlayFrameVisibility(int position)
   scrollArea->ensureVisible(TimelineTrail::positionWidth()*position, 0, TimelineTrail::positionWidth()*5, 0);
 }
 
-TrailItem* BlenderTimeline::selectedItem()
-{
-  foreach(TimelineTrail* trail, trails)
-  {
-    if(trail->getSelectedItem() != NULL)
-      return trail->getSelectedItem();
-  }
-
-  return NULL;
-}
 
 
 // -------------------------- SLOTS -------------------------- //
 void BlenderTimeline::setCurrentFrame(int frameIndex)
 {
-  if(resultAnimation !=0 && frameIndex >= animationBeginPosition &&       //inside of overall animation
+  if(resultAnimation !=0 && frameIndex >= animationBeginPosition &&        //inside of overall animation
      frameIndex < animationBeginPosition + resultAnimation->getNumberOfFrames())
   {
     resultAnimation->setFrame(frameIndex - animationBeginPosition);        //this causes AnimationView and Player to be updated
   }
+
+  TrailItem* sel = getSelectedItem();
+  if(sel == NULL || sel->isShadow())
+    limbsForm->hide();
+  else if(limbsForm->isVisible())                                         //the form was open by user recently
+    limbsForm->UpdateContent(sel->getAnimation(), sel->selectedFrame());
 
   foreach(TimelineTrail* trail, trails)
     trail->setCurrentPosition(frameIndex);
@@ -218,7 +227,7 @@ void BlenderTimeline::unselectOldItem()
 {
   foreach(TimelineTrail* trail, trails)
     if(trail != sender())
-      trail->cancelTrailSelection();
+      trail->CancelTrailSelection();
 }
 
 void BlenderTimeline::startItemReposition(TrailItem* draggingItem)
@@ -235,9 +244,10 @@ void BlenderTimeline::endItemReposition()
 }
 
 //A TimelineTrail asked us to show and fill the limbs' weights form
-void BlenderTimeline::showLimbsWeightForm(/*TODO: frameData*/)
+void BlenderTimeline::showLimbsWeightForm()
 {
-  limbsForm->UpdateContent(selectedItem()->getAnimation(), selectedItem()->selectedFrame());
+  TrailItem* sel = getSelectedItem();
+  limbsForm->UpdateContent(sel->getAnimation(), sel->selectedFrame());
   limbsForm->show();
 }
 
@@ -254,6 +264,7 @@ void BlenderTimeline::setFramesCount(int newCount)
 
 
 
+/* TODO: delete
 void BlenderTimeline::onTrailAnimationChanged(WeightedAnimation* anim, int beginFrame)          //This is never called. TODO: cleanup
 {
   //DEBUG so far, TODO: recalculate overall animation
@@ -266,6 +277,7 @@ void BlenderTimeline::onTrailAnimationChanged(WeightedAnimation* anim, int begin
   animationBeginPosition = beginFrame;
   emit resultingAnimationChanged(anim);
 }
+*/
 
 void BlenderTimeline::onTrailContentChanged()
 {

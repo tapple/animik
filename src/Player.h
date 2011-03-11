@@ -32,13 +32,15 @@ class Player : public QWidget
     int fps() const                { return animation->fps(); }
     void setFPS(int fps)           { animation->setFPS(fps); }
 
-    void playOrPause();
-    void stepForward();
-    void stepBackward();
-    void skipToFirst();
-    void skipToLast();
+    void PlayOrPause();
+    void StepForward();
+    void StepBackward();
+    void SkipToFirst();
+    void SkipToLast();
 
   signals:
+    void playbackStarted();
+    void playbackPaused();
     void playbackFrameChanged(int currentFrame);      //(NOT)TODO: don't attach this to the resulting Animation* !!! (else you'll get signal loop)
                                                       //UPDATE: actually this is most probably obsolete signal as AnimationView listens to its Animation changes
 

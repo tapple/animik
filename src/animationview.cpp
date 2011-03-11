@@ -24,23 +24,23 @@
 #include <QApplication.h>
 #else
 
-
 #include <GL/glu.h>
 #include <GL/glut.h>
 #endif
 
 
+#include <QMenu>
 #include <QMouseEvent>
-
 #include "animationview.h"
 #include "bvh.h"
 #include "slparts.h"
-
 #include "settings.h"
 
 #define SHIFT 1
 #define CTRL  2
 #define ALT   4
+
+
 
 AnimationView::AnimationView(QWidget* parent, const char* /* name */, Animation* anim)
  : QGLWidget(parent)
@@ -59,6 +59,7 @@ AnimationView::AnimationView(QWidget* parent, const char* /* name */, Animation*
   _useIK = true;
   _multiPartPicking = false;
   _partInfo = false;
+  _useMirror = true;
 
   // fake glut initialization
   int args=1;
@@ -626,12 +627,14 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
     unsigned int selected=pickPart(event->x(),event->y());
 
     // if another part than the current one has been clicked, switch off mirror mode
-    if(selected!=partSelected) getAnimation()->setMirrored(false);
+    if(selected!=partSelected)
+      getAnimation()->setMirrored(false);
 
     // background clicked, reset all
     if(!selected)
     {
       partSelected=0;
+      selectedParts.clear();
       mirrorSelected=0;
       propSelected=0;
       propDragging=0;
@@ -641,6 +644,21 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
     else if(selected<OBJECT_START)
     {
       partSelected=selected;
+      if(_multiPartPicking)
+      {
+        if((modifier & CTRL))
+        {
+          if(selectedParts.contains(selected))        //second click on selected part withdraws it from selection
+;//            selectedParts.removeAt(selectedParts.indexOf(selected));
+          else selectedParts.append(selected);
+        }
+        else
+        {
+          selectedParts.clear();
+          selectedParts.append(selected);
+        }
+      }
+
       selectAnimation(selected/ANIMATION_INCREMENT);
       propSelected=0;
       propDragging=0;
@@ -658,15 +676,9 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
       emit partClicked(partSelected % ANIMATION_INCREMENT);
     }
     // drag handle clicked
-    else if(selected==DRAG_HANDLE_X ||
-            selected==DRAG_HANDLE_Y ||
-            selected==DRAG_HANDLE_Z ||
-            selected==SCALE_HANDLE_X ||
-            selected==SCALE_HANDLE_Y ||
-            selected==SCALE_HANDLE_Z ||
-            selected==ROTATE_HANDLE_X ||
-            selected==ROTATE_HANDLE_Y ||
-            selected==ROTATE_HANDLE_Z)
+    else if(selected==DRAG_HANDLE_X || selected==DRAG_HANDLE_Y || selected==DRAG_HANDLE_Z ||
+            selected==SCALE_HANDLE_X || selected==SCALE_HANDLE_Y || selected==SCALE_HANDLE_Z ||
+            selected==ROTATE_HANDLE_X || selected==ROTATE_HANDLE_Y || selected==ROTATE_HANDLE_Z)
     {
       propDragging=selected;
       changeX = changeY = changeZ = 0;
@@ -702,7 +714,7 @@ void AnimationView::mouseDoubleClickEvent(QMouseEvent* event)
   // no double clicks for props or drag handles
   if(selected>=OBJECT_START) return;
 
-  if(modifier & SHIFT)
+  if(_useMirror && (modifier & SHIFT))
   {
     mirrorSelected = getSelectedPart()->getMirrorIndex()+(selected/ANIMATION_INCREMENT)*ANIMATION_INCREMENT;
     if(mirrorSelected)
@@ -714,6 +726,7 @@ void AnimationView::mouseDoubleClickEvent(QMouseEvent* event)
 
   if(selected)
     emit partDoubleClicked(selected);
+
   repaint();
 }
 
@@ -808,6 +821,15 @@ void AnimationView::keyReleaseEvent(QKeyEvent* event)
   }
   event->ignore();
 }
+
+void AnimationView::contextMenuEvent(QContextMenuEvent *event)
+{
+  if(_multiPartPicking && !selectedParts.isEmpty())
+    partHighlighted = NULL;       //don't confuse the user
+
+  event->ignore();                //let containing tab to show a menu
+}
+
 
 void AnimationView::drawFigure(Animation* anim,unsigned int index)
 {
@@ -945,7 +967,7 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
       {
         glColor4f(1.0, 0.635, 0.059, 1);
       }
-      else if(partSelected==selectName)
+      else if(partSelected==selectName || (_multiPartPicking && selectedParts.contains(selectName)))
         glColor4f(0.6, 0.3, 0.3, 1);
       else if(partHighlighted==selectName)
         glColor4f(0.4, 0.5, 0.3, 1);

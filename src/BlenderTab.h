@@ -7,6 +7,7 @@
 #include "AbstractDocumentTab.h"
 
 class qavimator;
+class QAction;
 class QCloseEvent;
 class QFileInfo;
 class QStringList;
@@ -51,6 +52,9 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
     /** Handling key presses mainly for time-line */
     virtual void keyPressEvent(QKeyEvent *);
 
+    //DEBUG so far
+    virtual void contextMenuEvent(QContextMenuEvent *event);
+
     void setCurrentFile(const QString& fileName);
     QString selectFileToOpen(const QString& caption);
     void fileNew();
@@ -70,10 +74,14 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
     void editPaste();
 
   private:
+    QAction* setLimbWeightsAction;
     void bindMenuActions();
     bool canShowWarn;
     /** TRUE for unsaved content */
     bool isDirty;
+
+
+    void setSelectedLimbsWeight(QList<int>* jointNumbers);
 
     /////////////edu: DEBUG /////////////
     void sorry();
@@ -84,7 +92,12 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
     void on_zoomOutButton_clicked();
     void on_zoomInButton_clicked();
     void onConfigChanged();
-    void onLimbDoubleClick(int jointNumber);
+    void onLimbWeights();
+    void onLimbDoubleClicked(int jointNumber);
+    void onLimbsDialogPreviousFrame();
+    void onLimbsDialogNextFrame();
+    void onPlaybackStarted();
+    void onPlaybackPaused();
 };
 
 #endif // BLENDERTAB_H

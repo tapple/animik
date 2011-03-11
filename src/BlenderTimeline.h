@@ -28,12 +28,14 @@ class BlenderTimeline : public QFrame
     /** External object may use this to explicitely reevaluate the time-line and rebuild
         the overall animation. Supposed to be used for case of change in global application settings. */
     void RebuildResultingAnimation();
+    void HideLimsForm();
     /** Return currently selected TrailItem. If none was selected by user, NUUL is returned */
     TrailItem* getSelectedItem() const;
     /** True if doesn't contain any animation */
     bool isClear() const;
     QList<TimelineTrail*> Trails();
     int TrailCount();
+    void limitUserActions(bool limit);
 
   signals:
     /** Warn about Animation and its first frame position */
@@ -44,13 +46,13 @@ class BlenderTimeline : public QFrame
     void setCurrentFrame(int frameIndex);
     /** Find trail with selected TrailItem and make it unselect the item */
     void unselectOldItem();
-    void showLimbsWeightForm(/*TODO: frameData*/);
+    void showLimbsWeightForm();
     void setFramesCount(int newCount);
     void startItemReposition(TrailItem* draggingItem);
     void endItemReposition();
 
 
-    void onTrailAnimationChanged(WeightedAnimation* anim, int beginFrame);
+//TODO: delete    void onTrailAnimationChanged(WeightedAnimation* anim, int beginFrame);
     void onTrailContentChanged();
 
 
@@ -72,7 +74,6 @@ class BlenderTimeline : public QFrame
 
     void fitStackWidgetToContent();
     void ensurePlayFrameVisibility(int position);
-    TrailItem* selectedItem();
 };
 
 

@@ -43,6 +43,7 @@ TimelineTrail::TimelineTrail(QWidget* parent, Qt::WindowFlags, QString debugName
   settingWeight = false;
   leftMouseDown = rightMouseDown = false;
   addingNewItem = false;
+  userActionsLimited = false;
   //we need to receive mouseMoveEvent even when no button down
   setMouseTracking(true);
   //receive key press events
@@ -130,6 +131,12 @@ void TimelineTrail::ResetContent(TrailItem *first)
     coerceExtension(_lastItem->endIndex() - positionCount() +1);
 
   trailContentChange();
+}
+
+void TimelineTrail::limitUserActions(bool limit)
+{
+  userActionsLimited = limit;
+  if(limit) CancelTrailSelection();
 }
 
 
@@ -356,7 +363,7 @@ void TimelineTrail::drawTrailItem(TrailItem* item)
     p.drawRoundedRect(border, 4, 4);
 
     //show frame weights, as last
-    if(item==selectedItem)
+    if(!userActionsLimited && item==selectedItem)
     {
       int end = item->endIndex();
       double hFactor = ((double)FRAME_HEIGHT-BORDER_WIDTH) / MAX_WEIGHT;
@@ -621,7 +628,7 @@ void TimelineTrail::paintEvent(QPaintEvent*)
 
 void TimelineTrail::contextMenuEvent(QContextMenuEvent *event)
 {
-  if(/*rightMouseDown &&*/ selectedItem!=NULL && !selectedItem->isShadow())
+  if(!userActionsLimited && /*rightMouseDown &&*/ selectedItem!=NULL && !selectedItem->isShadow())
   {
     QMenu menu(this);
     menu.addAction(deleteItemAction);
@@ -719,21 +726,35 @@ void TimelineTrail::mousePressEvent(QMouseEvent* e)
   if(clickedFrame != currentPosition)
   {
     currentPosition = clickedFrame;
+
+    TrailItem* clickedItem = findItemOnPosition(currentPosition);
+    if(clickedItem == NULL)
+      emit backgroundClicked();
+    if(!userActionsLimited && clickedItem != selectedItem)
+    {
+      selectedItem = clickedItem;
+      emit selectedItemChanged();
+    }
+
     emit currentPositionChanged(currentPosition);
   }
-  else if(selectedItem != 0 && !selectedItem->isShadow())     //second click on selected frame, user wishes to set weight
+  else if(selectedItem != NULL && !selectedItem->isShadow())     //second click on selected frame, user wishes to set weight
   {
     settingWeight = true;
     adjustFrameWeight(e->y());
   }
+
+/*DEBUG so far
   TrailItem* clickedItem = findItemOnPosition(currentPosition);
-  if(clickedItem==0)
+  if(clickedItem == NULL)
     emit backgroundClicked();
-  if(clickedItem != selectedItem)
+  if(!userActionsLimited && clickedItem != selectedItem)
   {
     selectedItem = clickedItem;
     emit selectedItemChanged();
   }
+*/
+
 
 
   //NOTE: current frame of every TrailItem that might be crossed is set elsewhere, through signal/slot loop.

@@ -54,9 +54,11 @@ void LimbsWeightForm::UpdateContent(WeightedAnimation* animation, int frame)
   {
     ui->contentWidget->setEnabled(true);
     anim = animation;
+    selectedLimb = anim->getNodeByName(ui->limbComboBox->currentText());
     this->frame = frame;
     updateLabelsHelper(anim->getNode(0));
     updateLabelsHelper(anim->getMotion());
+    ui->weightSlider->setValue(selectedLimb->frameData(frame).weight());
   }
 }
 
@@ -86,4 +88,5 @@ void LimbsWeightForm::on_weightSlider_valueChanged(int value)
 {
   selectedLimb->setKeyframeWeight(frame, value);
   labels.value(selectedLimb->name())->setText(QString::number(selectedLimb->frameData(frame).weight()));
+  emit valueChanged();
 }

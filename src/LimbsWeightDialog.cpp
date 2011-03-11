@@ -86,11 +86,13 @@ void LimbsWeightDialog::accept()
 void LimbsWeightDialog::on_nextFrameButton_clicked()
 {
   currentFrame++;
+  emit nextFrame();
   initComponents();
 }
 
 void LimbsWeightDialog::on_prevFrameButton_clicked()
 {
   currentFrame--;
+  emit previousFrame();
   initComponents();
 }

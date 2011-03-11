@@ -25,6 +25,9 @@ class LimbsWeightForm : public QWidget
   public slots:
     void UpdateContent(WeightedAnimation* animation, int frame);
 
+  signals:
+    void valueChanged();
+
   private:
     Ui::LimbsWeightForm *ui;
     WeightedAnimation* anim;

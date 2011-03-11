@@ -31,6 +31,7 @@ class TimelineTrail : public QFrame
     /** Frame position width in pixels. Some (parent) widget need to know
         before paint. */
     static int positionWidth()          { return _positionWidth; }
+    void limitUserActions(bool limit);
 
   signals:
     void resized(const QSize& newSize);
@@ -60,7 +61,7 @@ class TimelineTrail : public QFrame
   public slots:
     void setCurrentPosition(int position);
     /** Unselect currently selected TrailItem */
-    void cancelTrailSelection() { selectedItem=0; repaint(); }
+    void CancelTrailSelection() { selectedItem=NULL; repaint(); }
     void setPositionCount(int position);
     void onMovingItem(TrailItem* draggedItem);
     void onDroppedItem();
@@ -120,6 +121,7 @@ class TimelineTrail : public QFrame
     /** TRUE when new item is being added. Means user send it to the timeline,
         but for some reason wasn't placed yet. */
     bool addingNewItem;
+    bool userActionsLimited;
     TrailItem* _firstItem;
     TrailItem* _lastItem;
 

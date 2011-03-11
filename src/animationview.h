@@ -108,9 +108,12 @@ class AnimationView : public QGLWidget
     bool multiPartPicking() const                     { return _multiPartPicking; }
     void setMultiPartPicking(bool multiPick)          { _multiPartPicking = multiPick; }
     /** Determines whether verbose debugging info about currently picked part should be shown.
-        The information will be accessed only if DEBUG mode was also activated in Settings. */
+        The information will be accessed only if DEBUG mode was also activated in Settings,
+        and will be shown TODO: WHERE */
     bool showingPartInfo() const                      { return _partInfo; }
     void setShowingPartInfo(bool partInfo)            { _partInfo = partInfo; }
+    bool useMirroring() const                         { return _useMirror; }
+    void setUseMirroring(bool mirror)                 { _useMirror = mirror; }
 
 
     // getAnimation returns the *current* animation
@@ -125,6 +128,7 @@ class AnimationView : public QGLWidget
     void selectPart(BVHNode* node);
     void selectProp(const QString& prop);
     BVHNode* getSelectedPart();
+    QList<int>* getSelectedPartIndices()              { return &selectedParts; }
     unsigned int getSelectedPartIndex();
     // const QString getPartName(int index);
     const QString getSelectedPropName();
@@ -139,7 +143,7 @@ class AnimationView : public QGLWidget
     void partClicked(BVHNode* node, Rotation rot, Rotation globRot, RotationLimits rotLimit, Position pos);
     void partClicked(int part);
     void propClicked(Prop* prop);
-    void partDoubleClicked(int selectedJointNumber);
+    void partDoubleClicked(int selectedJoint);
 
     void partDragged(BVHNode* node,double changeX,double changeY,double changeZ);
 
@@ -181,6 +185,7 @@ class AnimationView : public QGLWidget
     virtual void keyPressEvent(QKeyEvent* event);
     virtual void keyReleaseEvent(QKeyEvent* event);
     virtual void resizeEvent(QResizeEvent* newSize);
+    virtual void contextMenuEvent(QContextMenuEvent *event);
 
     void drawFloor();
     void drawAnimations();
@@ -214,9 +219,11 @@ class AnimationView : public QGLWidget
 
     bool skeleton;
     bool selecting;
-    unsigned int selectName;
+    unsigned int selectName;                      //edu: seems it's index of part currently being drawn
     unsigned int partHighlighted;
     unsigned int partSelected;
+    /** If _multiPartPicking is TRUE, this holds indices of selected body parts. Must always contain partSelected **/
+    QList<int> selectedParts;
     unsigned int mirrorSelected;
     unsigned int propSelected;     // needs an own variable, because we will drag the handle, not the prop
     unsigned int propDragging;     // holds the actual drag handle id
@@ -241,6 +248,7 @@ class AnimationView : public QGLWidget
     bool _useIK;
     bool _multiPartPicking;
     bool _partInfo;
+    bool _useMirror;
 };
 
 #endif

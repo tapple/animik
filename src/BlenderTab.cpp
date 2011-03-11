@@ -27,16 +27,24 @@ BlenderTab::BlenderTab(qavimator* mainWindow, const QString& fileName, bool crea
   blenderAnimationView->setUseIK(false);
   blenderAnimationView->setMultiPartPicking(true);
   blenderAnimationView->setShowingPartInfo(true);
+  blenderAnimationView->setUseMirroring(false);
   canShowWarn = false;
   isDirty = false;
 
   setAttribute(Qt::WA_DeleteOnClose);
 
+
+  setLimbWeightsAction = new QAction(tr("Set limbs' weights"), this);
+  connect(setLimbWeightsAction, SIGNAL(triggered()), this, SLOT(onLimbWeights()));
   connect(mainWindow, SIGNAL(configurationChanged()), this, SLOT(onConfigChanged()));
-  connect(blenderAnimationView, SIGNAL(partDoubleClicked(int)), this, SLOT(onLimbDoubleClick(int)));
+  connect(blenderAnimationView, SIGNAL(partDoubleClicked(int)), this, SLOT(onLimbDoubleClicked(int)));
   connect(this, SIGNAL(resetCamera()), blenderAnimationView, SLOT(resetCamera()));
-  connect(blenderTimeline, SIGNAL(resultingAnimationChanged(WeightedAnimation*)), blenderPlayer, SLOT(onAnimationChanged(WeightedAnimation*)));
-  connect(blenderTimeline, SIGNAL(resultingAnimationChanged(WeightedAnimation*)), this, SLOT(onTimelineAnimationChanged(WeightedAnimation*)));
+  connect(blenderTimeline, SIGNAL(resultingAnimationChanged(WeightedAnimation*)),
+          blenderPlayer, SLOT(onAnimationChanged(WeightedAnimation*)));
+  connect(blenderTimeline, SIGNAL(resultingAnimationChanged(WeightedAnimation*)),
+          this, SLOT(onTimelineAnimationChanged(WeightedAnimation*)));
+  connect(blenderPlayer, SIGNAL(playbackStarted()), this, SLOT(onPlaybackStarted()));
+  connect(blenderPlayer, SIGNAL(playbackPaused()), this, SLOT(onPlaybackPaused()));
 
   if(createFile)
   {
@@ -300,17 +308,31 @@ void BlenderTab::closeEvent(QCloseEvent* event)
 
 void BlenderTab::keyPressEvent(QKeyEvent* e)
 {
-  if(e->key()==Qt::Key_Left && blenderPlayer->state()==PLAYSTATE_STOPPED)
-    blenderPlayer->stepBackward();
+  if(e->key()==Qt::Key_Space)
+    blenderPlayer->PlayOrPause();
+  else if(e->key()==Qt::Key_Left && blenderPlayer->state()==PLAYSTATE_STOPPED)
+    blenderPlayer->StepBackward();
   else if(e->key()==Qt::Key_Right && blenderPlayer->state()==PLAYSTATE_STOPPED)
-    blenderPlayer->stepForward();
+    blenderPlayer->StepForward();
   else if(e->key()==Qt::Key_Home && blenderPlayer->state()==PLAYSTATE_STOPPED)
-    blenderPlayer->skipToFirst();
+    blenderPlayer->SkipToFirst();
   else if(e->key()==Qt::Key_End && blenderPlayer->state()==PLAYSTATE_STOPPED)
-    blenderPlayer->skipToLast();
+    blenderPlayer->SkipToLast();
   else
     e->ignore();            //send it to parent
 }
+
+
+void BlenderTab::contextMenuEvent(QContextMenuEvent *event)
+{
+  if(blenderTimeline->getSelectedItem() != NULL && !blenderAnimationView->getSelectedPartIndices()->isEmpty())
+  {
+    QMenu menu(this);
+    menu.addAction(setLimbWeightsAction);
+    menu.exec(event->globalPos());
+  }
+}
+
 
 // Menu Action: File / Export For Second Life
 void BlenderTab::fileExportForSecondLife()
@@ -351,7 +373,32 @@ void BlenderTab::fileNew()
 }
 
 
-// ------- Autoconnection of UI elements -------- //
+void BlenderTab::setSelectedLimbsWeight(QList<int>* jointNumbers)
+{
+  TrailItem* selectedItem = blenderTimeline->getSelectedItem();
+  if(selectedItem != NULL && !selectedItem->isShadow() && !blenderPlayer->isPlaying())
+  {
+    QList<BVHNode*> limbList;
+    foreach(int jointNumber, *jointNumbers)
+      limbList << selectedItem->getAnimation()->getNode(jointNumber);
+
+    blenderTimeline->HideLimsForm();
+    LimbsWeightDialog* lwd = new LimbsWeightDialog(selectedItem->Name, &limbList, selectedItem->selectedFrame(),
+                                                   selectedItem->frames(), this);
+    connect(lwd, SIGNAL(nextFrame()), this, SLOT(onLimbsDialogNextFrame()));
+    connect(lwd, SIGNAL(previousFrame()), this, SLOT(onLimbsDialogPreviousFrame()));
+    if(lwd->exec() == QDialog::Accepted)
+    {
+      isDirty = true;
+      setCurrentFile(CurrentFile);      //asterisk
+      blenderTimeline->RebuildResultingAnimation();
+    }
+    lwd->disconnect();
+    delete lwd;
+  }
+}
+
+// ------- Autoconnection slots of UI elements -------- //
 
 void BlenderTab::on_animsList_AnimationFileTaken(QString filename, int orderInBatch, int batchSize)
 {
@@ -404,22 +451,41 @@ void BlenderTab::onConfigChanged()
   blenderTimeline->RebuildResultingAnimation();
 }
 
-void BlenderTab::onLimbDoubleClick(int jointNumber)
+
+void BlenderTab::onLimbWeights()
 {
-  TrailItem* selectedItem = blenderTimeline->getSelectedItem();
-  if(selectedItem != NULL && !selectedItem->isShadow() && !blenderPlayer->isPlaying())
-  {
-    QList<BVHNode*> limbList;
-    limbList << selectedItem->getAnimation()->getNode(jointNumber);
-    LimbsWeightDialog* lwd = new LimbsWeightDialog(selectedItem->Name, &limbList, selectedItem->selectedFrame(),
-                                                   selectedItem->frames(), this);
-    if(lwd->exec() == QDialog::Accepted)
-    {
-      isDirty = true;
-      setCurrentFile(CurrentFile);      //asterisk
-      blenderTimeline->RebuildResultingAnimation();
-    }
-  }
+  QList<int>* parts = blenderAnimationView->getSelectedPartIndices();
+  if(!parts->isEmpty())
+    setSelectedLimbsWeight(parts);
+}
+
+void BlenderTab::onLimbDoubleClicked(int jointNumber)
+{
+  QList<int>* parts = new QList<int>();
+  parts->append(jointNumber);
+  setSelectedLimbsWeight(parts);
+}
+
+
+void BlenderTab::onLimbsDialogNextFrame()
+{
+  blenderPlayer->StepForward();
+}
+
+void BlenderTab::onLimbsDialogPreviousFrame()
+{
+  blenderPlayer->StepBackward();
+}
+
+
+void BlenderTab::onPlaybackStarted()
+{
+  blenderTimeline->limitUserActions(true);
+}
+
+void BlenderTab::onPlaybackPaused()
+{
+  blenderTimeline->limitUserActions(false);
 }
 
 // ---------------------------------------------- //

@@ -73,7 +73,7 @@ int Player::totalFrames()
     return 0;
 }
 
-void Player::playOrPause()
+void Player::PlayOrPause()
 {
   //From pause to play
   if(_state==PLAYSTATE_STOPPED)
@@ -84,16 +84,20 @@ void Player::playOrPause()
     _state = PLAYSTATE_PLAYING;
     ui->playButton->setIcon(pauseIcon);
     timer.start((int)(1.0/fps()*1000.0));
+
+    emit playbackStarted();
   }
   else    //pause the playback
   {
     timer.stop();
     _state = PLAYSTATE_STOPPED;
     ui->playButton->setIcon(playIcon);
+
+    emit playbackPaused();
   }
 }
 
-void Player::stepForward()
+void Player::StepForward()
 {
   if(playFrame() < loopOut)
     setPlaybackFrame(playFrame()+1);
@@ -109,7 +113,7 @@ void Player::stepForward()
   }
 }
 
-void Player::stepBackward()
+void Player::StepBackward()
 {
   if(playFrame() > loopIn)
     setPlaybackFrame(playFrame()-1);
@@ -117,13 +121,13 @@ void Player::stepBackward()
     setPlaybackFrame(loopOut);
 }
 
-void Player::skipToFirst()
+void Player::SkipToFirst()
 {
   if(playFrame() != loopIn)
     setPlaybackFrame(loopIn);
 }
 
-void Player::skipToLast()
+void Player::SkipToLast()
 {
   if(playFrame() != loopOut)
   {
@@ -169,7 +173,7 @@ void Player::onAnimationChanged(WeightedAnimation *animation)
 
 void Player::timerTimeout()
 {
-  stepForward();
+  StepForward();
 }
 
 void Player::animationFrameChanged()
@@ -195,25 +199,25 @@ void Player::updateLabel()
 
 void Player::on_playButton_clicked()
 {
-  playOrPause();
+  PlayOrPause();
 }
 
 void Player::on_previousButton_clicked()
 {
-  stepBackward();
+  StepBackward();
 }
 
 void Player::on_nextButton_clicked()
 {
-  stepForward();
+  StepForward();
 }
 
 void Player::on_beginButton_clicked()
 {
-  skipToFirst();
+  SkipToFirst();
 }
 
 void Player::on_endButton_clicked()
 {
-  skipToLast();
+  SkipToLast();
 }

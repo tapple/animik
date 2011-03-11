@@ -29,9 +29,12 @@ class LimbsWeightDialog : public QDialog
     LimbsWeightDialog(QString animationName, QList<BVHNode*>* limbs, int frame, int totalFrames, QWidget *parent = 0);
     ~LimbsWeightDialog();
 
-
   public slots:
     virtual void accept();      //overriden from QDialog
+
+  signals:
+    void nextFrame();
+    void previousFrame();
 
   private:
     Ui::LimbsWeightDialog *ui;
