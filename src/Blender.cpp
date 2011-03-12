@@ -553,7 +553,7 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
       {
         //NOTE: This is actually a very dirty trick. The shadow is filled with default T-pose. It's only purpose
         //      is to show rectangle on time-line, so that I know that something is happening (and can check weights).
-        TrailItem* previousItem = sortedItems.at(findLastItemBefore(sortedItems, intervalStartPosition));
+        TrailItem* previousItem = findLastItemBefore(sortedItems, intervalStartPosition);
         WeightedAnimation* gapFillShadow = new WeightedAnimation(new BVH(), "");
         gapFillShadow->setNumberOfFrames(intervalEndPosition - intervalStartPosition + 1);
         int w = previousItem->getAnimation()->getFrameWeight(previousItem->frames()-1);   //copy frame weight of previous item's last frame
@@ -660,23 +660,23 @@ int Blender::findFirstItemAfter(QList<TrailItem*> sortedItems, int afterPosition
 }
 
 
-/** Finds last TrailItem that ends before given time-line position. Returns its index in containing
-    list (also given as argument) **/
-int Blender::findLastItemBefore(QList<TrailItem*> sortedItems, int beforePosition)
+/** Finds last non-shadow TrailItem that ends before given time-line position.
+    Returns reference to the item. **/
+TrailItem* Blender::findLastItemBefore(QList<TrailItem*> sortedItems, int beforePosition)
 {
   int max = -999999999;
   int result = -1;
 
   for(int i=0; i < sortedItems.size(); i++)
   {
-    if(sortedItems[i]->endIndex() < beforePosition && sortedItems[i]->endIndex() > max)
+    if(!sortedItems[i]->isShadow() && sortedItems[i]->endIndex() < beforePosition && sortedItems[i]->endIndex() > max)
     {
       max = sortedItems[i]->beginIndex();
       result = i;
     }
   }
 
-  return result;
+  return sortedItems[result];
 }
 
 

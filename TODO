@@ -1,7 +1,3 @@
-Features:
-  * Clicking *save* when working on multiple avs... should it save them all, or only the current one?
-  * Warn about closing with unsaved files still open
-
 Bugs:
   * when editing multiple animations, switching between them with a part selected causes both avs to be set to the data for one of them
   * clicking "cancel" in File load dialog, then clicking the view area, causes a segfault
@@ -10,19 +6,18 @@ Untested:
   * Saving / data integrity when working with multiple avs
 
 
+
 == Animik ===============================================================================================================================
 Features:
   * Rotate/pan of scene shouldn't unselect limb/prop. Only simple click on background.
   * Pan of scene on secondary mouse button+drag.
   * For now, just thing of this: what about adding possibility (context menu item) to set all frame weights to one level? (standalone dialog
     with a vertical slider, and a "Default (50)" button)
-  * Setting limb weight in one frame for multiple limbs at once. Like
-    + in 3D view of BlenderTab, keep clicking on limbs while holding Shift. All will be added to the selection.
-    + right click. If an item on time-line is selected (hence a frame), context menu appears: "Set limb(s) weight".
-    + after clicking the menu item, LimbsWeightDialog appears with prefilled weight value if all selected limbs have the same, otherwise 50.
   * Drag & drop of .BVH/.AVM/.AVBL files onto Animik window to open them.
+  * CTRL+SHIFT+S saves all tabs.
 
 Bugs:
+  * I have serious memory problems. Loading AVBL with 10+ animations in debug mode crashes everytime. Lot of optimalization should be done.
   * After opening .avm file, the floor is not highlighted red if first frame is protected. After moving on another frame and back it already is
   * Tab/window title not flagged with asterisk when change done in TimeLineView by dragging.
   * Spotted on Win32. Open AVM, selecte a part, alter rotation. Tab is marked with '*', but after selecting another part, it

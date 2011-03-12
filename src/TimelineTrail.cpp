@@ -723,29 +723,9 @@ void TimelineTrail::mousePressEvent(QMouseEvent* e)
     trailContentChange();
     return;
   }
-  if(clickedFrame != currentPosition)
-  {
-    currentPosition = clickedFrame;
 
-    TrailItem* clickedItem = findItemOnPosition(currentPosition);
-    if(clickedItem == NULL)
-      emit backgroundClicked();
-    if(!userActionsLimited && clickedItem != selectedItem)
-    {
-      selectedItem = clickedItem;
-      emit selectedItemChanged();
-    }
-
-    emit currentPositionChanged(currentPosition);
-  }
-  else if(selectedItem != NULL && !selectedItem->isShadow())     //second click on selected frame, user wishes to set weight
-  {
-    settingWeight = true;
-    adjustFrameWeight(e->y());
-  }
-
-/*DEBUG so far
-  TrailItem* clickedItem = findItemOnPosition(currentPosition);
+  TrailItem* oldSelectedItem = selectedItem;
+  TrailItem* clickedItem = findItemOnPosition(clickedFrame);
   if(clickedItem == NULL)
     emit backgroundClicked();
   if(!userActionsLimited && clickedItem != selectedItem)
@@ -753,12 +733,20 @@ void TimelineTrail::mousePressEvent(QMouseEvent* e)
     selectedItem = clickedItem;
     emit selectedItemChanged();
   }
-*/
-
-
+  if(clickedFrame != currentPosition)
+  {
+    currentPosition = clickedFrame;
+    emit currentPositionChanged(currentPosition);
+  }
+  //second click on selected frame, user wishes to set weight
+  else if(oldSelectedItem == selectedItem && selectedItem != NULL &&
+          !selectedItem->isShadow() && e->button()==Qt::LeftButton)
+  {
+    settingWeight = true;
+    adjustFrameWeight(e->y());
+  }
 
   //NOTE: current frame of every TrailItem that might be crossed is set elsewhere, through signal/slot loop.
-//TODO: apply to resulting animation  animation->setFrame(currentFrame);
   if(e->button()==Qt::LeftButton)
     leftMouseDown = true;
   else if(e->button()==Qt::RightButton)
