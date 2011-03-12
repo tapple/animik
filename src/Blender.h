@@ -47,6 +47,7 @@ private:
                               int timeLineFrame, WeightedAnimation* target, int targetFrame);
 
   int findFirstItemAfter(QList<TrailItem*> sortedItems, int afterPosition);
+  int findLastItemBefore(QList<TrailItem*> sortedItems, int beforePosition);
   void copyKeyFrame(BVHNode* limb, int fromFrame, int toFrame);
 };
 

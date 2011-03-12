@@ -67,6 +67,8 @@ bool Avbl::SaveToFile(QList<TimelineTrail*> trails, QString fileName)
         animElm.appendChild(fWeightsElm);
 
         QDomElement bWeightsElm = document.createElement("boneWeights");
+        BVHNode* posit = currentItem->getAnimation()->getNode(0);
+        createLimbWeightsElement(document, bWeightsElm, posit, currentItem->frames());
         BVHNode* root = currentItem->getAnimation()->getMotion();
         createLimbWeightsElement(document, bWeightsElm, root, currentItem->frames());
         animElm.appendChild(bWeightsElm);
@@ -177,6 +179,8 @@ QList<TrailItem*>* Avbl::LoadFromFile(QString fileName)
       bonesTable.insert(boneName, bonesElm);
     }
 
+    BVHNode* posit = tempItem->getAnimation()->getNode(0);
+    loadLimbWeights(posit, &bonesTable);
     BVHNode* root = tempItem->getAnimation()->getMotion();
     loadLimbWeights(root, &bonesTable);
     //TODO: and what about position pseudo-node?

@@ -20,6 +20,7 @@ Features:
     + in 3D view of BlenderTab, keep clicking on limbs while holding Shift. All will be added to the selection.
     + right click. If an item on time-line is selected (hence a frame), context menu appears: "Set limb(s) weight".
     + after clicking the menu item, LimbsWeightDialog appears with prefilled weight value if all selected limbs have the same, otherwise 50.
+  * Drag & drop of .BVH/.AVM/.AVBL files onto Animik window to open them.
 
 Bugs:
   * After opening .avm file, the floor is not highlighted red if first frame is protected. After moving on another frame and back it already is
@@ -28,7 +29,6 @@ Bugs:
     disappears (like being saved).
   * Player loop-ing is independent from underlying Animation. The looping set on the Player should actually set it to the animation.
   * Somehow it's possible to have the same file in the Animation list multiple times. Needs investigation first.
-  * When new AVBL is created (and saved) it doesn't absolutely contain anything. Should describe empty time-line in a valid way.
   * It's posible to create file named ".avbl". For Windows' sake it rather shouldn't be.
 
 Next task:

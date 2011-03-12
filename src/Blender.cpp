@@ -453,28 +453,28 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
     throw new QString("Argument exception: the argument 'sortedItems' contains to few items.");
 
   int currentItemIndex = 0;
-  int intervalStartFrame = 999999999;
-  int intervalEndFrame = sortedItems.at(currentItemIndex)->beginIndex() - 1;
+  int intervalStartPosition = 999999999;
+  int intervalEndPosition = sortedItems.at(currentItemIndex)->beginIndex() - 1;
   QList<int> itemsInInterval;                   //indices (to sortedItems) of items involved in current interval
 
   //initial section fill with items that begin on the same leftmost time-line position
   for(int i=0; ; i++)
   {
-    if(sortedItems.at(i)->beginIndex() > (intervalEndFrame+1))
+    if(sortedItems.at(i)->beginIndex() > (intervalEndPosition+1))
       break;
     itemsInInterval.append(i);
   }
 
   int frameOffset = sortedItems.first()->beginIndex();
 
-  while(intervalEndFrame != lastFrameIndex)
+  while(intervalEndPosition != lastFrameIndex)
   {
-    intervalStartFrame = intervalEndFrame+1;        //we shift to the next section
+    intervalStartPosition = intervalEndPosition+1;        //we shift to the next section
 
     //remove indices of all items that ended in previous section
     for(int cur=0; cur<itemsInInterval.size(); cur++)
     {
-      if(sortedItems[itemsInInterval[cur]]->endIndex() < intervalStartFrame)   //the difference should be exactly 1
+      if(sortedItems[itemsInInterval[cur]]->endIndex() < intervalStartPosition)   //the difference should be exactly 1
       {
         itemsInInterval.removeAt(cur);
         cur--;          //dirty trick not to skip an element in for loop
@@ -484,9 +484,9 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
     //Add to the section all items, that are beginning right with it
     for(int i=0; i<sortedItems.size(); i++)
     {
-      if(sortedItems.at(i)->beginIndex() == intervalStartFrame && !itemsInInterval.contains(i))       //'contains(i)' ? Ugly! TODO: what about hash-set?
+      if(sortedItems.at(i)->beginIndex() == intervalStartPosition && !itemsInInterval.contains(i))       //'contains(i)' ? Ugly! TODO: what about hash-set?
         itemsInInterval.append(i);
-      else if(sortedItems.at(i)->beginIndex() > intervalStartFrame)
+      else if(sortedItems.at(i)->beginIndex() > intervalStartPosition)
         break;
     }
 
@@ -514,7 +514,7 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
         }*/
         if(sortedItems[nextIndex]->endIndex() < minEndFramePos)
         {
-          if(sortedItems[nextIndex]->beginIndex() > intervalStartFrame)     //whole item is 'inside', its begin delimits
+          if(sortedItems[nextIndex]->beginIndex() > intervalStartPosition)     //whole item is 'inside', its begin delimits
           {                                                                 //this section's end
             minEndFramePos = sortedItems[nextIndex]->beginIndex() - 1;
             break;
@@ -531,28 +531,50 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
           break;
         }
       }
-      intervalEndFrame = minEndFramePos;
+      intervalEndPosition = minEndFramePos;
     }
     else                                      //no items in this section = we have an empty gap!
     {
-      int itemIndex = findFirstItemAfter(sortedItems, intervalStartFrame);
-      intervalEndFrame = sortedItems.at(itemIndex)->beginIndex() - 1;
+      int itemIndex = findFirstItemAfter(sortedItems, intervalStartPosition);
+      intervalEndPosition = sortedItems.at(itemIndex)->beginIndex() - 1;
     }
 
 
     //THE BLENDING ITSELF
     if(itemsInInterval.isEmpty())         //we need to fill the gap
     {
-      int toFrame = intervalEndFrame - frameOffset;
+      int toFrame = intervalEndPosition - frameOffset;
       BVHNode* position = result->getNode(0);
-      copyKeyFrame(position, intervalStartFrame-frameOffset-1, toFrame);
+      copyKeyFrame(position, intervalStartPosition-frameOffset-1, toFrame);
       BVHNode* root = result->getMotion();
-      copyKeyFrame(root, intervalStartFrame-frameOffset-1, toFrame);
+      copyKeyFrame(root, intervalStartPosition-frameOffset-1, toFrame);
+
+      if(Settings::Instance()->Debug())
+      {
+        //NOTE: This is actually a very dirty trick. The shadow is filled with default T-pose. It's only purpose
+        //      is to show rectangle on time-line, so that I know that something is happening (and can check weights).
+        TrailItem* previousItem = sortedItems.at(findLastItemBefore(sortedItems, intervalStartPosition));
+        WeightedAnimation* gapFillShadow = new WeightedAnimation(new BVH(), "");
+        gapFillShadow->setNumberOfFrames(intervalEndPosition - intervalStartPosition + 1);
+        int w = previousItem->getAnimation()->getFrameWeight(previousItem->frames()-1);   //copy frame weight of previous item's last frame
+        for(int i=0; i<gapFillShadow->getNumberOfFrames(); i++)
+          gapFillShadow->setFrameWeight(i, w);
+
+        TrailItem* gapItem = new TrailItem(gapFillShadow, "gap fill shadow after " + previousItem->Name,
+                                           intervalStartPosition, true);
+        if(previousItem->nextItem() != NULL)
+        {
+          gapItem->setNextItem(previousItem->nextItem());
+          previousItem->nextItem()->setPreviousItem(gapItem);
+        }
+        gapItem->setPreviousItem(previousItem);
+        previousItem->setNextItem(gapItem);
+      }
     }
     else
     {
-      combineKeyFrames(sortedItems, itemsInInterval, intervalStartFrame,
-                       intervalEndFrame-intervalStartFrame+1, result, intervalStartFrame-frameOffset);
+      combineKeyFrames(sortedItems, itemsInInterval, intervalStartPosition,
+                       intervalEndPosition-intervalStartPosition+1, result, intervalStartPosition-frameOffset);
     }
 
   }//while
@@ -630,6 +652,26 @@ int Blender::findFirstItemAfter(QList<TrailItem*> sortedItems, int afterPosition
     if(sortedItems[i]->beginIndex() > afterPosition && sortedItems[i]->beginIndex() < min)
     {
       min = sortedItems[i]->beginIndex();
+      result = i;
+    }
+  }
+
+  return result;
+}
+
+
+/** Finds last TrailItem that ends before given time-line position. Returns its index in containing
+    list (also given as argument) **/
+int Blender::findLastItemBefore(QList<TrailItem*> sortedItems, int beforePosition)
+{
+  int max = -999999999;
+  int result = -1;
+
+  for(int i=0; i < sortedItems.size(); i++)
+  {
+    if(sortedItems[i]->endIndex() < beforePosition && sortedItems[i]->endIndex() > max)
+    {
+      max = sortedItems[i]->beginIndex();
       result = i;
     }
   }
