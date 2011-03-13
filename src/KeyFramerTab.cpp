@@ -262,7 +262,6 @@ void KeyFramerTab::onTabDeactivated()
 //TODO: in Tab implementations we only read already loaded settings from Settings class.
 void KeyFramerTab::readSettings()
 {
-
   // if no settings found, start up with defaults
   int figureType=0;
   bool skeleton=false;

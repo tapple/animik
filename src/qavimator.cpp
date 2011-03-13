@@ -48,6 +48,7 @@ qavimator::qavimator() //: QMainWindow(0)
   setAttribute(Qt::WA_DeleteOnClose);
 
   resize(Settings::Instance()->windowWidth(), Settings::Instance()->windowHeight());
+  setMinimumSize(800, 600);
   if(Settings::Instance()->windowMaximized())
     setWindowState(Qt::WindowMaximized);
 

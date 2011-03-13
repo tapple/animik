@@ -108,6 +108,8 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
 
       if(i==item)                                               //won't combine with self
         continue;
+      if(items[i]->mixIn()==0)                                  //nothing to be done
+        continue;
       if(currentItem->beginIndex() <= items[i]->beginIndex())   //wrong overlap order
         continue;
 
@@ -133,7 +135,7 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
           mixInShadow->setFrameWeight(n, (int)(value*100));
         }
 
-        TrailItem* shadowItem = new TrailItem(mixInShadow, "(1)mix in shadow for "+currentItem->Name,
+        TrailItem* shadowItem = new TrailItem(mixInShadow, "(1)mix in shadow for " +currentItem->Name,
                                               currentItem->beginIndex()-framesNum, true);
         result.append(shadowItem);
 
@@ -221,6 +223,8 @@ QList<TrailItem*> Blender::createMixOutsImpliedShadowItems(QList<TrailItem*> ite
       TrailItem* currentItem = items[item];
 
       if(i==item)                                           //won't combine with self
+        continue;
+      if(currentItem->mixOut()==0)                          //nothing to be done
         continue;
       if(currentItem->endIndex() <= items[i]->endIndex())   //wrong overlap order
         continue;
@@ -573,8 +577,8 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
     }
     else
     {
-      combineKeyFrames(sortedItems, itemsInInterval, intervalStartPosition,
-                       intervalEndPosition-intervalStartPosition+1, result, intervalStartPosition-frameOffset);
+      combineKeyFrames(sortedItems, itemsInInterval, intervalStartPosition, intervalEndPosition, result,
+                       intervalStartPosition-frameOffset);
     }
 
   }//while
@@ -584,21 +588,19 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
 /** The very core method of blending functionality. Combines postures into resulting animation.
     @param sortedItems - list of all TrailItems to be blended
     @param itemIndices - indices to the first list argument denoting the animations to be blended now
-    @param fromTimeLineFrame - frame position number on time-line where to start blending
-    @param sectionLength - number of frames to be blended
+    @param fromPosition - frame position number on time-line where to start blending
+    @param toPosition - last position
     @param target - resulting animation to host mixed postures
-    @param targetFrame - first frame for result posture in the target animation */
-void Blender::combineKeyFrames(QList<TrailItem*> sortedItems, QList<int> itemIndices, int fromTimeLineFrame,
-                               int sectionLength, WeightedAnimation* target, int targetFrame)
+    @param targetFrame - first frame for result posture in the target animation **/
+void Blender::combineKeyFrames(QList<TrailItem*> sortedItems, QList<int> itemIndices, int fromPosition,
+                               int toPosition, WeightedAnimation* target, int targetFrame)
 {
   if(itemIndices.size() < 1)
     throw new QString("Argument exception: no animation indices given to be combined.");
 
+  int timeLineFrame = fromPosition;
 
-  int lastTimeLineFrame = fromTimeLineFrame + sectionLength - 1;
-  int timeLineFrame = fromTimeLineFrame;
-
-  while(timeLineFrame <= lastTimeLineFrame)
+  while(timeLineFrame <= toPosition)
   {
     BVHNode* position = target->getNode(0);
     combineKeyFramesHelper(sortedItems, itemIndices, position, timeLineFrame, target, targetFrame);

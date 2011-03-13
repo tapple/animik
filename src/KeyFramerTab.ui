@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>776</width>
-    <height>744</height>
+    <width>784</width>
+    <height>587</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -97,13 +97,16 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="avatarTab">
          <attribute name="title">
           <string>Avatar</string>
          </attribute>
          <layout class="QGridLayout" name="_2">
+          <property name="topMargin">
+           <number>4</number>
+          </property>
           <item row="0" column="0">
            <widget class="QLabel" name="animationLabel">
             <property name="sizePolicy">
@@ -324,6 +327,15 @@
              <string>Rotation</string>
             </property>
             <layout class="QGridLayout" name="_3">
+             <property name="topMargin">
+              <number>1</number>
+             </property>
+             <property name="bottomMargin">
+              <number>3</number>
+             </property>
+             <property name="verticalSpacing">
+              <number>2</number>
+             </property>
              <item row="1" column="0">
               <widget class="QLabel" name="xRotationLabel">
                <property name="sizePolicy">
@@ -599,6 +611,15 @@
              <string>Position</string>
             </property>
             <layout class="QGridLayout" name="_4">
+             <property name="topMargin">
+              <number>1</number>
+             </property>
+             <property name="bottomMargin">
+              <number>3</number>
+             </property>
+             <property name="verticalSpacing">
+              <number>2</number>
+             </property>
              <item row="0" column="0">
               <widget class="QLabel" name="xPositionLabel">
                <property name="sizePolicy">
@@ -734,6 +755,12 @@
              <string>Ease In / Out</string>
             </property>
             <layout class="QGridLayout" name="_5">
+             <property name="topMargin">
+              <number>1</number>
+             </property>
+             <property name="bottomMargin">
+              <number>1</number>
+             </property>
              <item row="0" column="0">
               <widget class="QCheckBox" name="easeInCheck">
                <property name="sizePolicy">
@@ -790,6 +817,9 @@
           <string>Props</string>
          </attribute>
          <layout class="QGridLayout" name="_6">
+          <property name="topMargin">
+           <number>4</number>
+          </property>
           <item row="0" column="0" colspan="3">
            <layout class="QHBoxLayout" name="_7">
             <item>
@@ -1021,6 +1051,12 @@
              <string>Position</string>
             </property>
             <layout class="QGridLayout" name="_8">
+             <property name="topMargin">
+              <number>1</number>
+             </property>
+             <property name="verticalSpacing">
+              <number>4</number>
+             </property>
              <item row="0" column="0">
               <widget class="QLabel" name="propXPosLabel">
                <property name="sizePolicy">
@@ -1117,6 +1153,12 @@
              <string>Scale</string>
             </property>
             <layout class="QGridLayout" name="_9">
+             <property name="topMargin">
+              <number>1</number>
+             </property>
+             <property name="verticalSpacing">
+              <number>4</number>
+             </property>
              <item row="0" column="0">
               <widget class="QLabel" name="propXScaleLabel">
                <property name="sizePolicy">
@@ -1213,6 +1255,12 @@
              <string>Rotation</string>
             </property>
             <layout class="QGridLayout" name="_10">
+             <property name="topMargin">
+              <number>1</number>
+             </property>
+             <property name="verticalSpacing">
+              <number>4</number>
+             </property>
              <item row="0" column="0">
               <widget class="QLabel" name="propXRotLabel">
                <property name="sizePolicy">

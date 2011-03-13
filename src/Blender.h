@@ -16,7 +16,7 @@ public:
   ~Blender();
 
   /** Returns overall blended animation */
-  WeightedAnimation* GetResultingAnimation();
+  WeightedAnimation* GetResultingAnimation();           //edu: pfuuh, rubish
 
   /** Blends together weighted animations of given TrailItems.
       @param trails array of pointers to first TrailItem in linked list.

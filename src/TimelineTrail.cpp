@@ -334,10 +334,10 @@ void TimelineTrail::drawTrailItem(TrailItem* item)
                  FRAME_HEIGHT, QColor("#84365D"));
 
     //Write the name of animation onto it's rectangle for all except the selected one.
-    if(!item->isShadow() && item!=selectedItem)
+    if(/*!item->isShadow() &&*/ item!=selectedItem)
     {
         QPen textPen(QColor("#a181c0"));
-        QFont f ("Arial", 13, QFont::Bold);
+        QFont f ("Arial", (item->isShadow() ? 5 : 13), QFont::Bold);
         p.setPen(textPen);
         p.setFont(f);
 

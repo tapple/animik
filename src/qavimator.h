@@ -121,6 +121,7 @@ protected:
   void configure();
   void helpAbout();
 
+
   QString selectFileToOpen(const QString& caption);
 
   bool checkFileOverwrite(const QFileInfo& fileInfo);
