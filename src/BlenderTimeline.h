@@ -26,8 +26,9 @@ class BlenderTimeline : public QFrame
     /** Clean and rebuild time-line content from given list of linked TrailItems */
     void ConstructTimeLine(QList<TrailItem*>* trails);
     /** External object may use this to explicitely reevaluate the time-line and rebuild
-        the overall animation. Supposed to be used for case of change in global application settings. */
-    void RebuildResultingAnimation();
+        the overall animation. Supposed to be used for case of change in global application settings.
+        @param emiting tells if the rebuild should emit the resultingAnimationChanged signal. */
+    void RebuildResultingAnimation(bool emiting=true);
     void HideLimsForm();
     /** Return currently selected TrailItem. If none was selected by user, NUUL is returned */
     TrailItem* getSelectedItem() const;

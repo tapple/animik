@@ -133,6 +133,8 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
         {
           double value = (double)(n+1 + (items[i]->mixIn() - framesNum) ) / (double)items[i]->mixIn();
           mixInShadow->setFrameWeight(n, (int)(value*100));
+
+          mixInShadow->getNode(0)->setKeyframeWeight(n, 0);    //position always taken from 'master' blender
         }
 
         TrailItem* shadowItem = new TrailItem(mixInShadow, "(1)mix in shadow for " +currentItem->Name,
@@ -176,6 +178,8 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
         {
           double value = (double)(n+1) / (double)framesNum;
           mixInShadow->setFrameWeight(n, (int)(value*100));
+
+          mixInShadow->getNode(0)->setKeyframeWeight(n, 0);    //position always taken from 'master' blender
         }
 
         TrailItem* shadowItem = new TrailItem(mixInShadow, "(2)mix in shadow for "+currentItem->Name,
@@ -253,6 +257,8 @@ QList<TrailItem*> Blender::createMixOutsImpliedShadowItems(QList<TrailItem*> ite
         {
           double value = (double)(currentItem->mixOut()-n) / (double)currentItem->mixOut();
           mixOutShadow->setFrameWeight(n, (int)(value*100));
+
+          mixOutShadow->getNode(0)->setKeyframeWeight(n, 0);    //position always taken from 'master' blender
         }
 
         TrailItem* shadowItem = new TrailItem(mixOutShadow, "(1)mix out shadow for "+currentItem->Name,
@@ -286,6 +292,8 @@ QList<TrailItem*> Blender::createMixOutsImpliedShadowItems(QList<TrailItem*> ite
         {
           double value = (double)n / (double)currentItem->mixOut();
           mixOutShadow->setFrameWeight(framesNum-n, (int)(value*100));
+
+          mixOutShadow->getNode(0)->setKeyframeWeight(n-1, 0);    //position always taken from 'master' blender
         }
 
         TrailItem* shadowItem = new TrailItem(mixOutShadow, "(2)mix out shadow for "+currentItem->Name,
@@ -460,12 +468,16 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
   int intervalStartPosition = 999999999;
   int intervalEndPosition = sortedItems.at(currentItemIndex)->beginIndex() - 1;
   QList<int> itemsInInterval;                   //indices (to sortedItems) of items involved in current interval
+  Position lastNonShadowPosition;               //Position in last frame of an Item previously leaving the interval
 
   //initial section fill with items that begin on the same leftmost time-line position
   for(int i=0; ; i++)
   {
     if(sortedItems.at(i)->beginIndex() > (intervalEndPosition+1))
       break;
+    if(itemsInInterval.count() > 0)              //there already is an item in interval, so shift position for all
+      shiftAnimationPosition(sortedItems.at(i),  //next items according to it
+                             sortedItems.at(itemsInInterval.at(0))->getAnimation()->getNode(0)->frameData(0).position());
     itemsInInterval.append(i);
   }
 
@@ -480,6 +492,8 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
     {
       if(sortedItems[itemsInInterval[cur]]->endIndex() < intervalStartPosition)   //the difference should be exactly 1
       {
+        WeightedAnimation* anim = sortedItems.at(itemsInInterval.at(cur))->getAnimation();
+        lastNonShadowPosition = anim->getNode(0)->frameData(anim->getNumberOfFrames()-1).position();
         itemsInInterval.removeAt(cur);
         cur--;          //dirty trick not to skip an element in for loop
       }
@@ -489,7 +503,35 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
     for(int i=0; i<sortedItems.size(); i++)
     {
       if(sortedItems.at(i)->beginIndex() == intervalStartPosition && !itemsInInterval.contains(i))       //'contains(i)' ? Ugly! TODO: what about hash-set?
+      {
+        //position shift for all key-frames of non-shadow items is applied
+        if(!sortedItems.at(i)->isShadow())
+        {
+          TrailItem* previousNonShadow = NULL;
+          for(int x=itemsInInterval.count(); x>0; x--)      //find last non-shadow item in interval
+          {
+            if(!sortedItems.at(x-1)->isShadow())
+            {
+              previousNonShadow = sortedItems.at(x-1);
+              break;
+            }
+          }
+
+          Position shift = lastNonShadowPosition;
+          if(previousNonShadow != NULL)                     //find the Position to be the offset
+          {
+            int frameIndex = sortedItems.at(i)->beginIndex() - previousNonShadow->beginIndex();
+            shift = previousNonShadow->getAnimation()->getNode(0)->frameData(frameIndex).position();
+          }
+
+          //DEBUG
+          if(shift.x==shift.y==shift.z)
+            throw new QString("Illegal state exception: uninitialized position shift");
+
+          shiftAnimationPosition(sortedItems.at(i), shift);
+        }
         itemsInInterval.append(i);
+      }
       else if(sortedItems.at(i)->beginIndex() > intervalStartPosition)
         break;
     }
@@ -639,6 +681,25 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
 
   for(int x=0; x<limb->numChildren(); x++)
     combineKeyFramesHelper(sortedItems, itemIndices, limb->child(x), timeLineFrame, target, targetFrame);
+}
+
+
+/** Adjusts position of given item's animation. The positions in frames are shifted so that
+    the first frame position is right in given base **/
+void Blender::shiftAnimationPosition(TrailItem *target, Position base)
+{
+  if(target->isShadow())
+    throw new QString("Argument exception: shadow animations are not correct target of position shifting");
+
+  BVHNode* positNode = target->getAnimation()->getNode(0);
+  Position offset = Position::difference(positNode->frameData(0).position(), base);
+
+  QList<int> keys = positNode->keyframeList();
+  foreach(int key, keys)
+  {
+    Position oldP = positNode->frameData(key).position();             //TODO: think. It's a bit questionable to hard-change the value, cause it remains forever.
+    positNode->setKeyframePosition(key, Position(oldP.x+offset.x, oldP.y+offset.y, oldP.z+offset.z));   //What about storing the offset in special variable in TrailItem?
+  }
 }
 
 

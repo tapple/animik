@@ -4,6 +4,7 @@
 #include <QList>
 
 class BVHNode;
+class Position;
 class TrailItem;
 class WeightedAnimation;
 
@@ -46,6 +47,7 @@ private:
   void combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> itemIndices, BVHNode* limb,
                               int timeLineFrame, WeightedAnimation* target, int targetFrame);
 
+  void shiftAnimationPosition(TrailItem* target, Position base);
   int findFirstItemAfter(QList<TrailItem*> sortedItems, int afterPosition);
   TrailItem* findLastItemBefore(QList<TrailItem*> sortedItems, int beforePosition);
   void copyKeyFrame(BVHNode* limb, int fromFrame, int toFrame);

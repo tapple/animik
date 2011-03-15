@@ -119,7 +119,7 @@ bool BlenderTimeline::isClear() const
   return true;
 }
 
-void BlenderTimeline::RebuildResultingAnimation()
+void BlenderTimeline::RebuildResultingAnimation(bool emiting)
 {
   int count = trails.size();
   int minBeginIndex = 999999999;
@@ -142,7 +142,9 @@ void BlenderTimeline::RebuildResultingAnimation()
 
   if(resultAnimation)
     connect(resultAnimation, SIGNAL(currentFrame(int)), this, SLOT(onPlayFrameChanged(int)));
-  emit resultingAnimationChanged(resultAnimation);
+
+  if(emiting)
+    emit resultingAnimationChanged(resultAnimation);
 }
 
 

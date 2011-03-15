@@ -210,8 +210,15 @@ void BlenderTab::fileAdd(const QString& name)
     }
 
     Avbl loader;
+    bool oldDebug = Settings::Instance()->Debug();        //temporarily turn off DEBUG mode to save
+    Settings::Instance()->setDebug(false);                //the hassle connected with building a time-line
     QList<TrailItem*>* trails = loader.LoadFromFile(file);
     blenderTimeline->ConstructTimeLine(trails);
+    if(oldDebug)
+    {
+      Settings::Instance()->setDebug(oldDebug);
+      blenderTimeline->RebuildResultingAnimation();       //add shadow (helper) TrailItems
+    }
     isDirty = false;
     setCurrentFile(file);
   }
@@ -448,7 +455,7 @@ void BlenderTab::onTimelineAnimationChanged(WeightedAnimation* anim)
     So it must be reevaluated after changes in settings. Only known so far is switching DEBUG mode on/off. */
 void BlenderTab::onConfigChanged()
 {
-  blenderTimeline->RebuildResultingAnimation();
+  blenderTimeline->RebuildResultingAnimation(false);
 }
 
 

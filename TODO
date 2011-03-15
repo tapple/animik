@@ -15,6 +15,9 @@ Features:
     with a vertical slider, and a "Default (50)" button)
   * Drag & drop of .BVH/.AVM/.AVBL files onto Animik window to open them.
   * CTRL+SHIFT+S saves all tabs.
+  * Some global (static) class to maintain wait cursor (with some tooltip message)
+  * This is not question of the day, but once it might be done like this:
+    + when user adjusts weight of a frame, only partial recalculation of overall blended animation is done.
 
 Bugs:
   * I have serious memory problems. Loading AVBL with 10+ animations in debug mode crashes everytime. Lot of optimalization should be done.
@@ -25,6 +28,7 @@ Bugs:
   * Player loop-ing is independent from underlying Animation. The looping set on the Player should actually set it to the animation.
   * Somehow it's possible to have the same file in the Animation list multiple times. Needs investigation first.
   * It's posible to create file named ".avbl". For Windows' sake it rather shouldn't be.
+  * LOW PRIORITY: + lose focus of application window. + try to regain the focus by single click on window header.
 
 Next task:
   * Show also GLOBAL rotation for each limb. Draw global (still) coordinate system around currently selected limb. And check Kundrat's work.
