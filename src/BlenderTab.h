@@ -80,7 +80,6 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
     /** TRUE for unsaved content */
     bool isDirty;
 
-
     void setSelectedLimbsWeight(QList<int>* jointNumbers);
 
     /////////////edu: DEBUG /////////////
@@ -98,6 +97,8 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
     void onLimbsDialogNextFrame();
     void onPlaybackStarted();
     void onPlaybackPaused();
+    void onPartClicked(BVHNode* limb, Rotation rot, Rotation globRot, RotationLimits limits, Position posit);
+    void onBackgroundClicked();
 };
 
 #endif // BLENDERTAB_H

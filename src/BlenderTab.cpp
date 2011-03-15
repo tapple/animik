@@ -45,6 +45,10 @@ BlenderTab::BlenderTab(qavimator* mainWindow, const QString& fileName, bool crea
           this, SLOT(onTimelineAnimationChanged(WeightedAnimation*)));
   connect(blenderPlayer, SIGNAL(playbackStarted()), this, SLOT(onPlaybackStarted()));
   connect(blenderPlayer, SIGNAL(playbackPaused()), this, SLOT(onPlaybackPaused()));
+  connect(blenderAnimationView, SIGNAL(partClicked(BVHNode*,Rotation,Rotation,RotationLimits,Position)),
+          this, SLOT(onPartClicked(BVHNode*, Rotation, Rotation, RotationLimits, Position)));
+  connect(blenderAnimationView, SIGNAL(backgroundClicked()), this, SLOT(onBackgroundClicked()));
+
 
   if(createFile)
   {
@@ -493,6 +497,22 @@ void BlenderTab::onPlaybackStarted()
 void BlenderTab::onPlaybackPaused()
 {
   blenderTimeline->limitUserActions(false);
+}
+
+void BlenderTab::onPartClicked(BVHNode* limb, Rotation rot, Rotation globRot, RotationLimits limits, Position pos)
+{
+  if(Settings::Instance()->Debug())
+  {
+    QString text = "ROT: x=" +QString::number(rot.x)+ ", y=" +QString::number(rot.y)+ ", z=" +QString::number(rot.z);
+    if(limb->type == BVH_ROOT)
+      text += " POS: x=" +QString::number(pos.x)+ ", y=" +QString::number(pos.y)+ ", z=" +QString::number(pos.z);
+    blenderAnimationView->WriteText(text);
+  }
+}
+
+void BlenderTab::onBackgroundClicked()
+{
+  blenderAnimationView->ClearText();
 }
 
 // ---------------------------------------------- //

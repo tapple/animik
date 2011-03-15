@@ -28,6 +28,7 @@
 #include <GL/glut.h>
 #endif
 
+#include <QGLFramebufferObject>           //DEBUG so far
 
 #include <QMenu>
 #include <QMouseEvent>
@@ -84,6 +85,8 @@ AnimationView::AnimationView(QWidget* parent, const char* /* name */, Animation*
   ySelect=false;
   zSelect=false;
   nextPropId=OBJECT_START;
+  innerText = QString::null;
+  textFont = new QFont("Courier new", 15);
 
 #ifdef __APPLE__
   QString dataPath=QApplication::applicationDirPath() + "/../Resources";
@@ -126,6 +129,19 @@ AnimationView::~AnimationView()
   // clear all now invalid references from the list
   animList.clear();
 }
+
+
+//DEBUG so far
+void AnimationView::WriteText(QString text)
+{
+  innerText = text;
+}
+
+void AnimationView::ClearText()
+{
+  innerText = QString::null;
+}
+
 
 BVH* AnimationView::getBVH() const
 {
@@ -430,6 +446,15 @@ void AnimationView::draw()
   if(!animList.isEmpty()) drawAnimations();
   drawFloor();
   drawProps();
+
+
+  if(innerText != QString::null && Settings::Instance()->Debug())
+  {
+    glColor3f(0.94, 0.97, 0.18);        //something like yellow
+    renderText(20, 20, 1, innerText, *textFont);
+  }
+
+
   glFlush();
 }
 

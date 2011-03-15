@@ -73,6 +73,12 @@ class AnimationView : public QGLWidget
     AnimationView(QWidget* parent=0, const char* name=0, Animation* anim=0);
     ~AnimationView();
 
+
+    //DEBUG so far
+    void WriteText(QString text);
+    void ClearText();
+
+
     // exports the BVH class handler (ugly, need to find a better way)
     BVH* getBVH() const;
 
@@ -249,6 +255,9 @@ class AnimationView : public QGLWidget
     bool _multiPartPicking;
     bool _partInfo;
     bool _useMirror;
+
+    QString innerText;
+    QFont* textFont;
 };
 
 #endif
