@@ -140,11 +140,12 @@ void BlenderTimeline::RebuildResultingAnimation(bool emiting)
   Blender* blender = new Blender();
   resultAnimation = blender->BlendTrails(rails, count);
 
-  if(resultAnimation)
+  if(resultAnimation != NULL)
+  {
     connect(resultAnimation, SIGNAL(currentFrame(int)), this, SLOT(onPlayFrameChanged(int)));
-
-  if(emiting)
-    emit resultingAnimationChanged(resultAnimation);
+    if(emiting)
+      emit resultingAnimationChanged(resultAnimation);
+  }
 }
 
 

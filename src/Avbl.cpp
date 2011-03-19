@@ -1,3 +1,4 @@
+#include "Announcer.h"
 #include "Avbl.h"
 #include "bvh.h"
 #include "TimelineTrail.h"
@@ -108,13 +109,19 @@ QList<TrailItem*>* Avbl::LoadFromFile(QString fileName)
   QFile file(fileName);
 
   if (!file.open(QIODevice::ReadOnly))
-    throw new QString("I/O exception: Can't open file " + fileName);
+  {
+    Announcer::Exception(NULL, "I/O exception: Can't open file " + fileName);
+//    throw new QString(text);
+    return NULL;
+  }
   if (!document.setContent(&file))      //TODO: the method can do much more to describe an error
   {
     hasErrors = true;
     errorMessage = "Error parsing input document";
     file.close();
-    throw new QString("XML exception: Error parsing XML file " + fileName);
+    Announcer::Exception(NULL, "XML exception: Error parsing XML file " + fileName);
+//    throw new QString(text);
+    return NULL;
   }
   file.close();
 

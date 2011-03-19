@@ -9,6 +9,7 @@
 
 #include "animationview.h"
 #include "Avbl.h"
+#include "Announcer.h"
 #include "BlenderTab.h"
 #include "LimbsWeightDialog.h"
 #include "OptionalMessageBox.h"
@@ -88,7 +89,9 @@ void BlenderTab::AddFile()
 void BlenderTab::Save()
 {
   Avbl* saver = new Avbl();
+  Announcer::StartAction(mainWindow, "Saving file...");
   bool saved = saver->SaveToFile(blenderTimeline->Trails(), CurrentFile);
+  Announcer::EndAction();
   isDirty = !saved;
   setCurrentFile(CurrentFile);      //asterisk out
 }
@@ -216,8 +219,12 @@ void BlenderTab::fileAdd(const QString& name)
     Avbl loader;
     bool oldDebug = Settings::Instance()->Debug();        //temporarily turn off DEBUG mode to save
     Settings::Instance()->setDebug(false);                //the hassle connected with building a time-line
+    Announcer::StartAction(mainWindow, "Loading file...");
     QList<TrailItem*>* trails = loader.LoadFromFile(file);
+    if(trails == NULL)
+      return;
     blenderTimeline->ConstructTimeLine(trails);
+    Announcer::EndAction();
     if(oldDebug)
     {
       Settings::Instance()->setDebug(oldDebug);
@@ -258,7 +265,9 @@ void BlenderTab::fileSaveAs()         //Ugly code repetition. TODO: think of it 
       Settings::Instance()->setLastPath(fileInfo.path());
 
       Avbl* saver = new Avbl();
+      Announcer::StartAction(mainWindow, "Saving file...");
       bool saved = saver->SaveToFile(blenderTimeline->Trails(), file);
+      Announcer::EndAction();
       isDirty = !saved;
       setCurrentFile(file);
 

@@ -2,6 +2,7 @@
   Offers computations related to blending of multiple animations.
 */
 
+#include "Announcer.h"
 #include "Blender.h"
 #include "bvh.h"
 #include "settings.h"
@@ -24,6 +25,8 @@ WeightedAnimation* Blender::BlendTrails(TrailItem** trails, int trailsCount)
   {
     QList<TrailItem*> mixIns = createMixInsImpliedShadowItems(origItems);
     QList<TrailItem*> mixOuts = createMixOutsImpliedShadowItems(origItems);
+//TODO    if(mixIns==NULL || mixOuts==NULL)
+//      return NULL;
     items = mergeAndSortItemsByBeginIndex(origItems, mixIns, mixOuts);
   }
 
@@ -96,9 +99,16 @@ void Blender::clearShadowItems(TrailItem* firstItem)
 QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> items)
 {
   if(items.size() < 2)
-    throw new QString("Argument exception: there must be at least two items in the list 'sortedItems'");
+  {
+    QString text = "Argument exception: there must be at least two items in the list 'sortedItems'";
+    if(Settings::Instance()->Debug())
+//      QMessageBox::warning(NULL, "Exception", text);
+      Announcer::Exception(NULL, text);
+//    throw new QString(text);
+    return QList<TrailItem*>();
+  }
 
-  QList<TrailItem*> result;
+  QList<TrailItem*> result;           //TODO: FUJ! To reference.
 
   for(int item=0; item<items.size(); item++)
   {
@@ -216,7 +226,14 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
 QList<TrailItem*> Blender::createMixOutsImpliedShadowItems(QList<TrailItem*> items)
 {
   if(items.size() < 2)
-    throw new QString("Argument exception: there must be at least two items in the list 'sortedItems'");
+  {
+    QString text = "Argument exception: there must be at least two items in the list 'sortedItems'";
+    if(Settings::Instance()->Debug())
+//      QMessageBox::warning(NULL, "Exception", text);
+      Announcer::Exception(NULL, text);
+//    throw new QString(text);
+    return QList<TrailItem*>();
+  }
 
   QList<TrailItem*> result;
 
@@ -338,12 +355,12 @@ void Blender::interpolatePostureHelper(WeightedAnimation* anim1, int frame1,
   BVHNode* node1 = anim1->getNode(nodeIndex);
   FrameData data1 = node1->frameData(frame1);
   FrameData data2 = anim2->getNode(nodeIndex)->frameData(frame2);
-  Position newPos( (data1.position().x + data2.position().x) / 2,
-                   (data1.position().y + data2.position().y) / 2,
-                   (data1.position().z + data2.position().z) / 2);
-  Rotation newRot( (data1.rotation().x + data2.rotation().x) / 2,
-                   (data1.rotation().y + data2.rotation().y) / 2,
-                   (data1.rotation().z + data2.rotation().z) / 2);
+  Position newPos( (data1.position().x + data2.position().x) / 2.0,
+                   (data1.position().y + data2.position().y) / 2.0,
+                   (data1.position().z + data2.position().z) / 2.0);
+  Rotation newRot( (data1.rotation().x + data2.rotation().x) / 2.0,
+                   (data1.rotation().y + data2.rotation().y) / 2.0,
+                   (data1.rotation().z + data2.rotation().z) / 2.0);
 
   targetAnim->getNode(nodeIndex)->addKeyframe(0, newPos, newRot);
 
@@ -462,7 +479,14 @@ int Blender::findHighestEndIndex(QList<TrailItem*> items)
 void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, int lastFrameIndex)
 {
   if(sortedItems.size() < 2)
-    throw new QString("Argument exception: the argument 'sortedItems' contains to few items.");
+  {
+    QString text = "Argument exception: the argument 'sortedItems' contains to few items.";
+    if(Settings::Instance()->Debug())
+      Announcer::Exception(NULL, text);
+    return;
+//      QMessageBox::warning(NULL, "Exception", text);
+//    throw new QString(text);
+  }
 
   int currentItemIndex = 0;
   int intervalStartPosition = 999999999;
@@ -475,13 +499,19 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
   {
     if(sortedItems.at(i)->beginIndex() > (intervalEndPosition+1))
       break;
-    if(itemsInInterval.count() > 0)              //there already is an item in interval, so shift position for all
-      shiftAnimationPosition(sortedItems.at(i),  //next items according to it
+    if(itemsInInterval.count() > 0 && !sortedItems.at(i)->isShadow())      //there already is an item in interval, so shift position for all
+      shiftAnimationPosition(sortedItems.at(i),                            //non-shadow next items according to it
                              sortedItems.at(itemsInInterval.at(0))->getAnimation()->getNode(0)->frameData(0).position());
     itemsInInterval.append(i);
   }
 
   int frameOffset = sortedItems.first()->beginIndex();
+
+
+  //DEBUG. You know what TODO
+  TrailItem* debugItem=NULL;
+
+
 
   while(intervalEndPosition != lastFrameIndex)
   {
@@ -492,8 +522,12 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
     {
       if(sortedItems[itemsInInterval[cur]]->endIndex() < intervalStartPosition)   //the difference should be exactly 1
       {
-        WeightedAnimation* anim = sortedItems.at(itemsInInterval.at(cur))->getAnimation();
-        lastNonShadowPosition = anim->getNode(0)->frameData(anim->getNumberOfFrames()-1).position();
+        TrailItem* item = sortedItems.at(itemsInInterval.at(cur));
+        if(!item->isShadow())
+        {
+          debugItem = item;
+          lastNonShadowPosition = item->getAnimation()->getNode(0)->frameData(item->frames()-1).position();
+        }
         itemsInInterval.removeAt(cur);
         cur--;          //dirty trick not to skip an element in for loop
       }
@@ -525,8 +559,15 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
           }
 
           //DEBUG
-          if(shift.x==shift.y==shift.z)
-            throw new QString("Illegal state exception: uninitialized position shift");
+/*          if(shift.x==shift.y==shift.z==0)
+          {
+//            throw new QString("Illegal state exception: uninitialized position shift");
+            if(debugItem != NULL)
+            {
+              QString wha = "Item " +debugItem->Name+ " used it's last frame (index " +QString::number(debugItem->frames()-1)+ ") to reset lastNonShadowPosition";
+              QMessageBox::warning(NULL, "DEBUG", wha);
+            }
+          }*/
 
           shiftAnimationPosition(sortedItems.at(i), shift);
         }
@@ -638,7 +679,14 @@ void Blender::combineKeyFrames(QList<TrailItem*> sortedItems, QList<int> itemInd
                                int toPosition, WeightedAnimation* target, int targetFrame)
 {
   if(itemIndices.size() < 1)
-    throw new QString("Argument exception: no animation indices given to be combined.");
+  {
+    QString text = "Argument exception: no animation indices given to be combined.";
+    if(Settings::Instance()->Debug())
+      Announcer::Exception(NULL, text);
+    return;
+//      QMessageBox::warning(NULL, "Exception", text);
+//    throw new QString(text);
+  }
 
   int timeLineFrame = fromPosition;
 
@@ -689,7 +737,14 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
 void Blender::shiftAnimationPosition(TrailItem *target, Position base)
 {
   if(target->isShadow())
-    throw new QString("Argument exception: shadow animations are not correct target of position shifting");
+  {
+    QString text = "Argument exception: shadow animations are not correct target of position shifting";
+    if(Settings::Instance()->Debug())
+      Announcer::Exception(NULL, text);
+    return;
+//      QMessageBox::warning(NULL, "Exception", text);
+//    throw new QString(text);
+  }
 
   BVHNode* positNode = target->getAnimation()->getNode(0);
   Position offset = Position::difference(positNode->frameData(0).position(), base);

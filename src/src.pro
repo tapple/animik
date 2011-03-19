@@ -35,7 +35,8 @@ SOURCES += animation.cpp \
     OptionalMessageBox.cpp \
     Avbl.cpp \
     NoArrowsScrollArea.cpp \
-    LimbsWeightDialog.cpp
+    LimbsWeightDialog.cpp \
+    Announcer.cpp
 HEADERS += animation.h \
     animationview.h \
     bvh.h \
@@ -70,7 +71,8 @@ HEADERS += animation.h \
     OptionalMessageBox.h \
     Avbl.h \
     NoArrowsScrollArea.h \
-    LimbsWeightDialog.h
+    LimbsWeightDialog.h \
+    Announcer.h
 FORMS += mainapplicationform.ui \
     settingsdialogform.ui \
     KeyFramerTab.ui \

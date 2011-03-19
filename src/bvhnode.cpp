@@ -22,6 +22,11 @@
 
 #include "bvhnode.h"
 
+
+#include <QMessageBox>          //DEBUG, TODO: delete
+
+
+
 BVHNode::BVHNode(const QString& name, /*edu*/BVHNode* parent)
 {
 //  qDebug(QString("BVHNode::BVHNode(%1)").arg(name));
@@ -309,7 +314,8 @@ const FrameData BVHNode::getNextKeyframe(int frame) const
 
 int BVHNode::getKeyframeNumberBefore(int frame) const
 {
-  if(frame==0)
+  int frm = frame;
+  if(frm==0)
   {
     // should never happen
     qDebug("BVHNode::getKeyframeNumberBefore(int frame): frame==0!");
@@ -317,9 +323,14 @@ int BVHNode::getKeyframeNumberBefore(int frame) const
   }
 
   // find previous key
-  while(--frame && !isKeyframe(frame)) {};
+  while(--frm && !isKeyframe(frm)) //edu:{};
+  {                 //DEBUG
+    if(frm < 0)
+      QMessageBox::warning(NULL, "DEBUG",
+                                     "Exception: frame index underflow. No key-frame before " +QString::number(frame)+ " for limb " +name());
+  }
 
-  return frame;
+  return frm;
 }
 
 int BVHNode::getKeyframeNumberAfter(int frame) const
