@@ -86,7 +86,7 @@ AnimationView::AnimationView(QWidget* parent, const char* /* name */, Animation*
   zSelect=false;
   nextPropId=OBJECT_START;
   innerText = QString::null;
-  textFont = new QFont("Courier new", 15);
+  textFont = new QFont("Courier new", 12);
 
 #ifdef __APPLE__
   QString dataPath=QApplication::applicationDirPath() + "/../Resources";
@@ -137,6 +137,21 @@ void AnimationView::WriteText(QString text)
   innerText = text;
 }
 
+void AnimationView::debugWrite()
+{
+  if(Settings::Instance()->Debug() && partSelected>0)
+  {
+    BVHNode* part = getSelectedPart();
+    Rotation rot = getAnimation()->getRotation(part);
+    Position pos = getAnimation()->getPosition();
+
+    QString text = "ROT: x=" +QString::number(rot.x)+ ", y=" +QString::number(rot.y)+ ", z=" +QString::number(rot.z);
+    if(part->type == BVH_ROOT)
+      text += " POS: x=" +QString::number(pos.x)+ ", y=" +QString::number(pos.y)+ ", z=" +QString::number(pos.z);
+    WriteText(text);
+  }
+}
+
 void AnimationView::ClearText()
 {
   innerText = QString::null;
@@ -166,7 +181,14 @@ void AnimationView::setAnimation(Animation* anim)
     if(anim)
     {
       animList.append(anim);
-      connect(anim,SIGNAL(frameChanged()),this,SLOT(repaint()));
+
+
+      //DEBUG as hell
+      connect(anim, SIGNAL(frameChanged()), this, SLOT(debugWrite()));
+
+
+
+      connect(anim, SIGNAL(frameChanged()), this, SLOT(repaint()));
     }
     repaint();
 }
@@ -253,7 +275,7 @@ void AnimationView::setFrame(int frame)
   for(unsigned int i=0;i< (unsigned int) animList.count();i++)
   {
     animList.at(i)->setFrame(frame);
-  } // for
+  }
 }
 
 void AnimationView::stepForward()
@@ -261,7 +283,7 @@ void AnimationView::stepForward()
   for(unsigned int i=0;i< (unsigned int) animList.count();i++)
   {
     animList.at(i)->stepForward();
-  } // for
+  }
 }
 
 void AnimationView::setFPS(int fps)
@@ -451,7 +473,7 @@ void AnimationView::draw()
   if(innerText != QString::null && Settings::Instance()->Debug())
   {
     glColor3f(0.94, 0.97, 0.18);        //something like yellow
-    renderText(20, 20, 1, innerText, *textFont);
+    renderText(6, 6, 1, innerText, *textFont);
   }
 
 

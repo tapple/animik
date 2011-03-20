@@ -96,5 +96,5 @@ void Position::Add(Position increment)
 
 Position Position::difference(const Position& pos1,const Position& pos2)
 {
-  return Position(pos2.x-pos1.x,pos2.y-pos1.y,pos2.z-pos1.z);
+  return Position(pos2.x-pos1.x, pos2.y-pos1.y, pos2.z-pos1.z);
 }

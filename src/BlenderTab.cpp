@@ -446,12 +446,12 @@ void BlenderTab::on_animsList_AnimationFileTaken(QString filename, int orderInBa
 
 void BlenderTab::on_zoomInButton_clicked()
 {
-  //TODO
+  sorry();
 }
 
 void BlenderTab::on_zoomOutButton_clicked()
 {
-  //TODO
+  sorry();
 }
 
 // ---------------------------------------------- //

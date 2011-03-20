@@ -9,9 +9,11 @@
 #include "TrailItem.cpp"
 #include "WeightedAnimation.h"
 
+#include <math.h>
+#define PI 3.14159265
+
 
 Blender::Blender() { }
-
 
 
 WeightedAnimation* Blender::BlendTrails(TrailItem** trails, int trailsCount)
@@ -354,10 +356,20 @@ void Blender::interpolatePostureHelper(WeightedAnimation* anim1, int frame1,
 {
   BVHNode* node1 = anim1->getNode(nodeIndex);
   FrameData data1 = node1->frameData(frame1);
-  FrameData data2 = anim2->getNode(nodeIndex)->frameData(frame2);
-  Position newPos( (data1.position().x + data2.position().x) / 2.0,
-                   (data1.position().y + data2.position().y) / 2.0,
-                   (data1.position().z + data2.position().z) / 2.0);
+  BVHNode* node2 = anim2->getNode(nodeIndex);
+
+
+  //DEBUG
+  if(node2==NULL)
+    Announcer::Exception(NULL, "Can't find node with index " +QString::number(nodeIndex)+ " in the second animation");
+
+
+  FrameData data2 = node2->frameData(frame2);
+  Position off1 = anim1->getOffset();
+  Position off2 = anim2->getOffset();
+  Position newPos( (data1.position().x + off1.x + data2.position().x + off2.x) / 2.0,
+                   (data1.position().y + off1.y + data2.position().y + off2.y) / 2.0,
+                   (data1.position().z + off1.z + data2.position().z + off2.z) / 2.0);
   Rotation newRot( (data1.rotation().x + data2.rotation().x) / 2.0,
                    (data1.rotation().y + data2.rotation().y) / 2.0,
                    (data1.rotation().z + data2.rotation().z) / 2.0);
@@ -444,7 +456,8 @@ void Blender::cloneAnimationHelper(int limbIndex, WeightedAnimation* fromAnim, W
   foreach(int i, keys)
   {
     FrameData data = fromAnim->getNode(limbIndex)->frameData(i);
-    Position pos(data.position().x, data.position().y, data.position().z);        //TODO: FUJ! why don't you just use copy constructor (=) ?
+    Position offset = fromAnim->getOffset();
+    Position pos(data.position().x+offset.x, data.position().y+offset.y, data.position().z+offset.z);        //TODO: FUJ! why don't you just use copy constructor (=) + Position::Add?
     Rotation rot(data.rotation().x, data.rotation().y, data.rotation().z);
     toAnim->getNode(limbIndex)->addKeyframe(i, pos, rot);
   }
@@ -495,7 +508,7 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
   Position lastNonShadowPosition;               //Position in last frame of an Item previously leaving the interval
 
   //initial section fill with items that begin on the same leftmost time-line position
-  for(int i=0; ; i++)
+  for(int i=0; i<sortedItems.size() ; i++)
   {
     if(sortedItems.at(i)->beginIndex() > (intervalEndPosition+1))
       break;
@@ -527,6 +540,7 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
         {
           debugItem = item;
           lastNonShadowPosition = item->getAnimation()->getNode(0)->frameData(item->frames()-1).position();
+          lastNonShadowPosition.Add(item->getAnimation()->getOffset());
         }
         itemsInInterval.removeAt(cur);
         cur--;          //dirty trick not to skip an element in for loop
@@ -649,7 +663,7 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
           gapFillShadow->setFrameWeight(i, w);
 
 #ifdef _WIN32
-        QString winDbg = "gap";
+        QString winDbg = "gap";         //most annoying bug of all times
 #else
         QString winDbg = "gap fill shadow after:" +previousItem->name();
 #endif
@@ -675,7 +689,7 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
 
 /** The very core method of blending functionality. Combines postures into resulting animation.
     @param sortedItems - list of all TrailItems to be blended
-    @param itemIndices - indices to the first list argument denoting the animations to be blended now
+    @param itemIndices - indices to the first list argument denoting the animations to be blended here
     @param fromPosition - frame position number on time-line where to start blending
     @param toPosition - last position
     @param target - resulting animation to host mixed postures
@@ -713,24 +727,118 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
                                      int timeLineFrame, WeightedAnimation* target, int targetFrame)
 {
   int partIndex = target->getPartIndex(limb);
+  Position resultPos;
+  Rotation resultRot;
 
-  Position sumPos(0.0, 0.0, 0.0);
-  Rotation sumRot(0.0, 0.0, 0.0);
-
-  int count = itemIndices.size();
-  for(int i=0; i<count; i++)
+  if(partIndex==0)              //position pseudo-node
   {
-    TrailItem* currentItem = sortedItems[itemIndices[i]];
-    int currentFrame = timeLineFrame - currentItem->beginIndex();
-    BVHNode* node = currentItem->getAnimation()->getNode(partIndex);
-    FrameData data = node->frameData(currentFrame);
-    sumPos.Add(data.position());
-    sumRot.Add(data.rotation());
+    if(targetFrame==0)          //very beginning of overal blend
+    {
+      Position sumPos(0.0, 0.0, 0.0);
+
+      int count = itemIndices.size();
+      for(int i=0; i<count; i++)
+      {
+        TrailItem* currentItem = sortedItems[itemIndices[i]];
+        int currentFrame = timeLineFrame - currentItem->beginIndex();         //well, this must be zero
+        BVHNode* node = currentItem->getAnimation()->getNode(partIndex);      //and this position
+        Position tempPos = node->frameData(currentFrame).position();
+        sumPos.Add(tempPos);
+      }
+
+      resultPos.x = sumPos.x/count;                                           //At present no weights are involved. TODO
+      resultPos.y = sumPos.y/count;
+      resultPos.z = sumPos.z/count;
+    }
+    else                //TODO: in case of single item in interval, lot of vain computation is done. Consider IF branch for it.
+    {
+      double sumY = 0.0;
+      double sumDistance = 0.0;
+      double sumBearing = 0.0;
+      int positionsUsed = 0;
+
+      for(int x=0; x<itemIndices.size(); x++)
+      {
+        TrailItem* currentItem = sortedItems[itemIndices[x]];
+        int currentFrame = timeLineFrame - currentItem->beginIndex();
+
+        if(currentFrame==0)                       //This item has just joined blending. As there's no previous
+        {                                         //frame to have difference with, it wouldn't change anything
+          Position temp = currentItem->getAnimation()->getNode(partIndex)->frameData(currentFrame).position();
+          temp.Add(currentItem->getAnimation()->getOffset());
+          sumY += temp.y;
+          resultPos.x = temp.x;                   //just for the case this item is the only one in interval
+          resultPos.y = temp.y;
+        }
+        else
+        {
+          positionsUsed++;
+          BVHNode* positNode = currentItem->getAnimation()->getNode(partIndex);
+          Position p1 = positNode->frameData(currentFrame-1).position();
+          p1.Add(currentItem->getAnimation()->getOffset());
+          Position p2 = positNode->frameData(currentFrame).position();
+          p2.Add(currentItem->getAnimation()->getOffset());
+          sumY += p2.y;
+          double distance;
+          double bearing;
+
+          double cPower2 = (p2.x-p1.x)*(p2.x-p1.x) + (p2.z-p1.z)*(p2.z-p1.z);   //pythagorean theorem
+          distance = sqrt(cPower2);
+          sumDistance += distance;
+
+          double sinPhi = absolut(p2.z - p1.z) / distance;
+          double angle = asin(sinPhi) * 180.0 / PI;
+
+          if(p2.x == p1.x && p2.z == p1.z)        //no position change
+            bearing = 0.0;
+          else if(p2.x >= p1.x && p2.z > p1.z)    //latter position in quarter 1 comparing to previous
+            bearing = angle;
+          else if(p2.x > p1.x && p2.z <= p1.z)    //quarter 2
+            bearing = angle + 90.0;
+          else if(p2.x == p1.x && p2.z < p1.z)    //between quarters 2 and 3 (move backwards)
+            bearing = 180.0;
+          else if(p2.x < p1.x && p2.z <= p1.z)    //quarter 3
+            bearing = -90.0 - angle;
+          else if(p2.x < p1.x && p2.z > p1.z)     //quarter 4
+            bearing = -90.0 + angle;
+          else { Announcer::Exception(NULL, "Invalid value exception: can't evaluate bearing"); return; }
+
+          if(bearing>180.0) bearing=180.0;
+          sumBearing += bearing;
+        }
+      }
+
+      if(positionsUsed > 0)
+      {                       //calculate Position (only X and Z coordinates) from given start point,
+                              //distance and bearing (asimuth towards Z axis).
+        Position prevTargetPos = target->getNode(0)->frameData(targetFrame-1).position();
+        resultPos.x = prevTargetPos.x + sumDistance/positionsUsed * sin(sumBearing/positionsUsed * PI/180.0);
+        resultPos.z = prevTargetPos.z + sumDistance/positionsUsed * cos(sumBearing/positionsUsed * PI/180.0);
+      }
+
+      resultPos.y = sumY/itemIndices.size();
+    }
+  }
+  else        //other nodes, only rotation is interesting
+  {
+    Rotation sumRot(0.0, 0.0, 0.0);
+
+    int count = itemIndices.size();
+    for(int i=0; i<count; i++)
+    {
+      TrailItem* currentItem = sortedItems[itemIndices[i]];
+      int currentFrame = timeLineFrame - currentItem->beginIndex();
+      BVHNode* node = currentItem->getAnimation()->getNode(partIndex);
+      FrameData data = node->frameData(currentFrame);
+      sumRot.Add(data.rotation());
+    }
+
+    resultRot.x = sumRot.x/count;
+    resultRot.y = sumRot.y/count;
+    resultRot.z = sumRot.z/count;
   }
 
-  Position pos(sumPos.x/count, sumPos.y/count, sumPos.z/count);     //At present no weights are involved. TODO
-  Rotation rot(sumRot.x/count, sumRot.y/count, sumRot.z/count);
-  limb->addKeyframe(targetFrame, pos, rot);
+  limb->addKeyframe(targetFrame, resultPos, resultRot);
 
   for(int x=0; x<limb->numChildren(); x++)
     combineKeyFramesHelper(sortedItems, itemIndices, limb->child(x), timeLineFrame, target, targetFrame);
@@ -754,12 +862,14 @@ void Blender::shiftAnimationPosition(TrailItem *target, Position base)
   BVHNode* positNode = target->getAnimation()->getNode(0);
   Position offset = Position::difference(positNode->frameData(0).position(), base);
 
-  QList<int> keys = positNode->keyframeList();
+  target->getAnimation()->setOffset(offset);
+
+/*  QList<int> keys = positNode->keyframeList();
   foreach(int key, keys)
   {
-    Position oldP = positNode->frameData(key).position();             //TODO: think. It's a bit questionable to hard-change the value, cause it remains forever.
-    positNode->setKeyframePosition(key, Position(oldP.x+offset.x, oldP.y+offset.y, oldP.z+offset.z));   //What about storing the offset in special variable in TrailItem?
-  }
+    Position oldP = positNode->frameData(key).position();
+    positNode->setKeyframePosition(key, Position(oldP.x+offset.x, oldP.y+offset.y, oldP.z+offset.z));
+  }*/
 }
 
 
@@ -792,7 +902,8 @@ TrailItem* Blender::findLastItemBefore(QList<TrailItem*> sortedItems, int before
 
   for(int i=0; i < sortedItems.size(); i++)
   {
-    if(!sortedItems[i]->isShadow() && sortedItems[i]->endIndex() < beforePosition && sortedItems[i]->endIndex() > max)
+    if(!sortedItems[i]->isShadow() && sortedItems[i]->endIndex() < beforePosition &&
+       sortedItems[i]->endIndex() > max)
     {
       max = sortedItems[i]->beginIndex();
       result = i;
@@ -814,3 +925,7 @@ void Blender::copyKeyFrame(BVHNode* limb, int fromFrame, int toFrame)
   for(int i=0; i<limb->numChildren(); i++)
     copyKeyFrame(limb->child(i), fromFrame, toFrame);
 }
+
+
+
+double Blender::absolut(double val) { return val>0.0 ? val : (-1 * val); }

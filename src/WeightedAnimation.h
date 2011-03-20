@@ -7,7 +7,6 @@ class QString;
 class BVH;
 
 
-
 class WeightedAnimation : public Animation
 {
 public:
@@ -20,11 +19,15 @@ public:
   void setFrameWeight(int frameIndex, int weight);
 
   /** If TRUE, the first frame is key-frame and the avatar stands in T-pose (location doesn't matter) */
-  bool isFirstFrameTPose() { return _tPosed; }
-  int mixIn() { return _mixIn; }
-  int mixOut() { return _mixOut; }
-  void setMixIn(int mixIn) { _mixIn = mixIn; }
-  void setMixOut(int mixOut) { _mixOut = mixOut; }
+  bool isFirstFrameTPose() const  { return _tPosed; }
+  int mixIn() const               { return _mixIn; }
+  int mixOut() const              { return _mixOut; }
+  void setMixIn(int mixIn)        { _mixIn = mixIn; }
+  void setMixOut(int mixOut)      { _mixOut = mixOut; }
+
+  /*! Position offset to align this animation when joining to another in process of blending. !*/
+  Position getOffset() const      { return pOffset; }
+  void setOffset(Position offset) { pOffset = offset; }
 
 private:
   bool checkTPosed(BVHNode* limb);
@@ -33,6 +36,7 @@ private:
   bool _tPosed;
   int _mixIn;
   int _mixOut;
+  Position pOffset;
 };
 
 #endif // WEIGHTEDANIMATION_H

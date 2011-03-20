@@ -51,6 +51,8 @@ private:
   int findFirstItemAfter(QList<TrailItem*> sortedItems, int afterPosition);
   TrailItem* findLastItemBefore(QList<TrailItem*> sortedItems, int beforePosition);
   void copyKeyFrame(BVHNode* limb, int fromFrame, int toFrame);
+
+  double absolut(double val);
 };
 
 #endif // BLENDER_H

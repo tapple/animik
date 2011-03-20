@@ -126,11 +126,11 @@ class AnimationView : public QGLWidget
     Animation* getAnimation() { return currentAnimation; }
 
     //edu: TODO: it should be that one is primary and other auxiliary
-    Animation* getAnimation(unsigned int index) { return animList.at(index); }
-    Animation* getLastAnimation() { return animList.last(); }
-    bool isSkeletonOn() { return skeleton; }
-    void showSkeleton() { skeleton = true; }
-    void hideSkeleton() { skeleton = false; }
+    Animation* getAnimation(unsigned int index)       { return animList.at(index); }
+    Animation* getLastAnimation()                     { return animList.last(); }
+    bool isSkeletonOn()                               { return skeleton; }
+    void showSkeleton()                               { skeleton = true; }
+    void hideSkeleton()                               { skeleton = false; }
     void selectPart(BVHNode* node);
     void selectProp(const QString& prop);
     BVHNode* getSelectedPart();
@@ -258,6 +258,9 @@ class AnimationView : public QGLWidget
 
     QString innerText;
     QFont* textFont;
+
+  private slots:
+    void debugWrite();
 };
 
 #endif
