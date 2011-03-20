@@ -1568,6 +1568,7 @@ bool KeyFramerTab::resolveUnsavedChanges()
   if(animationView->getAnimation(0)->dirty())
   {
     QMessageBox saveMessage;
+    saveMessage.setWindowTitle("Unsaved changes");
     saveMessage.setText(tr("The file %1 has been modified. Do you want to save it?").arg(CurrentFile));
     saveMessage.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
     saveMessage.setDefaultButton(QMessageBox::Save);

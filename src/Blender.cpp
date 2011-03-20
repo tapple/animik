@@ -147,7 +147,7 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
           mixInShadow->getNode(0)->setKeyframeWeight(n, 0);    //position always taken from 'master' blender
         }
 
-        TrailItem* shadowItem = new TrailItem(mixInShadow, "(1)mix in shadow for " +currentItem->Name,
+        TrailItem* shadowItem = new TrailItem(mixInShadow, "(1)mix in shadow for " +currentItem->name(),
                                               currentItem->beginIndex()-framesNum, true);
         result.append(shadowItem);
 
@@ -192,7 +192,7 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
           mixInShadow->getNode(0)->setKeyframeWeight(n, 0);    //position always taken from 'master' blender
         }
 
-        TrailItem* shadowItem = new TrailItem(mixInShadow, "(2)mix in shadow for "+currentItem->Name,
+        TrailItem* shadowItem = new TrailItem(mixInShadow, "(2)mix in shadow for "+currentItem->name(),
                                               items[i]->endIndex()-framesNum+1, true);
         result.append(shadowItem);
 
@@ -278,7 +278,7 @@ QList<TrailItem*> Blender::createMixOutsImpliedShadowItems(QList<TrailItem*> ite
           mixOutShadow->getNode(0)->setKeyframeWeight(n, 0);    //position always taken from 'master' blender
         }
 
-        TrailItem* shadowItem = new TrailItem(mixOutShadow, "(1)mix out shadow for "+currentItem->Name,
+        TrailItem* shadowItem = new TrailItem(mixOutShadow, "(1)mix out shadow for "+currentItem->name(),
                                               items[i]->endIndex()+1, true);
         result.append(shadowItem);
 
@@ -313,7 +313,7 @@ QList<TrailItem*> Blender::createMixOutsImpliedShadowItems(QList<TrailItem*> ite
           mixOutShadow->getNode(0)->setKeyframeWeight(n-1, 0);    //position always taken from 'master' blender
         }
 
-        TrailItem* shadowItem = new TrailItem(mixOutShadow, "(2)mix out shadow for "+currentItem->Name,
+        TrailItem* shadowItem = new TrailItem(mixOutShadow, "(2)mix out shadow for "+currentItem->name(),
                                               currentItem->beginIndex(), true);
         result.append(shadowItem);
 
@@ -643,12 +643,17 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
         TrailItem* previousItem = findLastItemBefore(sortedItems, intervalStartPosition);
         WeightedAnimation* gapFillShadow = new WeightedAnimation(new BVH(), "");
         gapFillShadow->setNumberOfFrames(intervalEndPosition - intervalStartPosition + 1);
-        int w = previousItem->getAnimation()->getFrameWeight(previousItem->frames()-1);   //copy frame weight of previous item's last frame
+        //copy frame weight of previous item's last frame
+        int w = previousItem->getAnimation()->getFrameWeight(previousItem->frames()-1);
         for(int i=0; i<gapFillShadow->getNumberOfFrames(); i++)
           gapFillShadow->setFrameWeight(i, w);
 
-        TrailItem* gapItem = new TrailItem(gapFillShadow, "gap fill shadow after " + previousItem->Name,
-                                           intervalStartPosition, true);
+#ifdef _WIN32
+        QString winDbg = "gap";
+#else
+        QString winDbg = "gap fill shadow after:" +previousItem->name();
+#endif
+        TrailItem* gapItem = new TrailItem(gapFillShadow, winDbg, intervalStartPosition, true);
         if(previousItem->nextItem() != NULL)
         {
           gapItem->setNextItem(previousItem->nextItem());

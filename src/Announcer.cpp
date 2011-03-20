@@ -26,4 +26,5 @@ void Announcer::EndAction()
 {
   _parent->setCursor(_cursor);
   _parent = NULL;
+  QToolTip::hideText();
 }

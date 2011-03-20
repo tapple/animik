@@ -12,14 +12,14 @@
 AnimationList::AnimationList(QWidget *parent) :
     QWidget(parent), ui(new Ui::AnimationList)
 {
-    ui->setupUi(this);
+  ui->setupUi(this);
 
-    QStringListModel* model = new QStringListModel(this);
-    model->setStringList(availableAnimations);
-    ui->availableAnimsListView->setModel(model);
+  QStringListModel* model = new QStringListModel(this);
+  model->setStringList(availableAnimations);
+  ui->availableAnimsListView->setModel(model);
 
-    connect(ui->availableAnimsListView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
-            this, SLOT(onSelectionChanged()));
+  connect(ui->availableAnimsListView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
+          this, SLOT(onSelectionChanged()));
 }
 
 AnimationList::~AnimationList()
@@ -39,6 +39,11 @@ void AnimationList::addNewFile()
 
   if(files.isEmpty())
     return;
+  else
+  {
+    QFileInfo fInfo(files.last());
+    Settings::Instance()->setLastPath(fInfo.absoluteDir().absolutePath());
+  }
 
   foreach(QString file, files)
   {

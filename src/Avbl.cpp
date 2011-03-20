@@ -39,7 +39,7 @@ bool Avbl::SaveToFile(QList<TimelineTrail*> trails, QString fileName)
       if(!currentItem->isShadow())
       {
         QDomElement animElm = document.createElement("animation");
-        animElm.setAttribute("name", currentItem->Name);
+        animElm.setAttribute("name", currentItem->name());
         animElm.setAttribute("trail", trail);
         animElm.setAttribute("trailOrder", orderOnTrail);
         animElm.setAttribute("position", currentItem->beginIndex());
@@ -203,6 +203,11 @@ QList<TrailItem*>* Avbl::LoadFromFile(QString fileName)
 void Avbl::loadLimbWeights(BVHNode* limb, QHash<QString, QDomElement>* bones)
 {
   QString name = limb->name();
+  if(!bones->contains(name))
+  {
+    Announcer::Exception(NULL, "The key '" +name+ "' is not between loaded limbs");
+    return;
+  }
   QDomElement bonesElm = bones->value(name);
   QDomNodeList boneWeights = bonesElm.elementsByTagName("frame");
   for(int bw=0; bw<boneWeights.size(); bw++)

@@ -374,6 +374,7 @@ bool BlenderTab::resolveUnsavedChanges()
   if(IsUnsaved())
   {
     QMessageBox saveMessage;
+    saveMessage.setWindowTitle("Unsaved changes");
     saveMessage.setText(tr("The file %1 has been modified. Do you want to save it?").arg(CurrentFile));
     saveMessage.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
     saveMessage.setDefaultButton(QMessageBox::Save);
@@ -403,7 +404,7 @@ void BlenderTab::setSelectedLimbsWeight(QList<int>* jointNumbers)
       limbList << selectedItem->getAnimation()->getNode(jointNumber);
 
     blenderTimeline->HideLimsForm();
-    LimbsWeightDialog* lwd = new LimbsWeightDialog(selectedItem->Name, &limbList, selectedItem->selectedFrame(),
+    LimbsWeightDialog* lwd = new LimbsWeightDialog(selectedItem->name(), &limbList, selectedItem->selectedFrame(),
                                                    selectedItem->frames(), this);
     connect(lwd, SIGNAL(nextFrame()), this, SLOT(onLimbsDialogNextFrame()));
     connect(lwd, SIGNAL(previousFrame()), this, SLOT(onLimbsDialogPreviousFrame()));

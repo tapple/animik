@@ -121,31 +121,34 @@ bool BlenderTimeline::isClear() const
 
 void BlenderTimeline::RebuildResultingAnimation(bool emiting)
 {
-  int count = trails.size();
-  int minBeginIndex = 999999999;
-  TrailItem** rails = new TrailItem*[count];
-
-  //construct array form needed by Blender and find first frame position of result
-  for(int i=0; i<count; i++)
+  if(!isClear())
   {
-    rails[i] = trails.at(i)->firstItem();
-    if(trails.at(i)->firstItem() != NULL && trails.at(i)->firstItem()->beginIndex() < minBeginIndex)
-      minBeginIndex = trails.at(i)->firstItem()->beginIndex();
+    int count = trails.size();
+    int minBeginIndex = 999999999;
+    TrailItem** rails = new TrailItem*[count];
+
+    //construct array form needed by Blender and find first frame position of result
+    for(int i=0; i<count; i++)
+    {
+      rails[i] = trails.at(i)->firstItem();
+      if(trails.at(i)->firstItem() != NULL && trails.at(i)->firstItem()->beginIndex() < minBeginIndex)
+        minBeginIndex = trails.at(i)->firstItem()->beginIndex();
+    }
+    animationBeginPosition = minBeginIndex;
+
+    if(resultAnimation)
+      disconnect(resultAnimation, SIGNAL(currentFrame(int)), 0, 0);     //edu: is this needed?
+
+    Blender* blender = new Blender();
+    resultAnimation = blender->BlendTrails(rails, count);
+
+    if(resultAnimation != NULL)         //else an exception has been thrown
+      connect(resultAnimation, SIGNAL(currentFrame(int)), this, SLOT(onPlayFrameChanged(int)));
   }
-  animationBeginPosition = minBeginIndex;
+  else resultAnimation=NULL;
 
-  if(resultAnimation)
-    disconnect(resultAnimation, SIGNAL(currentFrame(int)), 0, 0);     //edu: is this needed?
-
-  Blender* blender = new Blender();
-  resultAnimation = blender->BlendTrails(rails, count);
-
-  if(resultAnimation != NULL)
-  {
-    connect(resultAnimation, SIGNAL(currentFrame(int)), this, SLOT(onPlayFrameChanged(int)));
-    if(emiting)
-      emit resultingAnimationChanged(resultAnimation);
-  }
+  if(emiting)
+    emit resultingAnimationChanged(resultAnimation);
 }
 
 

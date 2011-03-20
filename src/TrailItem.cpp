@@ -17,7 +17,7 @@ class TrailItem
         this->animation->setMixIn(0);
         this->animation->setMixOut(0);
       }
-      this->Name = name;
+      _name = name;
       this->begin = begin;
       _selectedFrame = -1;
       previous = 0;
@@ -25,17 +25,16 @@ class TrailItem
       this->shadow = isShadow;
     }
 
-    QString Name;       //mainly for debug purposes so far
-
-    int beginIndex() { return begin; }
-    void setBeginIndex(int index) { begin=index; }
+    const QString& name() const       { return _name; }       //mainly for debug purposes so far
+    int beginIndex() const            { return begin; }
+    void setBeginIndex(int index)     { begin=index; }
     //convenience method
     void shiftBeginIndex(int beginOffset) { begin += beginOffset; }
-    int endIndex() { return begin + frames() -1; }
+    int endIndex()                    { return begin + frames() -1; }
     WeightedAnimation* getAnimation() { return animation; }
     /** Get user-defined overall weight of a frame on given position.
         For blending purposes. */
-    int getWeight(int frameIndex) {
+    int getWeight(int frameIndex) const {
 
 //      try{      //DEBUG
         return animation->getFrameWeight(frameIndex);
@@ -86,6 +85,7 @@ class TrailItem
     TrailItem* next;
     TrailItem* previous;
     bool shadow;
+    QString _name;
 };
 
 #endif // TRAILITEM_C

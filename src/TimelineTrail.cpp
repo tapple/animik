@@ -342,7 +342,7 @@ void TimelineTrail::drawTrailItem(TrailItem* item)
         p.setFont(f);
 
         p.drawText(item->beginIndex()*_positionWidth+BORDER_WIDTH, TRACK_HEIGHT/3+TOP_MARGIN, item->frames()*_positionWidth,
-                   TRACK_HEIGHT/3, Qt::AlignLeft, item->Name);
+                   TRACK_HEIGHT/3, Qt::AlignLeft, item->name());
     }
 
     QRectF border(item->beginIndex()*_positionWidth+1, TOP_MARGIN+1,
