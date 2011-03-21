@@ -107,8 +107,6 @@ protected:
   /** Activate a tab with given AbstractDocumentTab content.
       Returns FALSE if no such tab exists, otherwise TRUE. */
   bool activateTab(AbstractDocumentTab* tab);
-  void UpdateMenus();
-  void UpdateToolbar();
 
   void fileOpen(const QString& name);
   void quit();
@@ -133,6 +131,10 @@ protected:
   bool protectFirstFrame;
   // will be true if a frame is protected
   bool protect;
+
+protected slots:
+  void UpdateMenus();
+  void UpdateToolbar();
 
 private slots:
     void on_fileAddAction_triggered();

@@ -1,6 +1,7 @@
 #ifndef TRAILITEM_C
 #define TRAILITEM_C
 
+#include "Announcer.h"
 #include "WeightedAnimation.h"
 
 
@@ -58,7 +59,11 @@ class TrailItem
     void selectFrame(int frameIndex)
     {
       if(frameIndex<0 || frameIndex>=animation->getNumberOfFrames())
-        throw new QString("Argument exception: frame index out of range.");
+      {
+        Announcer::Exception(NULL, "Argument exception: frame index out of range.");
+        return;
+//        throw new QString("Argument exception: frame index out of range.");
+      }
       _selectedFrame = frameIndex;
 
 //      animation->setFrame(frameIndex);        //FUJ! Troubles with AnimationView (::draw() executed to many times)

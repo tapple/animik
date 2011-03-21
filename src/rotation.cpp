@@ -94,6 +94,14 @@ void Position::Add(Position increment)
   z += increment.z;
 }
 
+void Position::Subtract(Position decrement)
+{
+  x -= decrement.x;
+  y -= decrement.y;
+  z -= decrement.z;
+}
+
+
 Position Position::difference(const Position& pos1,const Position& pos2)
 {
   return Position(pos2.x-pos1.x, pos2.y-pos1.y, pos2.z-pos1.z);

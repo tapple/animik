@@ -52,7 +52,7 @@ void Player::setPlaybackFrame(int frame)
   if(animation->getFrame() != frame)
   {
     animation->setFrame(frame);
-    updateLabel();
+//automatic through signal loop    updateLabel();
     emit playbackFrameChanged(playFrame());
   }
 }
@@ -193,8 +193,13 @@ void Player::setButtonsEnabled(bool enabled)
 
 void Player::updateLabel()
 {
-  ui->label->setText(QString("Frame %1 of %2").arg(playFrame()+1).arg(totalFrames()));
-  ui->label->repaint();
+  //DEBUG variables
+  QLabel* debugLbl = ui->label;
+  int played = playFrame();
+  int total = totalFrames();
+
+  /*ui->label*/debugLbl->setText(QString("Frame %1 of %2").arg(played+1).arg(total));
+  /*ui->label*/debugLbl->repaint();
 }
 
 void Player::on_playButton_clicked()

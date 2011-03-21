@@ -97,6 +97,8 @@ void BlenderTimeline::ConstructTimeLine(QList<TrailItem*>* trails)
 {
   for(int i=0; i<this->trails.size() && i<trails->size(); i++)
     this->trails.at(i)->ResetContent(trails->at(i));
+
+  RebuildResultingAnimation();
 }
 
 TrailItem* BlenderTimeline::getSelectedItem() const

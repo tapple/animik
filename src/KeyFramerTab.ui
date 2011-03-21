@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>784</width>
-    <height>587</height>
+    <height>603</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -399,6 +399,9 @@
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -467,6 +470,9 @@
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -534,6 +540,9 @@
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
                </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -651,6 +660,9 @@
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
                <property name="minimum">
                 <number>-19600</number>
                </property>
@@ -693,6 +705,9 @@
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
                <property name="minimum">
                 <number>-19600</number>
                </property>
@@ -734,6 +749,9 @@
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
                </property>
                <property name="minimum">
                 <number>-19600</number>

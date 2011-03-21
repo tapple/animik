@@ -68,6 +68,7 @@ class Position
     ~Position();
 
     void Add(Position increment);
+    void Subtract(Position increment);
 
     static Position difference(const Position& rot1,const Position& rot2);
 

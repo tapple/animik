@@ -25,6 +25,7 @@
 #include <QMdiSubWindow>
 #include <QRegExp>
 
+#include "Announcer.h"
 #include "qavimator.h"
 #include "settings.h"
 #include "settingsdialog.h"
@@ -75,7 +76,12 @@ void qavimator::OpenNewTab(NewFileDialog::ProjectType fileType, const QString& f
     case NewFileDialog::AVBL :
       tab = new BlenderTab(this, filename, newFile);
     break;
-    default: throw new QString("Unknown file type");
+    default:
+      {
+        Announcer::Exception(NULL, "Unknown file type");
+        return;
+        //throw new QString("Unknown file type");
+      }
   }
 
   mdiArea->addSubWindow(tab);
@@ -224,7 +230,11 @@ void qavimator::fileOpen(const QString& name)
     else if(name.endsWith(".avbl", Qt::CaseInsensitive))
       filetype = NewFileDialog::AVBL;
     else
-      throw new QString("Unknown file extension");
+    {
+      Announcer::Exception(this, "Unknown file extension");
+      return;
+//      throw new QString("Unknown file extension");
+    }
 
     OpenNewTab(filetype, name, false);
   }
@@ -425,7 +435,6 @@ void qavimator::on_fileNewAction_triggered()
 void qavimator::on_fileOpenAction_triggered()
 {
   QString file = selectFileToOpen(tr("Select Animation File to Load"));
-
   fileOpen(file);
 }
 

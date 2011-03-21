@@ -2,9 +2,9 @@
 #define BLENDER_H
 
 #include <QList>
+#include "rotation.h"
 
 class BVHNode;
-class Position;
 class TrailItem;
 class WeightedAnimation;
 
@@ -53,6 +53,9 @@ private:
   void copyKeyFrame(BVHNode* limb, int fromFrame, int toFrame);
 
   double absolut(double val);
+
+
+  Position debugShift;            //TODO: admit (comment)
 };
 
 #endif // BLENDER_H

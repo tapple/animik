@@ -33,6 +33,7 @@
 #include <QMenu>
 #include <QMouseEvent>
 #include "animationview.h"
+#include "Announcer.h"
 #include "bvh.h"
 #include "slparts.h"
 #include "settings.h"
@@ -51,7 +52,8 @@ AnimationView::AnimationView(QWidget* parent, const char* /* name */, Animation*
   bvh=new BVH();
   if(!bvh)
   {
-    throw new QString/*qDebug*/("AnimationView::AnimationView(): BVH initialisation failed.");
+    Announcer::Exception(this, "AnimationView::AnimationView(): BVH initialisation failed.");
+//    throw new QString("AnimationView::AnimationView(): BVH initialisation failed.");
     return;
   }
 

@@ -27,7 +27,7 @@ typedef enum
   PLAYSTATE_STOPPED=0,
   PLAYSTATE_LOOPING,
   PLAYSTATE_PLAYING,
-  PLAYSTATE_SUSPENDED,      //paused when tab looses focus
+  PLAYSTATE_SUSPENDED,      //paused when tab loses focus
   NUM_PLAYSTATES
 } PlayState;
 

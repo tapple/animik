@@ -13,11 +13,17 @@
 #define PI 3.14159265
 
 
+#define DEBUG_SHIFT   100000.0
+
+
 Blender::Blender() { }
 
 
 WeightedAnimation* Blender::BlendTrails(TrailItem** trails, int trailsCount)
 {
+  debugShift.x = debugShift.y = debugShift.z = DEBUG_SHIFT;
+
+
   QList<TrailItem*> items;
   QList<TrailItem*> origItems = lineUpTimelineTrails(trails, trailsCount);
 
@@ -512,9 +518,10 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
   {
     if(sortedItems.at(i)->beginIndex() > (intervalEndPosition+1))
       break;
-    if(itemsInInterval.count() > 0 && !sortedItems.at(i)->isShadow())      //there already is an item in interval, so shift position for all
+/*    if(itemsInInterval.count() > 0 && !sortedItems.at(i)->isShadow())      //there already is an item in interval, so shift position for all
       shiftAnimationPosition(sortedItems.at(i),                            //non-shadow next items according to it
                              sortedItems.at(itemsInInterval.at(0))->getAnimation()->getNode(0)->frameData(0).position());
+*/
     itemsInInterval.append(i);
   }
 
@@ -535,13 +542,14 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
     {
       if(sortedItems[itemsInInterval[cur]]->endIndex() < intervalStartPosition)   //the difference should be exactly 1
       {
-        TrailItem* item = sortedItems.at(itemsInInterval.at(cur));
+/*        TrailItem* item = sortedItems.at(itemsInInterval.at(cur));
         if(!item->isShadow())
         {
           debugItem = item;
           lastNonShadowPosition = item->getAnimation()->getNode(0)->frameData(item->frames()-1).position();
           lastNonShadowPosition.Add(item->getAnimation()->getOffset());
         }
+*/
         itemsInInterval.removeAt(cur);
         cur--;          //dirty trick not to skip an element in for loop
       }
@@ -552,6 +560,7 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
     {
       if(sortedItems.at(i)->beginIndex() == intervalStartPosition && !itemsInInterval.contains(i))       //'contains(i)' ? Ugly! TODO: what about hash-set?
       {
+/*
         //position shift for all key-frames of non-shadow items is applied
         if(!sortedItems.at(i)->isShadow())
         {
@@ -572,19 +581,10 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
             shift = previousNonShadow->getAnimation()->getNode(0)->frameData(frameIndex).position();
           }
 
-          //DEBUG
-/*          if(shift.x==shift.y==shift.z==0)
-          {
-//            throw new QString("Illegal state exception: uninitialized position shift");
-            if(debugItem != NULL)
-            {
-              QString wha = "Item " +debugItem->Name+ " used it's last frame (index " +QString::number(debugItem->frames()-1)+ ") to reset lastNonShadowPosition";
-              QMessageBox::warning(NULL, "DEBUG", wha);
-            }
-          }*/
 
           shiftAnimationPosition(sortedItems.at(i), shift);
         }
+*/
         itemsInInterval.append(i);
       }
       else if(sortedItems.at(i)->beginIndex() > intervalStartPosition)
@@ -740,8 +740,8 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
       for(int i=0; i<count; i++)
       {
         TrailItem* currentItem = sortedItems[itemIndices[i]];
-        int currentFrame = timeLineFrame - currentItem->beginIndex();         //well, this must be zero
-        BVHNode* node = currentItem->getAnimation()->getNode(partIndex);      //and this position
+        int currentFrame = timeLineFrame - currentItem->beginIndex();         //Well, this must be zero.
+        BVHNode* node = currentItem->getAnimation()->getNode(partIndex);      //And this position.
         Position tempPos = node->frameData(currentFrame).position();
         sumPos.Add(tempPos);
       }
@@ -766,17 +766,22 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
         {                                         //frame to have difference with, it wouldn't change anything
           Position temp = currentItem->getAnimation()->getNode(partIndex)->frameData(currentFrame).position();
           temp.Add(currentItem->getAnimation()->getOffset());
-          sumY += temp.y;
-          resultPos.x = temp.x;                   //just for the case this item is the only one in interval
-          resultPos.y = temp.y;
+          sumY += temp.y + DEBUG_SHIFT;
+
+          //just for the case this item is the only one in interval
+          Position prevTargetPos = target->getNode(0)->frameData(targetFrame-1).position();
+          resultPos.x = prevTargetPos.x + DEBUG_SHIFT;
+          resultPos.z = prevTargetPos.z + DEBUG_SHIFT;
         }
         else
         {
           positionsUsed++;
           BVHNode* positNode = currentItem->getAnimation()->getNode(partIndex);
           Position p1 = positNode->frameData(currentFrame-1).position();
+          p1.Add(debugShift);
           p1.Add(currentItem->getAnimation()->getOffset());
           Position p2 = positNode->frameData(currentFrame).position();
+          p2.Add(debugShift);
           p2.Add(currentItem->getAnimation()->getOffset());
           sumY += p2.y;
           double distance;
@@ -789,13 +794,13 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
           double sinPhi = absolut(p2.z - p1.z) / distance;
           double angle = asin(sinPhi) * 180.0 / PI;
 
-          if(p2.x == p1.x && p2.z == p1.z)        //no position change
+          if(p2.x == p1.x && p2.z >= p1.z)        //no position change or move straight forward
             bearing = 0.0;
           else if(p2.x >= p1.x && p2.z > p1.z)    //latter position in quarter 1 comparing to previous
             bearing = angle;
           else if(p2.x > p1.x && p2.z <= p1.z)    //quarter 2
             bearing = angle + 90.0;
-          else if(p2.x == p1.x && p2.z < p1.z)    //between quarters 2 and 3 (move backwards)
+          else if(p2.x == p1.x && p2.z < p1.z)    //between quarters 2 and 3 (move backward)
             bearing = 180.0;
           else if(p2.x < p1.x && p2.z <= p1.z)    //quarter 3
             bearing = -90.0 - angle;
@@ -812,11 +817,13 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
       {                       //calculate Position (only X and Z coordinates) from given start point,
                               //distance and bearing (asimuth towards Z axis).
         Position prevTargetPos = target->getNode(0)->frameData(targetFrame-1).position();
-        resultPos.x = prevTargetPos.x + sumDistance/positionsUsed * sin(sumBearing/positionsUsed * PI/180.0);
-        resultPos.z = prevTargetPos.z + sumDistance/positionsUsed * cos(sumBearing/positionsUsed * PI/180.0);
+        resultPos.x = prevTargetPos.x + DEBUG_SHIFT + sumDistance/positionsUsed * sin/*cos*/(sumBearing/positionsUsed * PI/180.0);
+        resultPos.z = prevTargetPos.z + DEBUG_SHIFT + sumDistance/positionsUsed * cos/*sin*/(sumBearing/positionsUsed * PI/180.0);
       }
 
       resultPos.y = sumY/itemIndices.size();
+
+      resultPos.Subtract(Position(DEBUG_SHIFT, DEBUG_SHIFT, DEBUG_SHIFT));
     }
   }
   else        //other nodes, only rotation is interesting
@@ -826,7 +833,7 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
     int count = itemIndices.size();
     for(int i=0; i<count; i++)
     {
-      TrailItem* currentItem = sortedItems[itemIndices[i]];
+      TrailItem* currentItem = sortedItems.at(itemIndices[i]);
       int currentFrame = timeLineFrame - currentItem->beginIndex();
       BVHNode* node = currentItem->getAnimation()->getNode(partIndex);
       FrameData data = node->frameData(currentFrame);
@@ -847,7 +854,7 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
 
 /** Adjusts position of given item's animation. The positions in frames are shifted so that
     the first frame position is right in given base **/
-void Blender::shiftAnimationPosition(TrailItem *target, Position base)
+void Blender::shiftAnimationPosition(TrailItem *target, Position base)                //TODO: this should be obsolete
 {
   if(target->isShadow())
   {

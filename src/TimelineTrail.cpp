@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QPalette>
 #include <QSize>
+#include "Announcer.h"
 #include "bvh.h"
 #include "MixZonesDialog.h"
 #include "settings.h"
@@ -130,7 +131,7 @@ void TimelineTrail::ResetContent(TrailItem *first)
   if(_lastItem->endIndex() >= positionCount())
     coerceExtension(_lastItem->endIndex() - positionCount() +1);
 
-  trailContentChange();
+//  trailContentChange();       edu:done externally by caller to avoid being signaled by all trails
 }
 
 void TimelineTrail::limitUserActions(bool limit)
@@ -211,6 +212,7 @@ TrailItem* TimelineTrail::findFreeSpace(int positions)
   if(coerceExtension(positions-remaining))
     return _lastItem;
 
+  Announcer::Exception(this, "Not enough space on time-line. No item will be added.");
   throw new QString("Not enough space");
 }
 
@@ -450,7 +452,9 @@ TrailItem* TimelineTrail::findPreviousItem(int beforePosition)
     currentItem = currentItem->nextItem();
   }
 
-  throw new QString("findNextItem: unable to return valid TrailItem object");
+  Announcer::Exception(this, "findNextItem: unable to return valid TrailItem object");
+  return NULL;
+//  throw new QString("findNextItem: unable to return valid TrailItem object");
 }
 
 
@@ -478,7 +482,9 @@ TrailItem* TimelineTrail::findNextItem(int afterPosition)
     currentItem = currentItem->previousItem();
   }
 
-  throw new QString("findNextItem: unable to return valid TrailItem object");
+  Announcer::Exception(NULL, "findNextItem: unable to return valid TrailItem object");
+  return NULL;
+//  throw new QString("findNextItem: unable to return valid TrailItem object");
 }
 
 
@@ -683,7 +689,11 @@ void TimelineTrail::mousePressEvent(QMouseEvent* e)
       {
         int inside = positionsCount-clickedFrame;
         if(!coerceExtension(draggingItem->frames() - inside))
-          throw new QString("coerceExtension unsuccessfull!");       //this should never happen
+        {
+          Announcer::Exception(this, "coerceExtension unsuccessfull!");
+          return;
+//          throw new QString("coerceExtension unsuccessfull!");       //this should never happen
+        }
       }
 
       TrailItem* newPrevious = findPreviousItem(clickedFrame);

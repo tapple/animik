@@ -1,5 +1,6 @@
-#include "WeightedAnimation.h"
+#include "Announcer.h"
 #include "bvh.h"
+#include "WeightedAnimation.h"
 
 
 #define MIX_IN_OUT        3
@@ -45,7 +46,9 @@ int WeightedAnimation::getFrameWeight(int frameIndex)
 {
   if(frameIndex < 0 || frameIndex >= totalFrames)
   {
-    throw new QString("(WeightedAnimation::getFrameWeight) Argument exception: frameIndex exceeds frames count");
+    Announcer::Exception(NULL, "(WeightedAnimation::getFrameWeight) Argument exception: frameIndex exceeds frames count");
+    return -1;
+//    throw new QString("(WeightedAnimation::getFrameWeight) Argument exception: frameIndex exceeds frames count");
   }
   return frameWeights[frameIndex];
 }
@@ -53,11 +56,19 @@ int WeightedAnimation::getFrameWeight(int frameIndex)
 void WeightedAnimation::setFrameWeight(int frameIndex, int weight)
 {
   if(frameIndex < 0 || frameIndex >= totalFrames)
-    throw new QString("(WeightedAnimation::setFrameWeight) Argument exception: frameIndex exceeds frames count");
+  {
+    Announcer::Exception(NULL, "(WeightedAnimation::setFrameWeight) Argument exception: frameIndex exceeds frames count");
+    return;
+//    throw new QString("(WeightedAnimation::setFrameWeight) Argument exception: frameIndex exceeds frames count");
+  }
 
   else if(weight<0 || weight>100)
-    throw new QString("Argument exception: frame weight out of range: " +
-                      QString::number(weight) + ". Must fall in <0; 100>");
+  {
+    Announcer::Exception(NULL, "Argument exception: frame weight out of range: " +
+                         QString::number(weight)+ ". Must fall in <0; 100>");
+    return;
+//    throw new QString("Argument exception: frame weight out of range: " +QString::number(weight) + ". Must fall in <0; 100>");
+  }
   else
     frameWeights[frameIndex] = weight;
 }

@@ -5,15 +5,17 @@
 #include <QCloseEvent>
 #include <QTabBar>
 
-#include "KeyFramerTab.h"
-#include "ui_KeyFramerTab.h"
-#include "qavimator.h"
+
 #include "animationview.h"
-#include "rotation.h"
+#include "Announcer.h"
+#include "KeyFramerTab.h"
 #include "prop.h"
+#include "qavimator.h"
+#include "rotation.h"
+#include "settings.h"
 #include "timeline.h"
 #include "timelineview.h"
-#include "settings.h"
+#include "ui_KeyFramerTab.h"
 //edu#include "settingsdialog.h"
 
 #define ANIM_FILTER "Animation Files (*.avm *.bvh)"
@@ -875,7 +877,12 @@ void KeyFramerTab::nextPlaystate()
       break;
     }
     case PLAYSTATE_SUSPENDED:
-      throw new QString("Invalid state exception: Can't be in state PLAYSTATE_SUSPENDED when the tab is active");
+    {
+      QString text = "Invalid state exception: Can't be in state PLAYSTATE_SUSPENDED when the tab is active";
+      Announcer::Exception(this, text);
+//      throw new QString(text);
+      break;
+    }
     break;
     default:
       qDebug("qavimator::nextPlaystate(): unknown playstate %d",(int) playstate);
