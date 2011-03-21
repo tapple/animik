@@ -66,7 +66,7 @@ class Animation : public QObject
     void loadBVHFromString(const QString& bvhData);
     void saveBVH(const QString& bvhFile);
     int getNumberOfFrames();
-    void setNumberOfFrames(int num);
+    virtual void setNumberOfFrames(int num);
     int getFrame();
     void setFrame(int frameNumber);
     int stepForward();

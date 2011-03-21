@@ -13,6 +13,8 @@ public:
   WeightedAnimation(BVH* newBVH, const QString& bvhFile);
   ~WeightedAnimation();
 
+  virtual void setNumberOfFrames(int num);
+
   int getFrameWeight(int frameIndex);
   int currentFrameWeight();
   void setCurrentFrameWeight(int weight);

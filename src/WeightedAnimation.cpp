@@ -41,6 +41,11 @@ WeightedAnimation::~WeightedAnimation()     //edu: ~Animation() called automatic
 }
 
 
+void WeightedAnimation::setNumberOfFrames(int num)
+{
+  frameWeights = (int*) realloc(frameWeights, num * sizeof(int));
+  Animation::setNumberOfFrames(num);
+}
 
 int WeightedAnimation::getFrameWeight(int frameIndex)
 {
