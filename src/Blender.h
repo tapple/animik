@@ -47,15 +47,11 @@ private:
   void combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> itemIndices, BVHNode* limb,
                               int timeLineFrame, WeightedAnimation* target, int targetFrame);
 
-  void shiftAnimationPosition(TrailItem* target, Position base);
   int findFirstItemAfter(QList<TrailItem*> sortedItems, int afterPosition);
   TrailItem* findLastItemBefore(QList<TrailItem*> sortedItems, int beforePosition);
   void copyKeyFrame(BVHNode* limb, int fromFrame, int toFrame);
 
-  double absolut(double val);
-
-
-  Position debugShift;            //TODO: admit (comment)
+  double static absolut(double val) { return val>0.0 ? val : (-1 * val); }
 };
 
 #endif // BLENDER_H
