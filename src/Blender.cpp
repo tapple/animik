@@ -104,13 +104,12 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
   {
     QString text = "Argument exception: there must be at least two items in the list 'sortedItems'";
     if(Settings::Instance()->Debug())
-//      QMessageBox::warning(NULL, "Exception", text);
       Announcer::Exception(NULL, text);
 //    throw new QString(text);
     return QList<TrailItem*>();
   }
 
-  QList<TrailItem*> result;           //TODO: FUJ! To reference.
+  QList<TrailItem*> result;           //FUJ! TODO: To reference.
 
   for(int item=0; item<items.size(); item++)
   {
@@ -231,7 +230,6 @@ QList<TrailItem*> Blender::createMixOutsImpliedShadowItems(QList<TrailItem*> ite
   {
     QString text = "Argument exception: there must be at least two items in the list 'sortedItems'";
     if(Settings::Instance()->Debug())
-//      QMessageBox::warning(NULL, "Exception", text);
       Announcer::Exception(NULL, text);
 //    throw new QString(text);
     return QList<TrailItem*>();
@@ -341,7 +339,7 @@ QList<TrailItem*> Blender::createMixOutsImpliedShadowItems(QList<TrailItem*> ite
     Frame weights are not considered in interpolation. */
 void Blender::interpolatePosture(WeightedAnimation* anim1, int frame1,
                                  WeightedAnimation* anim2, int frame2,
-                                 WeightedAnimation* targetAnim)     //TODO: no LERP for position, rather Kovar's approach
+                                 WeightedAnimation* targetAnim)
 {
   interpolatePostureHelper(anim1, frame1, anim2, frame2, 0, targetAnim);      //position pseudo-node first
 
@@ -357,12 +355,6 @@ void Blender::interpolatePostureHelper(WeightedAnimation* anim1, int frame1,
   BVHNode* node1 = anim1->getNode(nodeIndex);
   FrameData data1 = node1->frameData(frame1);
   BVHNode* node2 = anim2->getNode(nodeIndex);
-
-
-  //DEBUG
-  if(node2==NULL)
-    Announcer::Exception(NULL, "Can't find node with index " +QString::number(nodeIndex)+ " in the second animation");
-
 
   FrameData data2 = node2->frameData(frame2);
   Position off1 = anim1->getOffset();
@@ -382,7 +374,6 @@ void Blender::interpolatePostureHelper(WeightedAnimation* anim1, int frame1,
     interpolatePostureHelper(anim1, frame1, anim2, frame2, limbIndex, targetAnim);
   }
 }
-
 
 
 /** Returns list of TrailItems such that:
@@ -457,7 +448,7 @@ void Blender::cloneAnimationHelper(int limbIndex, WeightedAnimation* fromAnim, W
   {
     FrameData data = fromAnim->getNode(limbIndex)->frameData(i);
     Position offset = fromAnim->getOffset();
-    Position pos(data.position().x+offset.x, data.position().y+offset.y, data.position().z+offset.z);        //TODO: FUJ! why don't you just use copy constructor (=) + Position::Add?
+    Position pos(data.position().x+offset.x, data.position().y+offset.y, data.position().z+offset.z);        //TODO: FUJ! why don't you just use copy constructor (=)?
     Rotation rot(data.rotation().x, data.rotation().y, data.rotation().z);
     toAnim->getNode(limbIndex)->addKeyframe(i, pos, rot);
   }
@@ -497,7 +488,6 @@ void Blender::blend(QList<TrailItem*> sortedItems, WeightedAnimation* result, in
     if(Settings::Instance()->Debug())
       Announcer::Exception(NULL, text);
     return;
-//      QMessageBox::warning(NULL, "Exception", text);
 //    throw new QString(text);
   }
 
@@ -679,6 +669,7 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
     if(targetFrame==0)          //very beginning of overal blend
     {
       Position sumPos(0.0, 0.0, 0.0);
+      int sumFrameWeights = 0;
 
       int count = itemIndices.size();
       for(int i=0; i<count; i++)
@@ -686,30 +677,39 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
         TrailItem* currentItem = sortedItems[itemIndices[i]];
         int currentFrame = timeLineFrame - currentItem->beginIndex();         //Well, this must be zero.
         BVHNode* node = currentItem->getAnimation()->getNode(partIndex);      //And this position.
+        int frameW = currentItem->isShadow() ? 0
+                                             : currentItem->getWeight(currentFrame);        //No difference between MI/MO and gap shadows. BUG? TODO
+        sumFrameWeights += frameW;
         Position tempPos = node->frameData(currentFrame).position();
+        tempPos.Multiply((double)frameW);
         sumPos.Add(tempPos);
       }
 
-      resultPos.x = sumPos.x/count;                                           //At present no weights are involved. TODO
-      resultPos.y = sumPos.y/count;
-      resultPos.z = sumPos.z/count;
+      resultPos.x = sumPos.x/sumFrameWeights /*count*/;           //TODO: use also limb weights
+      resultPos.y = sumPos.y/sumFrameWeights /*count*/;
+      resultPos.z = sumPos.z/sumFrameWeights /*count*/;
     }
     else                //TODO: in case of single item in interval, lot of vain computation is done. Consider IF branch for it.
     {
       double sumY = 0.0;
       double sumDistance = 0.0;
       double sumBearing = 0.0;
+      int sumFrameWeightsY = 0;
+      int sumFrameWeightsXZ = 0;          //TODO
       int positionsUsed = 0;
 
       for(int x=0; x<itemIndices.size(); x++)
       {
         TrailItem* currentItem = sortedItems[itemIndices[x]];
         int currentFrame = timeLineFrame - currentItem->beginIndex();
+        int frameW = currentItem->getWeight(currentFrame);
 
         if(currentFrame==0)                       //This item has just joined blending. As there's no previous
         {                                         //frame to have difference with, it wouldn't change anything
+//TODO          sumFrameWeightsY += frameW;
           Position temp = currentItem->getAnimation()->getNode(partIndex)->frameData(currentFrame).position();
           temp.Add(currentItem->getAnimation()->getOffset());
+//          temp.Multiply((double)frameW);          //actually only Y makes sense to be multiplied
           sumY += temp.y;
 
           //just for the case this item is the only one in interval
@@ -721,10 +721,20 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
         {
           positionsUsed++;
           BVHNode* positNode = currentItem->getAnimation()->getNode(partIndex);
+
           Position p1 = positNode->frameData(currentFrame-1).position();
           p1.Add(currentItem->getAnimation()->getOffset());
+
           Position p2 = positNode->frameData(currentFrame).position();
           p2.Add(currentItem->getAnimation()->getOffset());
+
+
+          //DEBUG so far
+/*          sumFrameWeightsXZ += frameW;
+          sumFrameWeightsY += frameW;
+          p2.Multiply((double)frameW);
+*/
+
           sumY += p2.y;
           double distance;
           double bearing;
@@ -766,11 +776,18 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
         resultPos.z = prevTargetPos.z + sumDistance/positionsUsed * cos/*sin*/(sumBearing/positionsUsed * PI/180.0);
       }
 
-      resultPos.y = sumY/itemIndices.size();
+
+      //DEBUG so far
+      resultPos.x = resultPos.x; //TODO: /sumFrameWeightsXZ;
+      resultPos.z = resultPos.z; //TODO: /sumFrameWeightsXZ;
+
+
+      resultPos.y = sumY/itemIndices.size();    //TODO: = sumY/sumFrameWeightsY;
     }
   }
   else        //other nodes, only rotation is interesting
   {
+    int sumFrameWeights = 0;
     Rotation sumRot(0.0, 0.0, 0.0);
 
     int count = itemIndices.size();
@@ -778,14 +795,17 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
     {
       TrailItem* currentItem = sortedItems.at(itemIndices[i]);
       int currentFrame = timeLineFrame - currentItem->beginIndex();
+      int frameW = currentItem->getWeight(currentFrame);
+      sumFrameWeights += frameW;
       BVHNode* node = currentItem->getAnimation()->getNode(partIndex);
-      FrameData data = node->frameData(currentFrame);
-      sumRot.Add(data.rotation());
+      Rotation temp = node->frameData(currentFrame).rotation();
+      temp.Multiply((double)frameW);
+      sumRot.Add(temp);
     }
 
-    resultRot.x = sumRot.x/count;
-    resultRot.y = sumRot.y/count;
-    resultRot.z = sumRot.z/count;
+    resultRot.x = sumRot.x/sumFrameWeights; //count;
+    resultRot.y = sumRot.y/sumFrameWeights; //count;
+    resultRot.z = sumRot.z/sumFrameWeights; //count;
   }
 
   limb->addKeyframe(targetFrame, resultPos, resultRot);

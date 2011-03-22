@@ -33,8 +33,8 @@ class TrailItem
     void shiftBeginIndex(int beginOffset) { begin += beginOffset; }
     int endIndex()                    { return begin + frames() -1; }
     WeightedAnimation* getAnimation() { return animation; }
-    /** Get user-defined overall weight of a frame on given position.
-        For blending purposes. */
+    /*! Get user-defined overall weight of a frame on given position.
+        For blending purposes. !*/
     int getWeight(int frameIndex) const {
 
 //      try{      //DEBUG

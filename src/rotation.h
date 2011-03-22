@@ -35,6 +35,7 @@ class Rotation
     ~Rotation();
 
     void Add(Rotation increment);
+    void Multiply(double mult);
 
     static Rotation difference(const Rotation& rot1,const Rotation& rot2);
 
@@ -68,7 +69,7 @@ class Position
     ~Position();
 
     void Add(Position increment);
-    void Subtract(Position increment);
+    void Multiply(double mult);
 
     static Position difference(const Position& rot1,const Position& rot2);
 

@@ -50,6 +50,13 @@ void Rotation::Add(Rotation increment)
   z += increment.z;
 }
 
+void Rotation::Multiply(double mult)
+{
+  x *= mult;
+  y *= mult;
+  z *= mult;
+}
+
 
 RotationLimits::RotationLimits(const QString& joint,double rxMin,double rxMax,
                                                     double ryMin,double ryMax,
@@ -94,11 +101,11 @@ void Position::Add(Position increment)
   z += increment.z;
 }
 
-void Position::Subtract(Position decrement)
+void Position::Multiply(double mult)
 {
-  x -= decrement.x;
-  y -= decrement.y;
-  z -= decrement.z;
+  x *= mult;
+  y *= mult;
+  z *= mult;
 }
 
 
