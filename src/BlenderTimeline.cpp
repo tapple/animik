@@ -142,7 +142,9 @@ void BlenderTimeline::RebuildResultingAnimation(bool emiting)
       disconnect(resultAnimation, SIGNAL(currentFrame(int)), 0, 0);     //edu: is this needed?
 
     Blender* blender = new Blender();
+    WeightedAnimation* old = resultAnimation;
     resultAnimation = blender->BlendTrails(rails, count);
+    delete old;
 
     if(resultAnimation != NULL)         //else an exception has been thrown
       connect(resultAnimation, SIGNAL(currentFrame(int)), this, SLOT(onPlayFrameChanged(int)));
