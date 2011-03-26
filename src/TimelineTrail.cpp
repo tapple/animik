@@ -44,6 +44,7 @@ TimelineTrail::TimelineTrail(QWidget* parent, Qt::WindowFlags, QString debugName
   settingWeight = false;
   leftMouseDown = rightMouseDown = false;
   addingNewItem = false;
+  needsRebuild = false;
   userActionsLimited = false;
   //we need to receive mouseMoveEvent even when no button down
   setMouseTracking(true);
@@ -62,6 +63,18 @@ TimelineTrail::TimelineTrail(QWidget* parent, Qt::WindowFlags, QString debugName
 
 
   _debugName = debugName;
+}
+
+
+TimelineTrail::~TimelineTrail()
+{
+  TrailItem* currentItem = _firstItem;
+  while(currentItem != NULL)
+  {
+    TrailItem* next = currentItem->nextItem();
+    delete currentItem;
+    currentItem = next;
+  }
 }
 
 
@@ -600,7 +613,10 @@ void TimelineTrail::adjustFrameWeight(int cursorYPosition)
     if(oldWeight != newWeight)
     {
       selectedItem->getAnimation()->setFrameWeight(frameIndex, newWeight);
-      emit trailContentChanged(_firstItem);
+
+//DEBUG      emit trailContentChanged(_firstItem);
+      needsRebuild = true;
+
       repaint(currentPosition*_positionWidth-10, 0, _positionWidth+20, TRACK_HEIGHT);
     }
   }
@@ -769,7 +785,11 @@ void TimelineTrail::mouseReleaseEvent(QMouseEvent *)
 {
   if(settingWeight)
     repaint();
-  leftMouseDown = rightMouseDown = settingWeight = false;
+  if(needsRebuild)
+    emit trailContentChanged(_firstItem);
+
+  leftMouseDown = rightMouseDown = false;
+  settingWeight = needsRebuild = false;
 }
 
 

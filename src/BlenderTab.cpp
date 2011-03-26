@@ -67,6 +67,11 @@ BlenderTab::BlenderTab(qavimator* mainWindow, const QString& fileName, bool crea
 BlenderTab::~BlenderTab()
 {
 //  delete ui;
+  delete blenderAnimationView;
+  delete blenderTools;
+  delete widget_2;
+  delete blenderPlayer;
+  delete blenderTimeline;
 }
 
 

@@ -123,6 +123,8 @@ bool BlenderTimeline::isClear() const
 
 void BlenderTimeline::RebuildResultingAnimation(bool emiting)
 {
+  int oldPosition = 0;            //old selected frame on this time-line
+
   if(!isClear())
   {
     int count = trails.size();
@@ -143,8 +145,14 @@ void BlenderTimeline::RebuildResultingAnimation(bool emiting)
 
     Blender* blender = new Blender();
     WeightedAnimation* old = resultAnimation;
+    if(old != NULL)
+    {
+      oldPosition = animationBeginPosition+old->getFrame();
+      delete old;
+    }
     resultAnimation = blender->BlendTrails(rails, count);
-    delete old;
+
+    delete blender;
 
     if(resultAnimation != NULL)         //else an exception has been thrown
       connect(resultAnimation, SIGNAL(currentFrame(int)), this, SLOT(onPlayFrameChanged(int)));
@@ -153,6 +161,7 @@ void BlenderTimeline::RebuildResultingAnimation(bool emiting)
 
   if(emiting)
     emit resultingAnimationChanged(resultAnimation);
+  setCurrentFrame(oldPosition);               //restore old frame selection
 }
 
 

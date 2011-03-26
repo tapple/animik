@@ -6,8 +6,7 @@
 #define MIX_IN_OUT        3
 
 
-WeightedAnimation::WeightedAnimation(BVH* newBVH,const QString& bvhFile)
-  : Animation(newBVH, bvhFile)
+WeightedAnimation::WeightedAnimation(BVH* newBVH,const QString& bvhFile) : Animation(newBVH, bvhFile)
 {
   int frames_count = newBVH->lastLoadedNumberOfFrames;
   _tPosed = checkTPosed(frames);

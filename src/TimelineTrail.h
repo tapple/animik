@@ -16,6 +16,7 @@ class TimelineTrail : public QFrame
 
   public:
     TimelineTrail(QWidget* parent=0, Qt::WindowFlags f=0, QString debugName="<0>");
+    ~TimelineTrail();
 
     /** Add new animation on first gap big enough. Returns TRUE on success
         or FALSE if there's not enough space on this trail. */
@@ -122,6 +123,7 @@ class TimelineTrail : public QFrame
         but for some reason wasn't placed yet. */
     bool addingNewItem;
     bool userActionsLimited;
+    bool needsRebuild;
     TrailItem* _firstItem;
     TrailItem* _lastItem;
 

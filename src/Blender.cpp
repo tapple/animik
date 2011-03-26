@@ -14,6 +14,7 @@
 
 
 Blender::Blender() { }
+Blender::~Blender() { }
 
 
 WeightedAnimation* Blender::BlendTrails(TrailItem** trails, int trailsCount)
@@ -771,8 +772,8 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
 
       if(positionsUsed > 0)
       {
-//DEBUG, TODO: uncomment        if(sumBearing >= 179.99)
-//          sumBearing = 0.0;
+       if(sumBearing*sumFrameWeightsXZ >= 179.99*sumFrameWeightsXZ)
+          sumBearing = 0.0;
 
         if(sumDistance == 0.0)
           sumDistance = clearSumDistance;

@@ -410,7 +410,9 @@ void qavimator::closeTab(int i)
 {
   QMdiSubWindow* sub = mdiArea->subWindowList()[i];
   mdiArea->setActiveSubWindow(sub);
+  setWindowTitle("Animik");               //usefull if last tab is to be closed
   mdiArea->closeActiveSubWindow();
+  delete sub;
 }
 
 
