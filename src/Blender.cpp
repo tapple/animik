@@ -678,11 +678,14 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
         TrailItem* currentItem = sortedItems[itemIndices[i]];
         int currentFrame = timeLineFrame - currentItem->beginIndex();         //Well, this must be zero.
         BVHNode* node = currentItem->getAnimation()->getNode(partIndex);      //And this position.
+        FrameData data = node->frameData(currentFrame);
         int frameW = currentItem->isShadow() ? 0
                                              : currentItem->getWeight(currentFrame);        //No difference between MI/MO and gap shadows. BUG? TODO
-        sumFrameWeights += frameW;
-        Position tempPos = node->frameData(currentFrame).position();
-        tempPos.Multiply((double)frameW);
+        int limbW = data.weight();
+
+        sumFrameWeights += frameW*limbW;
+        Position tempPos = data.position();
+        tempPos.Multiply((double)(frameW*limbW));
         sumPos.Add(tempPos);
       }
 
@@ -698,8 +701,8 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
       double clearSumDistance = 0.0;
       double sumBearing = 0.0;
       double clearSumBearing = 0.0;
-      int sumFrameWeightsY = 0;
-      int sumFrameWeightsXZ = 0;
+      int sumWeightsY = 0;
+      int sumWeightsXZ = 0;
       int positionsUsed = 0;
 
       for(int x=0; x<itemIndices.size(); x++)
@@ -710,12 +713,14 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
 
         if(currentFrame==0)                       //This item has just joined blending. As there's no previous
         {                                         //frame to have difference with, it wouldn't change anything
-          sumFrameWeightsY += frameW;
-          sumFrameWeightsXZ += frameW;            //for case other inputs have zero weight at this place
-          Position temp = currentItem->getAnimation()->getNode(partIndex)->frameData(currentFrame).position();
+          FrameData data = currentItem->getAnimation()->getNode(partIndex)->frameData(currentFrame);
+          Position temp = data.position();
+          int limbW = data.weight();
+          sumWeightsY += frameW*limbW;
+          sumWeightsXZ += frameW*limbW;            //for case other inputs have zero weight at this place
           temp.Add(currentItem->getAnimation()->getOffset());
           clearSumY += temp.y;
-          temp.Multiply((double)frameW);          //actually only Y makes sense to be multiplied
+          temp.Multiply((double)(frameW*limbW));          //actually only Y makes sense to be multiplied
           sumY += temp.y;
 
           //just for the case this item is the only one in interval
@@ -731,20 +736,22 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
           Position p1 = positNode->frameData(currentFrame-1).position();
           p1.Add(currentItem->getAnimation()->getOffset());
 
-          Position p2 = positNode->frameData(currentFrame).position();
+          FrameData data = positNode->frameData(currentFrame);
+          Position p2 = data.position();
+          int limbW = data.weight();
           p2.Add(currentItem->getAnimation()->getOffset());
 
-          sumFrameWeightsXZ += frameW;
-          sumFrameWeightsY += frameW;
+          sumWeightsXZ += frameW*limbW;
+          sumWeightsY += frameW*limbW;
           clearSumY += p2.y;
-          sumY += p2.y * frameW;
+          sumY += p2.y * frameW*limbW;
           double distance;
           double bearing;
 
           double cPower2 = (p2.x-p1.x)*(p2.x-p1.x) + (p2.z-p1.z)*(p2.z-p1.z);   //pythagorean theorem
           distance = sqrt(cPower2);
           clearSumDistance += distance;
-          sumDistance += distance*frameW;
+          sumDistance += distance*frameW*limbW;
 
           double sinPhi = absolut(p2.z - p1.z) / distance;
           double angle = asin(sinPhi) * 180.0 / PI;
@@ -766,41 +773,41 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
           if(bearing>180.0) bearing=180.0;
 
           clearSumBearing += bearing;
-          sumBearing += bearing*frameW;
+          sumBearing += bearing*frameW*limbW;
         }
       }
 
       if(positionsUsed > 0)
       {
-       if(sumBearing*sumFrameWeightsXZ >= 179.99*sumFrameWeightsXZ)
+       if(sumBearing*sumWeightsXZ >= 179.99*sumWeightsXZ)
           sumBearing = 0.0;
 
         if(sumDistance == 0.0)
           sumDistance = clearSumDistance;
         if(sumBearing == 0.0)
           sumBearing = clearSumBearing;
-        if(sumFrameWeightsXZ == 0)                  //Houdini
-          sumFrameWeightsXZ = positionsUsed;
+        if(sumWeightsXZ == 0)                  //Houdini
+          sumWeightsXZ = positionsUsed;
 
         Position prevTargetPos = target->getNode(0)->frameData(targetFrame-1).position();
         //calculate Position (only X and Z coordinates) from given start point,
         //distance and bearing (asimuth towards Z axis).
-        resultPos.x = prevTargetPos.x + sumDistance/ /*positionsUsed*/sumFrameWeightsXZ * sin(sumBearing/ /*positionsUsed*/sumFrameWeightsXZ * PI/180.0);
-        resultPos.z = prevTargetPos.z + sumDistance/ /*positionsUsed*/sumFrameWeightsXZ * cos(sumBearing/ /*positionsUsed*/sumFrameWeightsXZ * PI/180.0);
+        resultPos.x = prevTargetPos.x + sumDistance/ /*positionsUsed*/sumWeightsXZ * sin(sumBearing/ /*positionsUsed*/sumWeightsXZ * PI/180.0);
+        resultPos.z = prevTargetPos.z + sumDistance/ /*positionsUsed*/sumWeightsXZ * cos(sumBearing/ /*positionsUsed*/sumWeightsXZ * PI/180.0);
       }
 
       resultPos.x = resultPos.x;
       resultPos.z = resultPos.z;
 
-      if(sumFrameWeightsY == 0)
+      if(sumWeightsY == 0)
         resultPos.y = clearSumY / itemIndices.size();
       else
-        resultPos.y = sumY/sumFrameWeightsY;
+        resultPos.y = sumY/sumWeightsY;
     }
   }
   else        //other nodes, only rotation is interesting
   {
-    int sumFrameWeights = 0;
+    int sumWeights = 0;
     Rotation sumRot(0.0, 0.0, 0.0);
     Rotation clearSumRot(0.0, 0.0, 0.0);
 
@@ -809,16 +816,18 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
     {
       TrailItem* currentItem = sortedItems.at(itemIndices[i]);
       int currentFrame = timeLineFrame - currentItem->beginIndex();
-      int frameW = currentItem->getWeight(currentFrame);
-      sumFrameWeights += frameW;
       BVHNode* node = currentItem->getAnimation()->getNode(partIndex);
-      Rotation temp = node->frameData(currentFrame).rotation();
+      FrameData data = node->frameData(currentFrame);
+      int frameW = currentItem->getWeight(currentFrame);
+      int limbW = data.weight();
+      sumWeights += frameW*limbW;
+      Rotation temp = data.rotation();
       clearSumRot.Add(temp);
-      temp.Multiply((double)frameW);
+      temp.Multiply((double)(frameW*limbW));
       sumRot.Add(temp);
     }
 
-    if(sumFrameWeights == 0)
+    if(sumWeights == 0)
     {
       resultRot.x = clearSumRot.x/count;
       resultRot.y = clearSumRot.y/count;
@@ -826,9 +835,9 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
     }
     else
     {
-      resultRot.x = sumRot.x/sumFrameWeights;
-      resultRot.y = sumRot.y/sumFrameWeights;
-      resultRot.z = sumRot.z/sumFrameWeights;
+      resultRot.x = sumRot.x/sumWeights;
+      resultRot.y = sumRot.y/sumWeights;
+      resultRot.z = sumRot.z/sumWeights;
     }
   }
 

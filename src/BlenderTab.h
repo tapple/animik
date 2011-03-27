@@ -75,6 +75,7 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
 
   private:
     QAction* setLimbWeightsAction;
+    QAction* positionWeightAction;
     void bindMenuActions();
     bool canShowWarn;
     /** TRUE for unsaved content */
@@ -92,6 +93,7 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
     void on_zoomInButton_clicked();
     void onConfigChanged();
     void onLimbWeights();
+    void onPositionWeight();
     void onLimbDoubleClicked(int jointNumber);
     void onLimbsDialogPreviousFrame();
     void onLimbsDialogNextFrame();

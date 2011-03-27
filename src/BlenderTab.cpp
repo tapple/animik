@@ -37,6 +37,8 @@ BlenderTab::BlenderTab(qavimator* mainWindow, const QString& fileName, bool crea
 
   setLimbWeightsAction = new QAction(tr("Set limbs' weights"), this);
   connect(setLimbWeightsAction, SIGNAL(triggered()), this, SLOT(onLimbWeights()));
+  positionWeightAction = new QAction(tr("Set position weight"), this);
+  connect(positionWeightAction, SIGNAL(triggered()), this, SLOT(onPositionWeight()));
   connect(mainWindow, SIGNAL(configurationChanged()), this, SLOT(onConfigChanged()));
   connect(blenderAnimationView, SIGNAL(partDoubleClicked(int)), this, SLOT(onLimbDoubleClicked(int)));
   connect(this, SIGNAL(resetCamera()), blenderAnimationView, SLOT(resetCamera()));
@@ -354,6 +356,7 @@ void BlenderTab::contextMenuEvent(QContextMenuEvent *event)
   {
     QMenu menu(this);
     menu.addAction(setLimbWeightsAction);
+    menu.addAction(positionWeightAction);
     menu.exec(event->globalPos());
   }
 }
@@ -483,6 +486,11 @@ void BlenderTab::onLimbWeights()
   QList<int>* parts = blenderAnimationView->getSelectedPartIndices();
   if(!parts->isEmpty())
     setSelectedLimbsWeight(parts);
+}
+
+void BlenderTab::onPositionWeight()
+{
+  onLimbDoubleClicked(0);     //shortcut
 }
 
 void BlenderTab::onLimbDoubleClicked(int jointNumber)
