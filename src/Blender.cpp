@@ -670,7 +670,7 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
     if(targetFrame==0)          //very beginning of overal blend
     {
       Position sumPos(0.0, 0.0, 0.0);
-      int sumFrameWeights = 0;
+      int sumWeights = 0;
 
       int count = itemIndices.size();
       for(int i=0; i<count; i++)
@@ -683,15 +683,24 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
                                              : currentItem->getWeight(currentFrame);        //No difference between MI/MO and gap shadows. BUG? TODO
         int limbW = data.weight();
 
-        sumFrameWeights += frameW*limbW;
+        sumWeights += frameW*limbW;
         Position tempPos = data.position();
-        tempPos.Multiply((double)(frameW*limbW));
+        if(count==1 && sumWeights==0)             //no time for efficient solutions
+        {
+          sumWeights = 53;
+          tempPos.Multiply(53.0);
+        }
+        else
+          tempPos.Multiply((double)(frameW*limbW));
         sumPos.Add(tempPos);
       }
 
-      resultPos.x = sumPos.x/sumFrameWeights;           //TODO: use also limb weights
-      resultPos.y = sumPos.y/sumFrameWeights;
-      resultPos.z = sumPos.z/sumFrameWeights;
+      if(sumWeights == 0)           //zero weights
+        sumWeights = count;
+
+      resultPos.x = sumPos.x/sumWeights;
+      resultPos.y = sumPos.y/sumWeights;
+      resultPos.z = sumPos.z/sumWeights;
     }
     else                //TODO: in case of single item in interval, lot of vain computation is done. Consider IF branch for it.
     {
@@ -704,6 +713,7 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
       int sumWeightsY = 0;
       int sumWeightsXZ = 0;
       int positionsUsed = 0;
+      double lastSavedBearing;
 
       for(int x=0; x<itemIndices.size(); x++)
       {
@@ -756,21 +766,26 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
           double sinPhi = absolut(p2.z - p1.z) / distance;
           double angle = asin(sinPhi) * 180.0 / PI;
 
-          if(p2.x == p1.x && p2.z >= p1.z)        //no position change or move straight forward
+          if(p2.x == p1.x && p2.z >= p1.z)                //no position change or move straight forward
             bearing = 0.0;
-          else if(p2.x >= p1.x && p2.z > p1.z)    //latter position in quarter 1 comparing to previous
+          else if(p2.x >= p1.x && p2.z > p1.z)            //latter position in quarter 1 comparing to previous
             bearing = angle;
-          else if(p2.x > p1.x && p2.z <= p1.z)    //quarter 2
+          else if(p2.x > p1.x && p2.z <= p1.z)            //quarter 2
             bearing = angle + 90.0;
-          else if(p2.x == p1.x && p2.z < p1.z)    //between quarters 2 and 3 (move backward)
+          else if(p2.x == p1.x && p2.z < p1.z)            //between quarters 2 and 3 (move backward)
             bearing = 180.0;
-          else if(p2.x < p1.x && p2.z <= p1.z)    //quarter 3
-            bearing = -90.0 - angle;
-          else if(p2.x < p1.x && p2.z > p1.z)     //quarter 4
-            bearing = -90.0 + angle;
+          else if(p2.x < p1.x && p2.z <= p1.z)            //quarter 3
+            bearing = 270.0-angle;
+          else if(p2.x < p1.x && p2.z > p1.z)             //quarter 4
+            bearing = 360.0-angle;
           else { Announcer::Exception(NULL, "Invalid value exception: can't evaluate bearing"); return; }
 
-          if(bearing>180.0) bearing=180.0;
+          if(x > 0 && absolut(lastSavedBearing-bearing) > 180.0)
+          {
+            if(bearing>lastSavedBearing) bearing+=360.0;
+            else bearing-=360.0;
+          }
+          lastSavedBearing = bearing;
 
           clearSumBearing += bearing;
           sumBearing += bearing*frameW*limbW;
@@ -779,14 +794,14 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
 
       if(positionsUsed > 0)
       {
-       if(sumBearing*sumWeightsXZ >= 179.99*sumWeightsXZ)
-          sumBearing = 0.0;
+        if(clearSumBearing == 180.0)                      //Dirty workaround when back and forth
+          sumBearing = 0.0;                               //moves are blended
 
         if(sumDistance == 0.0)
           sumDistance = clearSumDistance;
         if(sumBearing == 0.0)
           sumBearing = clearSumBearing;
-        if(sumWeightsXZ == 0)                  //Houdini
+        if(sumWeightsXZ == 0)                             //Houdini
           sumWeightsXZ = positionsUsed;
 
         Position prevTargetPos = target->getNode(0)->frameData(targetFrame-1).position();
@@ -795,9 +810,6 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
         resultPos.x = prevTargetPos.x + sumDistance/ /*positionsUsed*/sumWeightsXZ * sin(sumBearing/ /*positionsUsed*/sumWeightsXZ * PI/180.0);
         resultPos.z = prevTargetPos.z + sumDistance/ /*positionsUsed*/sumWeightsXZ * cos(sumBearing/ /*positionsUsed*/sumWeightsXZ * PI/180.0);
       }
-
-      resultPos.x = resultPos.x;
-      resultPos.z = resultPos.z;
 
       if(sumWeightsY == 0)
         resultPos.y = clearSumY / itemIndices.size();
