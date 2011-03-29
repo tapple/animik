@@ -49,6 +49,7 @@ void LimbsWeightDialog::initComponents()
 
     ui->setByUserLabel->setVisible(false);
 //    _weights->insert(frame, commonWeight);        //edu: not done here. The value is saved only when user changes it.
+    ui->weightSlider->setFocus();
   }
 
   ui->weightSlider->blockSignals(true);

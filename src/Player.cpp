@@ -12,7 +12,7 @@ Player::Player(QWidget *parent) : QWidget(parent), ui(new Ui::Player)
   playIcon.addFile(QString::fromUtf8(":/icons/player/icons/player/PlayerPlay.png"), QSize(),
                    QIcon::Normal, QIcon::Off);
 
-  animation = 0;
+  animation = NULL;
   _state = PLAYSTATE_STOPPED;
   ui->playButton->setIcon(playIcon);
   loopIn = 0;

@@ -719,7 +719,8 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
       {
         TrailItem* currentItem = sortedItems[itemIndices[x]];
         int currentFrame = timeLineFrame - currentItem->beginIndex();
-        int frameW = currentItem->getWeight(currentFrame);
+        int frameW = currentItem->isShadow() ? 0
+                                               : currentItem->getWeight(currentFrame);
 
         if(currentFrame==0)                       //This item has just joined blending. As there's no previous
         {                                         //frame to have difference with, it wouldn't change anything
@@ -775,18 +776,21 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
           else if(p2.x == p1.x && p2.z < p1.z)            //between quarters 2 and 3 (move backward)
             bearing = 180.0;
           else if(p2.x < p1.x && p2.z <= p1.z)            //quarter 3
-            bearing = 270.0-angle;
+//            bearing = 270.0-angle;
+            bearing = -90.0 - angle;
           else if(p2.x < p1.x && p2.z > p1.z)             //quarter 4
-            bearing = 360.0-angle;
+//            bearing = 360.0-angle;
+            bearing = -90.0 + angle;
           else { Announcer::Exception(NULL, "Invalid value exception: can't evaluate bearing"); return; }
 
+/*VERY, VERY NASTY BUG. THINK OF KOVAR.
           if(x > 0 && absolut(lastSavedBearing-bearing) > 180.0)      //this is to ensure that the resulting
           {                                                           //direction is 'squeezed' between partial,
             if(bearing>lastSavedBearing) bearing+=360.0;              //(inside acute angle, not outer)
             else bearing-=360.0;
           }
           lastSavedBearing = bearing;
-
+*/
           clearSumBearing += bearing;
           sumBearing += bearing*frameW*limbW;
         }
@@ -807,8 +811,8 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
         Position prevTargetPos = target->getNode(0)->frameData(targetFrame-1).position();
         //calculate Position (only X and Z coordinates) from given start point,
         //distance and bearing (asimuth towards Z axis).
-        resultPos.x = prevTargetPos.x + sumDistance/ /*positionsUsed*/sumWeightsXZ * sin(sumBearing/ /*positionsUsed*/sumWeightsXZ * PI/180.0);
-        resultPos.z = prevTargetPos.z + sumDistance/ /*positionsUsed*/sumWeightsXZ * cos(sumBearing/ /*positionsUsed*/sumWeightsXZ * PI/180.0);
+        resultPos.x = prevTargetPos.x + sumDistance/sumWeightsXZ * sin(sumBearing/sumWeightsXZ * PI/180.0);
+        resultPos.z = prevTargetPos.z + sumDistance/sumWeightsXZ * cos(sumBearing/sumWeightsXZ * PI/180.0);
       }
 
       if(sumWeightsY == 0)
@@ -839,14 +843,14 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
       sumWeights += frameW*limbW;
       Rotation temp = data.rotation();
 
-      //This is to ensure that orientation is always insied acute angle of partial orientations
-      if(i>0 && absolut(temp.y - lastSavedRootRotY)>180.0)
+      //This is to ensure that root orientation is always insied acute angle of partial orientations
+/*DEBUG      if(node->type == BVH_ROOT && i>0 && absolut(temp.y - lastSavedRootRotY)>180.0)
       {
         if(temp.y>lastSavedRootRotY) temp.y+=360.0;
         else temp.y-=360.0;
       }
       lastSavedRootRotY = temp.y;
-
+*/
       clearSumRot.Add(temp);
       temp.Multiply((double)(frameW*limbW));
       sumRot.Add(temp);
