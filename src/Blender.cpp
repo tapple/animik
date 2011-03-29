@@ -823,6 +823,10 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
     Rotation sumRot(0.0, 0.0, 0.0);
     Rotation clearSumRot(0.0, 0.0, 0.0);
 
+
+    double lastSavedRootRotY;
+
+
     int count = itemIndices.size();
     for(int i=0; i<count; i++)
     {
@@ -834,6 +838,15 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
       int limbW = data.weight();
       sumWeights += frameW*limbW;
       Rotation temp = data.rotation();
+
+      //This is to ensure that orientation is always insied acute angle of partial orientations
+      if(i>0 && absolut(temp.y - lastSavedRootRotY)>180.0)
+      {
+        if(temp.y>lastSavedRootRotY) temp.y+=360.0;
+        else temp.y-=360.0;
+      }
+      lastSavedRootRotY = temp.y;
+
       clearSumRot.Add(temp);
       temp.Multiply((double)(frameW*limbW));
       sumRot.Add(temp);

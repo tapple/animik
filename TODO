@@ -20,11 +20,10 @@ Features:
     + when user adjusts weight of a frame, only partial recalculation of overall blended animation is done.
 
 Bugs:
-  * I have serious memory problems. Loading AVBL with 10+ animations in debug mode crashes everytime. Lot of optimalization should be done.
   * After opening .avm file, the floor is not highlighted red if first frame is protected. After moving on another frame and back it already is
   * Tab/window title not flagged with asterisk when change done in TimeLineView by dragging.
   * Spotted on Win32. Open AVM, selecte a part, alter rotation. Tab is marked with '*', but after selecting another part, it
-    disappears (like being saved).
+    disappears (like being saved). UPDATE: disappeared?
   * Player loop-ing is independent from underlying Animation. The looping set on the Player should actually set it to the animation.
   * Somehow it's possible to have the same file in the Animation list multiple times. Needs investigation first.
   * It's posible to create file named ".avbl". For Windows' sake it rather shouldn't be.
