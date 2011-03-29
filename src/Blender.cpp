@@ -780,9 +780,9 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
             bearing = 360.0-angle;
           else { Announcer::Exception(NULL, "Invalid value exception: can't evaluate bearing"); return; }
 
-          if(x > 0 && absolut(lastSavedBearing-bearing) > 180.0)
-          {
-            if(bearing>lastSavedBearing) bearing+=360.0;
+          if(x > 0 && absolut(lastSavedBearing-bearing) > 180.0)      //this is to ensure that the resulting
+          {                                                           //direction is 'squeezed' between partial,
+            if(bearing>lastSavedBearing) bearing+=360.0;              //(inside acute angle, not outer)
             else bearing-=360.0;
           }
           lastSavedBearing = bearing;
