@@ -53,7 +53,6 @@ void Player::setPlaybackFrame(int frame)
   {
     animation->setFrame(frame);
 //automatic through signal loop    updateLabel();
-    emit playbackFrameChanged(playFrame());
   }
 }
 

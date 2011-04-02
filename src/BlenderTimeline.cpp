@@ -15,9 +15,6 @@
 #include "LimbsWeightForm.h"
 
 
-#include <QSizePolicy>       //for DEBUG purposes
-
-
 
 BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(parent)
 {
@@ -39,16 +36,14 @@ BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(pare
     TimelineTrail* tt = new TimelineTrail(stackWidget, 0, QString::number(i+1));
     tt->setPositionCount(trailFramesCount);
     //if current frame of a trail has changed, sync all others
-    connect(tt, SIGNAL(currentPositionChanged(int)), this, SLOT(setCurrentFrame(int)));
+    connect(tt, SIGNAL(currentPositionChanged(int)), this, SLOT(setCurrentFramePosition(int)));
     connect(tt, SIGNAL(selectedItemChanged()), this, SLOT(unselectOldItem()));
+    connect(tt, SIGNAL(selectedItemLost()), this, SLOT(onSelectedItemLost()));
     connect(tt, SIGNAL(backgroundClicked()), this, SLOT(unselectOldItem()));
     connect(tt, SIGNAL(movingItem(TrailItem*)), this, SLOT(startItemReposition(TrailItem*)));
     connect(tt, SIGNAL(droppedItem()), this, SLOT(endItemReposition()));
     connect(tt, SIGNAL(adjustLimbsWeight(/*TODO: frameData*/)), this, SLOT(showLimbsWeightForm(/*TODO: frameData*/)));
     connect(tt, SIGNAL(positionsCountChanged(int)), this, SLOT(setFramesCount(int)));
-
-//    connect(tt, SIGNAL(trailAnimationChanged(WeightedAnimation*, int)),             //TODO: the signal is soon to be obsolete. Don't forget to delete this then
-//            this, SLOT(onTrailAnimationChanged(WeightedAnimation*, int)));
     connect(tt, SIGNAL(trailContentChanged(TrailItem*)), this, SLOT(onTrailContentChanged()));
 
     trails.append(tt);
@@ -161,7 +156,7 @@ void BlenderTimeline::RebuildResultingAnimation(bool emiting)
 
   if(emiting)
     emit resultingAnimationChanged(resultAnimation);
-  setCurrentFrame(oldPosition);               //restore old frame selection
+  setCurrentFramePosition(oldPosition);               //restore old frame selection
 }
 
 
@@ -222,24 +217,30 @@ void BlenderTimeline::ensurePlayFrameVisibility(int position)
 
 
 // -------------------------- SLOTS -------------------------- //
-void BlenderTimeline::setCurrentFrame(int frameIndex)
+void BlenderTimeline::setCurrentFramePosition(int posIndex)
 {
-  if(resultAnimation !=0 && frameIndex >= animationBeginPosition &&        //inside of overall animation
-     frameIndex < animationBeginPosition + resultAnimation->getNumberOfFrames())
+  if(resultAnimation !=0 && posIndex >= animationBeginPosition &&        //inside of overall animation
+     posIndex < animationBeginPosition + resultAnimation->getNumberOfFrames())
   {
-    resultAnimation->setFrame(frameIndex - animationBeginPosition);        //this causes AnimationView and Player to be updated
+    resultAnimation->setFrame(posIndex - animationBeginPosition);        //this causes AnimationView and Player to be updated
   }
 
   TrailItem* sel = getSelectedItem();
   if(sel == NULL || sel->isShadow())
     limbsForm->hide();
-  else if(limbsForm->isVisible())                                         //the form was open by user recently
+  else if(limbsForm->isVisible())
     limbsForm->UpdateContent(sel->getAnimation(), sel->selectedFrame());
 
   foreach(TimelineTrail* trail, trails)
-    trail->setCurrentPosition(frameIndex);
+    trail->setCurrentPosition(posIndex);
 
-  ensurePlayFrameVisibility(frameIndex);
+  ensurePlayFrameVisibility(posIndex);
+}
+
+//Only re-emit higher to BlenderTab
+void BlenderTimeline::onSelectedItemLost()
+{
+  emit selectedItemLost();
 }
 
 void BlenderTimeline::unselectOldItem()
@@ -247,6 +248,8 @@ void BlenderTimeline::unselectOldItem()
   foreach(TimelineTrail* trail, trails)
     if(trail != sender())
       trail->CancelTrailSelection();
+
+  emit selectedItemChanged();
 }
 
 void BlenderTimeline::startItemReposition(TrailItem* draggingItem)
@@ -281,31 +284,10 @@ void BlenderTimeline::setFramesCount(int newCount)
 }
 
 
-
-
-/* TODO: delete
-void BlenderTimeline::onTrailAnimationChanged(WeightedAnimation* anim, int beginFrame)          //This is never called. TODO: cleanup
-{
-  //DEBUG so far, TODO: recalculate overall animation
-  //TODO: find a mechanism to set the real offset
-  if(resultAnimation)
-    disconnect(resultAnimation, SIGNAL(currentFrame(int)), 0, 0);     //edu: is this needed?
-  resultAnimation = anim;
-  if(resultAnimation)
-    connect(resultAnimation, SIGNAL(currentFrame(int)), this, SLOT(onPlayFrameChanged(int)));
-  animationBeginPosition = beginFrame;
-  emit resultingAnimationChanged(anim);
-}
-*/
-
 void BlenderTimeline::onTrailContentChanged()
 {
   RebuildResultingAnimation();
 }
-
-
-
-
 
 void BlenderTimeline::onPlayFrameChanged(int playFrame)
 {

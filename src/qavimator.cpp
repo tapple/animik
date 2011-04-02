@@ -89,6 +89,7 @@ void qavimator::OpenNewTab(NewFileDialog::ProjectType fileType, const QString& f
 
   connect(tab, SIGNAL(destroyed()), this, SLOT(UpdateMenus()));
   connect(tab, SIGNAL(destroyed()), this, SLOT(UpdateToolbar()));
+  connect(tab, SIGNAL(destroyed()), this, SLOT(resetWindowTitle()));
 
   tab->showMaximized();
 }
@@ -109,9 +110,9 @@ void qavimator::addTabsCloseButtons()
 void qavimator::UpdateMenus()
 {
   if(activeTab() != 0)
-    return;           //Let the tab handle the actions by itself
-                      //Document related actions common for all tabs
-                      //are handled in UpdateToolbar()
+    return;                  //Let the tab handle the actions by itself
+                             //Document related actions common for all tabs
+                             //are handled in UpdateToolbar()
   fileExportForSecondLifeAction->setEnabled(false);
   fileLoadPropsAction->setEnabled(false);
   fileSavePropsAction->setEnabled(false);
@@ -410,9 +411,16 @@ void qavimator::closeTab(int i)
 {
   QMdiSubWindow* sub = mdiArea->subWindowList()[i];
   mdiArea->setActiveSubWindow(sub);
-  setWindowTitle("Animik");               //usefull if last tab is to be closed
   mdiArea->closeActiveSubWindow();
   delete sub;
+}
+
+/*! Slot called when a tab is closed.
+    To ensure window title is set to "Animik" if it was the last open tab. !*/
+void qavimator::resetWindowTitle()
+{
+  if(activeTab() == NULL)
+    setWindowTitle("Animik");
 }
 
 

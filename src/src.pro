@@ -30,7 +30,6 @@ SOURCES += animation.cpp \
     LimbsWeightForm.cpp \
     Player.cpp \
     WeightedAnimation.cpp \
-    TrailJoiner.cpp \
     MixZonesDialog.cpp \
     OptionalMessageBox.cpp \
     Avbl.cpp \
@@ -66,7 +65,6 @@ HEADERS += animation.h \
     Player.h \
     TimelineTrail.h \
     WeightedAnimation.h \
-    TrailJoiner.h \
     MixZonesDialog.h \
     OptionalMessageBox.h \
     Avbl.h \

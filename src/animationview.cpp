@@ -60,7 +60,7 @@ AnimationView::AnimationView(QWidget* parent, const char* /* name */, Animation*
   currentAnimation=NULL;
   _useRotationHelpers = true;
   _useIK = true;
-  _multiPartPicking = false;
+  _pickMode = SINGLE_PART;
   _partInfo = false;
   _useMirror = true;
 
@@ -294,6 +294,16 @@ void AnimationView::setFPS(int fps)
   {
     animList.at(i)->setFPS(fps);
   } // for
+}
+
+void AnimationView::setPickingMode(PickingMode mode)
+{
+  if(mode < _pickMode)
+  {
+    partSelected = 0;
+    selectedParts.clear();
+  }
+  _pickMode = mode;
 }
 
 const Prop* AnimationView::addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,
@@ -692,13 +702,14 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
     // body part clicked
     else if(selected<OBJECT_START)
     {
-      partSelected=selected;
-      if(_multiPartPicking)
+      if(_pickMode == SINGLE_PART)
+        partSelected=selected;
+      else if(_pickMode == MULTI_PART)
       {
         if((modifier & CTRL))
         {
           if(selectedParts.contains(selected))        //second click on selected part withdraws it from selection
-;//            selectedParts.removeAt(selectedParts.indexOf(selected));
+            selectedParts.removeAt(selectedParts.indexOf(selected));
           else selectedParts.append(selected);
         }
         else
@@ -873,7 +884,7 @@ void AnimationView::keyReleaseEvent(QKeyEvent* event)
 
 void AnimationView::contextMenuEvent(QContextMenuEvent *event)
 {
-  if(_multiPartPicking && !selectedParts.isEmpty())
+  if(_pickMode==MULTI_PART && !selectedParts.isEmpty())
     partHighlighted = NULL;       //don't confuse the user
 
   event->ignore();                //let containing tab to show a menu
@@ -1016,7 +1027,7 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
       {
         glColor4f(1.0, 0.635, 0.059, 1);
       }
-      else if(partSelected==selectName || (_multiPartPicking && selectedParts.contains(selectName)))
+      else if(partSelected==selectName || (_pickMode==MULTI_PART && selectedParts.contains(selectName)))
         glColor4f(0.6, 0.3, 0.3, 1);
       else if(partHighlighted==selectName)
         glColor4f(0.4, 0.5, 0.3, 1);

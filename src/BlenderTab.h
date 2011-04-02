@@ -51,13 +51,10 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
     virtual void closeEvent(QCloseEvent* event);
     /** Handling key presses mainly for time-line */
     virtual void keyPressEvent(QKeyEvent *);
-
-    //DEBUG so far
     virtual void contextMenuEvent(QContextMenuEvent *event);
 
     void setCurrentFile(const QString& fileName);
     QString selectFileToOpen(const QString& caption);
-    void fileNew();
     void fileOpen();
     void fileOpen(const QString& fileName);
     void fileSaveAs();
@@ -101,6 +98,7 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
     void onPlaybackPaused();
     void onPartClicked(BVHNode* limb, Rotation rot, Rotation globRot, RotationLimits limits, Position posit);
     void onBackgroundClicked();
+    void onSelectedItemChanged();
 };
 
 #endif // BLENDERTAB_H

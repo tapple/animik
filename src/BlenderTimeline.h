@@ -41,19 +41,19 @@ class BlenderTimeline : public QFrame
   signals:
     /** Warn about Animation and its first frame position */
     void resultingAnimationChanged(WeightedAnimation*);
+    void selectedItemChanged();
+    void selectedItemLost();
 
 
   protected slots:
-    void setCurrentFrame(int frameIndex);
+    void setCurrentFramePosition(int frameIndex);
     /** Find trail with selected TrailItem and make it unselect the item */
     void unselectOldItem();
+    void onSelectedItemLost();
     void showLimbsWeightForm();
     void setFramesCount(int newCount);
     void startItemReposition(TrailItem* draggingItem);
     void endItemReposition();
-
-
-//TODO: delete    void onTrailAnimationChanged(WeightedAnimation* anim, int beginFrame);
     void onTrailContentChanged();
 
 

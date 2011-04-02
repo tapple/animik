@@ -44,6 +44,9 @@ class TimelineTrail : public QFrame
     /** Let other trails know this one changed it's size in frame positions
         so they do the same */
     void positionsCountChanged(int newCount);
+    /*! Emited in a very special case that user has unselected the current item by changing
+        time-line position with an arrow key. !*/
+    void selectedItemLost();
     void adjustLimbsWeight(/*TODO: frameData*/);
     void movingItem(TrailItem* draggedItem);
     /** Announce done position change for an item so it's original holder
@@ -52,7 +55,7 @@ class TimelineTrail : public QFrame
 
 
     /** Summary animation was changed */
-    void trailAnimationChanged(WeightedAnimation* animation, int firstFrame);         //TODO: should become obsolete soon
+//    void trailAnimationChanged(WeightedAnimation* animation, int firstFrame);         //TODO: should become obsolete soon
 
     /** A change on this trail was made requiring overall animation to be recalculated */
     void trailContentChanged(TrailItem* firstItem);
@@ -61,11 +64,12 @@ class TimelineTrail : public QFrame
 
   public slots:
     void setCurrentPosition(int position);
-    /** Unselect currently selected TrailItem */
-    void CancelTrailSelection() { selectedItem=NULL; repaint(); }
+    /** Unselect currently selected TrailItem. Note that this doesn't emit selectedItemChanged. */
+    void CancelTrailSelection();
     void setPositionCount(int position);
     void onMovingItem(TrailItem* draggedItem);
     void onDroppedItem();
+
   protected slots:
     void deleteCurrentItem();
     void moveCurrentItem();
@@ -95,11 +99,6 @@ class TimelineTrail : public QFrame
     QAction* mixZonesAction;
     QAction* limbWeightsAction;
 
-
-    /** After any change of position or number of animations at this trail,
-        the resulting summary animation is gained with this method.
-        Returns 0 if there's no item left. */
-    WeightedAnimation* getSummaryAnimation();           //TODO: as I made heavy changes in the process of blending, this should became obsolete soon
 
     void clearShadowItems();
     void trailContentChange();

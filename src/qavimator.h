@@ -139,6 +139,7 @@ protected slots:
 private slots:
     void on_fileAddAction_triggered();
     void on_resetCameraAction_triggered();
+    void resetWindowTitle();
 };
 
 #endif

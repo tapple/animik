@@ -41,8 +41,6 @@ class Player : public QWidget
   signals:
     void playbackStarted();
     void playbackPaused();
-    void playbackFrameChanged(int currentFrame);      //(NOT)TODO: don't attach this to the resulting Animation* !!! (else you'll get signal loop)
-                                                      //UPDATE: actually this is most probably obsolete signal as AnimationView listens to its Animation changes
 
   public slots:
     void setPlaybackFrame(int frame);

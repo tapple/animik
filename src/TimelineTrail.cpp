@@ -11,10 +11,6 @@
 #include "settings.h"
 #include "TimelineTrail.h"
 #include "TrailItem.cpp"
-#include "TrailJoiner.h"
-
-
-#include <QMessageBox>        //DEBUG purposes
 
 
 #define TRACK_HEIGHT     72
@@ -153,6 +149,14 @@ void TimelineTrail::limitUserActions(bool limit)
   if(limit) CancelTrailSelection();
 }
 
+void TimelineTrail::CancelTrailSelection()
+{
+  if(selectedItem != NULL)
+  {
+    selectedItem=NULL;
+    repaint();
+  }
+}
 
 void TimelineTrail::setPositionCount(int positions)
 {
@@ -191,10 +195,17 @@ void TimelineTrail::setCurrentPosition(int position)
   //Find TrailItem underneath if any, and select it's frame
   //Also done for the Trail where the frame was set by click.
   TrailItem* item = findItemOnPosition(currentPosition);
-  if(item != 0)
+  if(item != NULL)
   {
     int toSel = currentPosition - item->beginIndex();
     item->selectFrame(toSel);
+  }
+
+  //If not in DEBUG mode and we've passed out from current item, unselect it
+  if(!Settings::Instance()->Debug() && selectedItem!=NULL && item!=selectedItem)
+  {
+    selectedItem = NULL;
+    emit selectedItemLost();
   }
 }
 
@@ -513,19 +524,9 @@ void TimelineTrail::cleanupAfterMove()
 
 
 /**************************** BUILD RESULTING ANIMATION ****************************/
-WeightedAnimation* TimelineTrail::getSummaryAnimation()
-{
-  if(_firstItem==NULL || draggingItem!=NULL || addingNewItem)
-    return NULL;
 
-  clearShadowItems();
-  TrailJoiner joiner(_firstItem);
-  return joiner.GetJoinedAnimation();
-}
-
-
-/** After placement change, some auxiliary items placed by TrailJoiner may become invalid.
-    It's better just to erase them all. Done by this method. */
+/*! After placement change, some auxiliary items placed by TrailJoiner may become invalid.
+    It's better just to erase them all. Done by this method. !*/
 void TimelineTrail::clearShadowItems()                //Shouldn't this rather be done in the Blender class? TODO: resolve it.
 {
   TrailItem* currentItem = _firstItem;
@@ -795,11 +796,6 @@ void TimelineTrail::mouseReleaseEvent(QMouseEvent *)
 
 void TimelineTrail::trailContentChange()
 {
-//  WeightedAnimation* result = getSummaryAnimation();
-//  emit trailAnimationChanged(result, _firstItem ? _firstItem->beginIndex() : -1);
-
-
-//  clearShadowItems();
   emit trailContentChanged(_firstItem);
 }
 

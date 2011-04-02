@@ -26,14 +26,13 @@ BlenderTab::BlenderTab(qavimator* mainWindow, const QString& fileName, bool crea
   setupUi(this);
   blenderAnimationView->setUseRotationHelpers(false);
   blenderAnimationView->setUseIK(false);
-  blenderAnimationView->setMultiPartPicking(true);
+  blenderAnimationView->setPickingMode(NO_PICKING);
   blenderAnimationView->setShowingPartInfo(true);
   blenderAnimationView->setUseMirroring(false);
   canShowWarn = false;
   isDirty = false;
 
   setAttribute(Qt::WA_DeleteOnClose);
-
 
   setLimbWeightsAction = new QAction(tr("Set limbs' weights"), this);
   connect(setLimbWeightsAction, SIGNAL(triggered()), this, SLOT(onLimbWeights()));
@@ -44,6 +43,9 @@ BlenderTab::BlenderTab(qavimator* mainWindow, const QString& fileName, bool crea
   connect(this, SIGNAL(resetCamera()), blenderAnimationView, SLOT(resetCamera()));
   connect(blenderTimeline, SIGNAL(resultingAnimationChanged(WeightedAnimation*)),
           blenderPlayer, SLOT(onAnimationChanged(WeightedAnimation*)));
+  connect(blenderTimeline, SIGNAL(selectedItemChanged()),
+          this, SLOT(onSelectedItemChanged()));
+  connect(blenderTimeline, SIGNAL(selectedItemLost()), this, SLOT(onSelectedItemChanged()));
   connect(blenderTimeline, SIGNAL(resultingAnimationChanged(WeightedAnimation*)),
           this, SLOT(onTimelineAnimationChanged(WeightedAnimation*)));
   connect(blenderPlayer, SIGNAL(playbackStarted()), this, SLOT(onPlaybackStarted()));
@@ -52,12 +54,10 @@ BlenderTab::BlenderTab(qavimator* mainWindow, const QString& fileName, bool crea
           this, SLOT(onPartClicked(BVHNode*, Rotation, Rotation, RotationLimits, Position)));
   connect(blenderAnimationView, SIGNAL(backgroundClicked()), this, SLOT(onBackgroundClicked()));
 
-
   if(createFile)
   {
     isDirty = true;
     setCurrentFile(fileName);
-//    fileNew();
     Save();
   }
   else
@@ -352,7 +352,9 @@ void BlenderTab::keyPressEvent(QKeyEvent* e)
 
 void BlenderTab::contextMenuEvent(QContextMenuEvent *event)
 {
-  if(blenderTimeline->getSelectedItem() != NULL && !blenderAnimationView->getSelectedPartIndices()->isEmpty())
+  TrailItem* sel = blenderTimeline->getSelectedItem();
+
+  if(sel != NULL && !sel->isShadow() && !blenderAnimationView->getSelectedPartIndices()->isEmpty())
   {
     QMenu menu(this);
     menu.addAction(setLimbWeightsAction);
@@ -394,11 +396,6 @@ bool BlenderTab::resolveUnsavedChanges()
   }
 
   return true;
-}
-
-void BlenderTab::fileNew()
-{
-  //TODO: open empty scene and timeline
 }
 
 
@@ -536,6 +533,13 @@ void BlenderTab::onPartClicked(BVHNode* limb, Rotation rot, Rotation globRot, Ro
 void BlenderTab::onBackgroundClicked()
 {
   blenderAnimationView->ClearText();
+}
+
+void BlenderTab::onSelectedItemChanged()
+{
+  if(blenderTimeline->getSelectedItem() != NULL)
+    blenderAnimationView->setPickingMode(MULTI_PART);
+  else blenderAnimationView->setPickingMode(NO_PICKING);
 }
 
 // ---------------------------------------------- //

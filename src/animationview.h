@@ -64,6 +64,14 @@ class QEvent;
 class QMouseEvent;
 
 
+typedef enum
+{
+  SINGLE_PART,
+  MULTI_PART,
+  NO_PICKING                      //picking disabled
+} PickingMode;
+
+
 
 class AnimationView : public QGLWidget
 {
@@ -110,12 +118,12 @@ class AnimationView : public QGLWidget
     /** TRUE means it's possible to lock an effector (by double-click) in further IK calculation */
     bool useIK() const                                { return _useIK; }
     void setUseIK(bool useIK)                         { _useIK = useIK; }
-    /** TRUE means that it's possible to select (pick) multiple limbs of avatar's body. */
-    bool multiPartPicking() const                     { return _multiPartPicking; }
-    void setMultiPartPicking(bool multiPick)          { _multiPartPicking = multiPick; }
+    bool pickingMode() const                          { return _pickMode; }
+    /*! Sets picking mode and reset any currently picked parts if the mode is "lower" than actual !*/
+    void setPickingMode(PickingMode mode);
     /** Determines whether verbose debugging info about currently picked part should be shown.
         The information will be accessed only if DEBUG mode was also activated in Settings,
-        and will be shown TODO: WHERE */
+        and will be shown in the middle of the scene. */
     bool showingPartInfo() const                      { return _partInfo; }
     void setShowingPartInfo(bool partInfo)            { _partInfo = partInfo; }
     bool useMirroring() const                         { return _useMirror; }
@@ -252,7 +260,7 @@ class AnimationView : public QGLWidget
   private:
     bool _useRotationHelpers;
     bool _useIK;
-    bool _multiPartPicking;
+    PickingMode _pickMode;
     bool _partInfo;
     bool _useMirror;
 
