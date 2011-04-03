@@ -2,9 +2,11 @@
 #define WEIGHTEDANIMATION_H
 
 #include "animation.h"
+#include "QMap"
 
 class QString;
 class BVH;
+class BVHNode;
 
 
 class WeightedAnimation : public Animation
@@ -15,6 +17,10 @@ public:
 
   virtual void setNumberOfFrames(int num);
 
+  /*! Return skeleton of BVHNode 'bones' lined up to map. Key is node name (like 'lArm').
+      Usefull when passing through skeleton to use iterative approach instead recursive.
+      No particular order is granted. !*/
+  QMap<QString, BVHNode*>* bones() const   { return linearBones; }
   int getFrameWeight(int frameIndex);
   int currentFrameWeight();
   void setCurrentFrameWeight(int weight);
@@ -32,6 +38,7 @@ public:
   void setOffset(Position offset) { pOffset = offset; }
 
 private:
+  void initializeLinearBonesHelper(BVHNode* bone);
   bool checkTPosed(BVHNode* limb);
   /** Array of weights, all must fall into <0, 100> */
   int* frameWeights;
@@ -39,6 +46,7 @@ private:
   int _mixIn;
   int _mixOut;
   Position pOffset;
+  QMap<QString, BVHNode*>* linearBones;
 };
 
 #endif // WEIGHTEDANIMATION_H

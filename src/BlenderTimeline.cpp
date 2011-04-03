@@ -19,7 +19,8 @@
 BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(parent)
 {
   trailFramesCount = MIN_TRAIL_FRAMES;
-  resultAnimation = 0;
+  resultAnimation = NULL;
+  currentPosition = 0;
 
   scrollArea = new NoArrowsScrollArea(this);
   scrollArea->setBackgroundRole(QPalette::Dark);
@@ -139,6 +140,7 @@ void BlenderTimeline::RebuildResultingAnimation(bool emiting)
       disconnect(resultAnimation, SIGNAL(currentFrame(int)), 0, 0);     //edu: is this needed?
 
     Blender* blender = new Blender();
+    blender->EvaluateRelativeLimbWeights(&trails, count);
     WeightedAnimation* old = resultAnimation;
     if(old != NULL)
     {

@@ -620,6 +620,9 @@ FrameData::FrameData()
 //  qDebug(QString("FrameData(%1)").arg((unsigned long)this));
   m_frameNumber=0;
   m_weight = 50;
+
+  relWeight = 0.08;
+
   m_easeIn=false;
   m_easeOut=false;
 }

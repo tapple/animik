@@ -19,19 +19,10 @@ WeightedAnimation::WeightedAnimation(BVH* newBVH,const QString& bvhFile) : Anima
   frameWeights = new int[frames_count];
   for(int i=0; i<frames_count; i++)
     frameWeights[i] = 50;
-}
 
-
-/** Learn if first (key-)frame is T-pose */
-bool WeightedAnimation::checkTPosed(BVHNode* limb)
-{
-  Rotation rot = limb->frameData(0).rotation();
-  bool unchanged = rot.x==0 && rot.y==0 && rot.z==0;
-
-  for(int i=0; i<limb->numChildren(); i++)
-    unchanged = unchanged && checkTPosed(limb->child(i));
-
-  return unchanged;
+  linearBones = new QMap<QString, BVHNode*>();
+  linearBones->insert(positionNode->name(), positionNode);
+  initializeLinearBonesHelper(getMotion());
 }
 
 WeightedAnimation::~WeightedAnimation()     //edu: ~Animation() called automatically
@@ -89,4 +80,26 @@ void WeightedAnimation::setCurrentFrameWeight(int weight)
                       QString::number(weight) + ". Must fall in <0; 100>");
   else
     frameWeights[frame] = weight;
+}
+
+
+void WeightedAnimation::initializeLinearBonesHelper(BVHNode* bone)
+{
+  if(!linearBones->contains(bone->name()))
+    linearBones->insert(bone->name(), bone);
+  for(int i=0; i<bone->numChildren(); i++)
+    initializeLinearBonesHelper(bone->child(i));
+}
+
+
+/** Resolve if first (key-)frame is T-pose */
+bool WeightedAnimation::checkTPosed(BVHNode* limb)
+{
+  Rotation rot = limb->frameData(0).rotation();
+  bool unchanged = rot.x==0 && rot.y==0 && rot.z==0;
+
+  for(int i=0; i<limb->numChildren(); i++)
+    unchanged = unchanged && checkTPosed(limb->child(i));
+
+  return unchanged;
 }

@@ -6,6 +6,7 @@
 #include "Blender.h"
 #include "bvh.h"
 #include "settings.h"
+#include "TimelineTrail.h"
 #include "TrailItem.cpp"
 #include "WeightedAnimation.h"
 
@@ -16,6 +17,97 @@
 Blender::Blender() { }
 Blender::~Blender() { }
 
+
+void Blender::EvaluateRelativeLimbWeights(QList<TimelineTrail*>* trails, int trailsCount)       //TODO: into below method?
+{
+  int minPosIndex = 999999999;
+  int maxPosIndex = -1;
+  TrailItem** currentItems = new TrailItem*[trailsCount];
+
+  //Find first and last occupied time-line position. And initialize currentItems with first non-shadows
+  for(int i=0; i<trailsCount; i++)
+  {
+    TrailItem* firstItem = trails->at(i)->firstItem();
+    if(firstItem==NULL)
+    {
+      currentItems[i] = NULL;
+      continue;
+    }
+
+    //Shadow items don't matter much because the nearest/furthest item is always non-shadow
+    if(firstItem->beginIndex() < minPosIndex)
+      minPosIndex = firstItem->beginIndex();
+
+    TrailItem* lastItem = trails->at(i)->lastItem();
+    if(lastItem->endIndex() > maxPosIndex)
+      maxPosIndex = trails->at(i)->lastItem()->endIndex();
+
+    while(firstItem->isShadow())
+      firstItem = firstItem->nextItem();
+    currentItems[i] = firstItem;
+  }
+  if(maxPosIndex == -1)                       //Time-line is empty
+    return;
+
+  int curPosIndex = minPosIndex;
+  //Position pseudo-node is not included, but it's OK as it can't be highlighted
+  QStringList boneNames = BVH::getValidNodeNames();
+  while(curPosIndex<=maxPosIndex)
+  {
+    foreach(QString bName, boneNames)
+    {
+      int sumWeight = 0;
+      int weightsUsed = 0;
+      bool emptyPosition = true;
+      QList<FrameData*>* usedData = new QList<FrameData*>();
+      for(int i=0; i<trailsCount; i++)
+      {
+        TrailItem* item = currentItems[i];
+
+        if(item == NULL)                                 //No more items on i-th trail
+          continue;
+        if(item->beginIndex() < curPosIndex)             //We're before first item of this trail
+          continue;
+
+        if(item->endIndex() < curPosIndex)               //Move to next item
+        {
+          currentItems[i] = item->nextItem();
+          item = currentItems[i];
+        }
+        if(item == NULL || item->isShadow())  //Still here?
+          continue;
+        else
+          emptyPosition = false;
+
+        if(item->beginIndex() <= curPosIndex && item->endIndex() >= curPosIndex)
+        {
+          int frameIndex = curPosIndex - item->beginIndex();
+          if(!item->getAnimation()->bones()->contains(bName))
+            Announcer::Exception(NULL, "Exception: can't evaluate relative weight for limb " +bName);
+          BVHNode* limb = item->getAnimation()->bones()->value(bName);
+          FrameData data = limb->frameData(frameIndex);
+          usedData->append(&data);
+          sumWeight += data.weight();
+          weightsUsed++;
+        }
+        else
+          Announcer::Exception(NULL, "Lame programmer exception :(");    //DEBUG
+      }
+
+      if(emptyPosition)                         //There were no valid item at this position
+        break;                                  //so jump to the next one
+
+      for(int x=0; x<usedData->count(); x++)
+      {
+        if(sumWeight==0)                        //Little trick if weight of current limb was 0 on all trails
+          usedData->at(x)->setRelativeWeight(1.0 / (double)weightsUsed);
+        else
+          usedData->at(x)->setRelativeWeight((double)(usedData->at(x)->weight()) / (double)sumWeight);
+      }
+    }
+    curPosIndex++;
+  }
+}
 
 WeightedAnimation* Blender::BlendTrails(TrailItem** trails, int trailsCount)
 {

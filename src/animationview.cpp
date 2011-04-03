@@ -63,6 +63,8 @@ AnimationView::AnimationView(QWidget* parent, const char* /* name */, Animation*
   _pickMode = SINGLE_PART;
   _partInfo = false;
   _useMirror = true;
+  _highlightLimbWeight = false;
+  relativeJointWeights = NULL;
 
   // fake glut initialization
   int args=1;
@@ -87,7 +89,6 @@ AnimationView::AnimationView(QWidget* parent, const char* /* name */, Animation*
   ySelect=false;
   zSelect=false;
   nextPropId=OBJECT_START;
-  innerText = QString::null;
   textFont = new QFont("Courier new", 12);
 
 #ifdef __APPLE__
@@ -136,8 +137,10 @@ AnimationView::~AnimationView()
 //DEBUG so far
 void AnimationView::WriteText(QString text)
 {
-  innerText = text;
+  innerTextLines.clear();
+  innerTextLines.append(text);
 }
+
 
 void AnimationView::debugWrite()
 {
@@ -147,16 +150,20 @@ void AnimationView::debugWrite()
     Rotation rot = getAnimation()->getRotation(part);
     Position pos = getAnimation()->getPosition();
 
-    QString text = "ROT: x=" +QString::number(rot.x)+ ", y=" +QString::number(rot.y)+ ", z=" +QString::number(rot.z);
+    innerTextLines.clear();
+    QString text = "ROT: x=" +QString::number(rot.x, 'f', 3)+ ", y=" +QString::number(rot.y, 'f', 3)+ ", z=" +QString::number(rot.z, 'f', 3);
+    innerTextLines.append(text);
     if(part->type == BVH_ROOT)
-      text += " POS: x=" +QString::number(pos.x)+ ", y=" +QString::number(pos.y)+ ", z=" +QString::number(pos.z);
-    WriteText(text);
+    {
+      text = " POS: x=" +QString::number(pos.x, 'f', 3)+ ", y=" +QString::number(pos.y, 'f', 3)+ ", z=" +QString::number(pos.z, 'f', 3);
+      innerTextLines.append(text);
+    }
   }
 }
 
 void AnimationView::ClearText()
 {
-  innerText = QString::null;
+  innerTextLines.clear();;
 }
 
 
@@ -298,11 +305,15 @@ void AnimationView::setFPS(int fps)
 
 void AnimationView::setPickingMode(PickingMode mode)
 {
-  if(mode < _pickMode)
+  if(mode == NO_PICKING)
   {
     partSelected = 0;
     selectedParts.clear();
+    ClearText();
   }
+  else if(mode == SINGLE_PART)
+    selectedParts.clear();
+
   _pickMode = mode;
 }
 
@@ -482,10 +493,11 @@ void AnimationView::draw()
   drawProps();
 
 
-  if(innerText != QString::null && Settings::Instance()->Debug())
+  if(innerTextLines.count()>0 && Settings::Instance()->Debug())
   {
     glColor3f(0.94, 0.97, 0.18);        //something like yellow
-    renderText(6, 6, 1, innerText, *textFont);
+    for(int i=0; i<innerTextLines.count(); i++)
+      renderText(6, 6+6*i, 1, innerTextLines.at(i), *textFont);
   }
 
 
@@ -702,9 +714,9 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
     // body part clicked
     else if(selected<OBJECT_START)
     {
-      if(_pickMode == SINGLE_PART)
+      if(_pickMode != NO_PICKING)
         partSelected=selected;
-      else if(_pickMode == MULTI_PART)
+      if(_pickMode == MULTI_PART)
       {
         if((modifier & CTRL))
         {
@@ -734,6 +746,8 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
                        Position(getAnimation()->getPosition())
                       );
       emit partClicked(partSelected % ANIMATION_INCREMENT);
+
+      debugWrite();
     }
     // drag handle clicked
     else if(selected==DRAG_HANDLE_X || selected==DRAG_HANDLE_Y || selected==DRAG_HANDLE_Z ||
@@ -917,24 +931,24 @@ void AnimationView::drawFigure(Animation* anim,unsigned int index)
 
     selectName = index*ANIMATION_INCREMENT;
     glEnable(GL_DEPTH_TEST);
-    drawPart(anim, index, anim->getFrame(), anim->getMotion(), joints[figType], MODE_PARTS);
+    drawPart(anim, /*index,*/ anim->getFrame(), anim->getMotion(), joints[figType], MODE_PARTS);
     selectName = index*ANIMATION_INCREMENT;
     glEnable(GL_COLOR_MATERIAL);
 
     //edu
 //    drawRotationHelpers(anim->getFrame(), anim->getMotion(), joints[figType]);
 
-    drawPart(anim, index, anim->getFrame(), anim->getMotion(), joints[figType], MODE_ROT_AXES);
+    drawPart(anim, /*index,*/ anim->getFrame(), anim->getMotion(), joints[figType], MODE_ROT_AXES);
     selectName = index*ANIMATION_INCREMENT;
     glDisable(GL_DEPTH_TEST);
-    drawPart(anim, index, anim->getFrame(), anim->getMotion(), joints[figType],MODE_SKELETON);
+    drawPart(anim, /*index,*/ anim->getFrame(), anim->getMotion(), joints[figType],MODE_SKELETON);
 
     // restore drawing matrix
     glPopMatrix();
 }
 
 // NOTE: joints == motion for now
-void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex,         //TODO: currentAnimationIndex is unused?!
+void AnimationView::drawPart(Animation* anim, //unsigned int currentAnimationIndex,         //TODO: currentAnimationIndex is unused?!
                              int frame, BVHNode* motion, BVHNode* joints, int mode)
 {
   float color[4];
@@ -980,7 +994,7 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
     }
 
     Rotation rot=motion->frameData(frame).rotation();
-    for(int i=0;i<motion->numChannels;i++)
+    for(int i=0; i<motion->numChannels; i++)
     {
       /*
       float value;
@@ -1022,8 +1036,7 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
     if(mode==MODE_PARTS)
     {
       if(selecting) glLoadName(selectName);
-      if(anim->getMirrored() &&
-        (mirrorSelected==selectName || partSelected==selectName))
+      if(anim->getMirrored() && (mirrorSelected==selectName || partSelected==selectName))
       {
         glColor4f(1.0, 0.635, 0.059, 1);
       }
@@ -1031,7 +1044,15 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
         glColor4f(0.6, 0.3, 0.3, 1);
       else if(partHighlighted==selectName)
         glColor4f(0.4, 0.5, 0.3, 1);
-      else
+      else if(_highlightLimbWeight)       //anim is actually a WeightedAnimation
+      {
+        if(relativeJointWeights == NULL || relativeJointWeights->count()<=0)
+          Announcer::Exception(this, "Relative joint weights not initialized properly");
+        //TODO
+        double relW = relativeJointWeights->value(getSelectedPart()->name(), -1.13);
+        glColor4f(0.6, 0.5, 0.5, 0.25+0.75*relW);
+      }
+      else        //normal body color
         glColor4f(0.6, 0.5, 0.5, 1);           //edu: when drawing aux figures, use (0.55, 0.5, 0.5, 0.9)
       if(anim->getIK(motion))
       {
@@ -1049,7 +1070,7 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
     }
     for(int i=0;i<motion->numChildren();i++)
     {
-      drawPart(anim,currentAnimationIndex,frame,motion->child(i),joints->child(i),mode);
+      drawPart(anim, /*currentAnimationIndex, */frame, motion->child(i), joints->child(i), mode);
     }
     glPopMatrix();
   }

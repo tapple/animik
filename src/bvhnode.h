@@ -55,6 +55,12 @@ struct FrameData
     int weight() const;
     void setWeight(int w);
 
+
+    //DEBUG so far
+    double relativeWeight() const       { return relWeight; }
+    void setRelativeWeight(double w)    { if(w<0.0 || w>1.0) throw new QString("Argument exception: value out of range"); relWeight=w; }
+
+
     bool easeIn() const;
     bool easeOut() const;
     void setEaseIn(bool state);
@@ -70,6 +76,7 @@ struct FrameData
     Position m_position;
 
     int m_weight;
+    double relWeight;
 
     bool m_easeIn;
     bool m_easeOut;

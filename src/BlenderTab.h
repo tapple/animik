@@ -96,7 +96,6 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
     void onLimbsDialogNextFrame();
     void onPlaybackStarted();
     void onPlaybackPaused();
-    void onPartClicked(BVHNode* limb, Rotation rot, Rotation globRot, RotationLimits limits, Position posit);
     void onBackgroundClicked();
     void onSelectedItemChanged();
 };

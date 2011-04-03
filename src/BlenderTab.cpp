@@ -50,8 +50,6 @@ BlenderTab::BlenderTab(qavimator* mainWindow, const QString& fileName, bool crea
           this, SLOT(onTimelineAnimationChanged(WeightedAnimation*)));
   connect(blenderPlayer, SIGNAL(playbackStarted()), this, SLOT(onPlaybackStarted()));
   connect(blenderPlayer, SIGNAL(playbackPaused()), this, SLOT(onPlaybackPaused()));
-  connect(blenderAnimationView, SIGNAL(partClicked(BVHNode*,Rotation,Rotation,RotationLimits,Position)),
-          this, SLOT(onPartClicked(BVHNode*, Rotation, Rotation, RotationLimits, Position)));
   connect(blenderAnimationView, SIGNAL(backgroundClicked()), this, SLOT(onBackgroundClicked()));
 
   if(createFile)
@@ -519,17 +517,6 @@ void BlenderTab::onPlaybackPaused()
   blenderTimeline->limitUserActions(false);
 }
 
-void BlenderTab::onPartClicked(BVHNode* limb, Rotation rot, Rotation globRot, RotationLimits limits, Position pos)
-{
-  if(Settings::Instance()->Debug())
-  {
-    QString text = "ROT: x=" +QString::number(rot.x)+ ", y=" +QString::number(rot.y)+ ", z=" +QString::number(rot.z);
-    if(limb->type == BVH_ROOT)
-      text += " POS: x=" +QString::number(pos.x)+ ", y=" +QString::number(pos.y)+ ", z=" +QString::number(pos.z);
-    blenderAnimationView->WriteText(text);
-  }
-}
-
 void BlenderTab::onBackgroundClicked()
 {
   blenderAnimationView->ClearText();
@@ -537,9 +524,27 @@ void BlenderTab::onBackgroundClicked()
 
 void BlenderTab::onSelectedItemChanged()
 {
-  if(blenderTimeline->getSelectedItem() != NULL)
+  TrailItem* selItem = blenderTimeline->getSelectedItem();
+  if(selItem != NULL)
+  {
+    QMap<QString, double>* limbRelWeights = new QMap<QString, double>();
+    int frame = selItem->selectedFrame();
+    QList<BVHNode*> nodes = selItem->getAnimation()->bones()->values();
+    foreach(BVHNode* node, nodes)
+    {
+      double relW = node->frameData(frame).relativeWeight();
+      limbRelWeights->insert(node->name(), relW);
+    }
+
+    blenderAnimationView->setRelativeJointWeights(limbRelWeights);
     blenderAnimationView->setPickingMode(MULTI_PART);
-  else blenderAnimationView->setPickingMode(NO_PICKING);
+    blenderAnimationView->setHighlightsLimbsWeight(true);
+  }
+  else
+  {
+    blenderAnimationView->setPickingMode(NO_PICKING);
+    blenderAnimationView->setHighlightsLimbsWeight(false);
+  }
 }
 
 // ---------------------------------------------- //

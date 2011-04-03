@@ -113,25 +113,28 @@ class AnimationView : public QGLWidget
     //Additional flags determining on/off state of some optional features. The difference is mainly
     //implied by different usages of this widget in blending and key-framing GUIs.
     /** When FALSE, circle drags are not drawn around selected limb of figure. */
-    bool useRotationHelpers() const                   { return _useRotationHelpers; }
-    void setUseRotationHelpers(bool rotHelpers)       { _useRotationHelpers = rotHelpers; }
+    bool useRotationHelpers() const                          { return _useRotationHelpers; }
+    void setUseRotationHelpers(bool rotHelpers)              { _useRotationHelpers = rotHelpers; }
     /** TRUE means it's possible to lock an effector (by double-click) in further IK calculation */
-    bool useIK() const                                { return _useIK; }
-    void setUseIK(bool useIK)                         { _useIK = useIK; }
-    bool pickingMode() const                          { return _pickMode; }
+    bool useIK() const                                       { return _useIK; }
+    void setUseIK(bool useIK)                                { _useIK = useIK; }
+    bool pickingMode() const                                 { return _pickMode; }
     /*! Sets picking mode and reset any currently picked parts if the mode is "lower" than actual !*/
     void setPickingMode(PickingMode mode);
     /** Determines whether verbose debugging info about currently picked part should be shown.
         The information will be accessed only if DEBUG mode was also activated in Settings,
         and will be shown in the middle of the scene. */
-    bool showingPartInfo() const                      { return _partInfo; }
-    void setShowingPartInfo(bool partInfo)            { _partInfo = partInfo; }
-    bool useMirroring() const                         { return _useMirror; }
-    void setUseMirroring(bool mirror)                 { _useMirror = mirror; }
+    bool showingPartInfo() const                             { return _partInfo; }
+    void setShowingPartInfo(bool partInfo)                   { _partInfo = partInfo; }
+    bool useMirroring() const                                { return _useMirror; }
+    void setUseMirroring(bool mirror)                        { _useMirror = mirror; }
+    void setRelativeJointWeights(QMap<QString, double>* rjw) { relativeJointWeights = rjw; }
+    bool highlightLimbsWeight() const                        { return _highlightLimbWeight; }
+    void setHighlightsLimbsWeight(bool highlight)            { _highlightLimbWeight = highlight; }
 
 
     // getAnimation returns the *current* animation
-    Animation* getAnimation() { return currentAnimation; }
+    Animation* getAnimation()                         { return currentAnimation; }
 
     //edu: TODO: it should be that one is primary and other auxiliary
     Animation* getAnimation(unsigned int index)       { return animList.at(index); }
@@ -204,8 +207,7 @@ class AnimationView : public QGLWidget
     void drawFloor();
     void drawAnimations();
     void drawFigure(Animation* anim, unsigned int index);
-    void drawPart(Animation* anim, unsigned int index, int frame, BVHNode *motion,
-                  BVHNode *joints, int mode);
+    void drawPart(Animation* anim, /*unsigned int index,*/ int frame, BVHNode *motion, BVHNode *joints, int mode);
     void drawProps();
     void drawProp(const Prop* prop) const;
     void drawDragHandles(const Prop* prop) const;
@@ -263,8 +265,15 @@ class AnimationView : public QGLWidget
     PickingMode _pickMode;
     bool _partInfo;
     bool _useMirror;
+    bool _highlightLimbWeight;
+    /** Storage for relative (between 0.0 and 1.0 including) weights of joints in current frame
+        of an animation. Key is joing name.
+        CAUTION: It doesn't have to be (and mostly isn't) the underlying animation of this AnimationView.
+        So the QMap must always be externaly set via setRelativeJointWeights() so that it's correctly
+        related to current frame of our animation. **/
+    QMap<QString, double>* relativeJointWeights;
 
-    QString innerText;
+    QStringList innerTextLines;
     QFont* textFont;
 
   private slots:

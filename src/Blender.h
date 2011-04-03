@@ -5,6 +5,7 @@
 #include "rotation.h"
 
 class BVHNode;
+class TimelineTrail;
 class TrailItem;
 class WeightedAnimation;
 
@@ -19,9 +20,13 @@ public:
   /** Returns overall blended animation */
   WeightedAnimation* GetResultingAnimation();           //edu: pfuuh, rubish
 
-  /** Blends together weighted animations of given TrailItems.
+  /*! Passes through time-line and for every item, frame and limb evaluates its relative weight compared
+      to limb weights of frame it'll blend with. This method must be called befor BlendTrails. !*/              //TODO: it should be called as first in BlendTrails
+  void EvaluateRelativeLimbWeights(QList<TimelineTrail*>* trails, int trailsCount);
+
+  /*! Blends together weighted animations of given TrailItems.
       @param trails array of pointers to first TrailItem in linked list.
-      @param trailsCount number of pointers passed in the first argument. **/
+      @param trailsCount number of pointers passed in the first argument. !*/
   WeightedAnimation* BlendTrails(TrailItem** trails, int trailsCount);
 
 private:
