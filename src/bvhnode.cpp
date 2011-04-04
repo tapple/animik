@@ -144,6 +144,27 @@ void BVHNode::setKeyframeWeight(int frame, int weight)
   }
 }
 
+
+//Highly DEBUG
+void BVHNode::setKeyFrameRelWeight(int frame, double weight)
+{
+  if(weight<0.0 || weight>1.0)
+    throw new QString("Argument exception: relative limb weight out of range: " +QString::number(weight));
+  if(isKeyframe(frame))
+  {
+    FrameData& key = keyframes[frame];
+    key.setRelativeWeight(weight);
+  }
+  else
+  {       //add new keyframe with interpolated position/rotation and given weight
+    keyframes[frame] = frameData(frame);
+    keyframes[frame].setRelativeWeight(weight);
+  }
+}
+
+
+
+
 void BVHNode::deleteKeyframe(int frame)
 {
   keyframes.remove(frame);
@@ -619,7 +640,7 @@ FrameData::FrameData()
 {
 //  qDebug(QString("FrameData(%1)").arg((unsigned long)this));
   m_frameNumber=0;
-  m_weight = 50;
+  m_weight = 52;
 
   relWeight = 0.08;
 
@@ -633,7 +654,10 @@ FrameData::FrameData(int num,Position pos,Rotation rot)
   m_frameNumber=num;
   m_rotation=rot;
   m_position=pos;
-  m_weight = 50;      //default for those nodes, that don't need weights
+  m_weight = 48;      //default for those nodes, that don't need weights
+
+  relWeight = 0.07;
+
   m_easeIn=false;
   m_easeOut=false;
 }

@@ -59,14 +59,14 @@ void Blender::EvaluateRelativeLimbWeights(QList<TimelineTrail*>* trails, int tra
       int sumWeight = 0;
       int weightsUsed = 0;
       bool emptyPosition = true;
-      QList<FrameData*>* usedData = new QList<FrameData*>();
+      QMap<BVHNode*, int>* usedData = new QMap<BVHNode*, int>();    //value is frame index inside respective animation
       for(int i=0; i<trailsCount; i++)
       {
         TrailItem* item = currentItems[i];
 
         if(item == NULL)                                 //No more items on i-th trail
           continue;
-        if(item->beginIndex() < curPosIndex)             //We're before first item of this trail
+        if(item->beginIndex() > curPosIndex)             //We're before first item of this trail
           continue;
 
         if(item->endIndex() < curPosIndex)               //Move to next item
@@ -74,7 +74,7 @@ void Blender::EvaluateRelativeLimbWeights(QList<TimelineTrail*>* trails, int tra
           currentItems[i] = item->nextItem();
           item = currentItems[i];
         }
-        if(item == NULL || item->isShadow())  //Still here?
+        if(item == NULL || item->isShadow())             //Still here?
           continue;
         else
           emptyPosition = false;
@@ -85,9 +85,10 @@ void Blender::EvaluateRelativeLimbWeights(QList<TimelineTrail*>* trails, int tra
           if(!item->getAnimation()->bones()->contains(bName))
             Announcer::Exception(NULL, "Exception: can't evaluate relative weight for limb " +bName);
           BVHNode* limb = item->getAnimation()->bones()->value(bName);
-          FrameData data = limb->frameData(frameIndex);
-          usedData->append(&data);
-          sumWeight += data.weight();
+//          FrameData data = limb->frameData(frameIndex);
+//          usedData->append(&data);
+          usedData->insert(limb, frameIndex);
+          sumWeight += limb->frameData(frameIndex).weight();
           weightsUsed++;
         }
         else
@@ -97,13 +98,24 @@ void Blender::EvaluateRelativeLimbWeights(QList<TimelineTrail*>* trails, int tra
       if(emptyPosition)                         //There were no valid item at this position
         break;                                  //so jump to the next one
 
-      for(int x=0; x<usedData->count(); x++)
+      QMapIterator<BVHNode*, int> iter(*usedData);
+      while(iter.hasNext())
       {
+        iter.next();
+        BVHNode* bone = iter.key();
+        int frame = iter.value();
+
         if(sumWeight==0)                        //Little trick if weight of current limb was 0 on all trails
-          usedData->at(x)->setRelativeWeight(1.0 / (double)weightsUsed);
+          bone->setKeyFrameRelWeight(frame, 1.0 / (double)weightsUsed);
         else
-          usedData->at(x)->setRelativeWeight((double)(usedData->at(x)->weight()) / (double)sumWeight);
+        {
+//          usedData->at(x)->setRelativeWeight((double)(usedData->at(x)->weight()) / (double)sumWeight);
+          int globW = bone->frameData(frame).weight();
+          bone->setKeyFrameRelWeight(frame, globW / (double)sumWeight);
+        }
       }
+
+      delete usedData;
     }
     curPosIndex++;
   }

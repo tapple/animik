@@ -397,7 +397,7 @@ bool BlenderTab::resolveUnsavedChanges()
 }
 
 
-void BlenderTab::setSelectedLimbsWeight(QList<int>* jointNumbers)
+void BlenderTab::adjustSelectedLimbsWeight(QList<int>* jointNumbers)
 {
   TrailItem* selectedItem = blenderTimeline->getSelectedItem();
   if(selectedItem != NULL && !selectedItem->isShadow() && !blenderPlayer->isPlaying())
@@ -480,7 +480,7 @@ void BlenderTab::onLimbWeights()
 {
   QList<int>* parts = blenderAnimationView->getSelectedPartIndices();
   if(!parts->isEmpty())
-    setSelectedLimbsWeight(parts);
+    adjustSelectedLimbsWeight(parts);
 }
 
 void BlenderTab::onPositionWeight()
@@ -492,7 +492,7 @@ void BlenderTab::onLimbDoubleClicked(int jointNumber)
 {
   QList<int>* parts = new QList<int>();
   parts->append(jointNumber);
-  setSelectedLimbsWeight(parts);
+  adjustSelectedLimbsWeight(parts);
 }
 
 
@@ -533,7 +533,8 @@ void BlenderTab::onSelectedItemChanged()
     foreach(BVHNode* node, nodes)
     {
       double relW = node->frameData(frame).relativeWeight();
-      limbRelWeights->insert(node->name(), relW);
+      QString debugName = node->name();
+      limbRelWeights->insert(debugName, relW);
     }
 
     blenderAnimationView->setRelativeJointWeights(limbRelWeights);

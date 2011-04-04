@@ -760,7 +760,8 @@ void TimelineTrail::mousePressEvent(QMouseEvent* e)
     selectedItem = clickedItem;
 
     //DEBUG so far
-    selectedItem->selectFrame(clickedFrame-selectedItem->beginIndex());
+    if(selectedItem != NULL)
+      selectedItem->selectFrame(clickedFrame-selectedItem->beginIndex());
 
     emit selectedItemChanged();
   }

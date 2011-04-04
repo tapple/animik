@@ -20,7 +20,6 @@ BlenderTimeline::BlenderTimeline(QWidget* parent, Qt::WindowFlags) : QFrame(pare
 {
   trailFramesCount = MIN_TRAIL_FRAMES;
   resultAnimation = NULL;
-  currentPosition = 0;
 
   scrollArea = new NoArrowsScrollArea(this);
   scrollArea->setBackgroundRole(QPalette::Dark);

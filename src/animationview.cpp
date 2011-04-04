@@ -1044,13 +1044,14 @@ void AnimationView::drawPart(Animation* anim, //unsigned int currentAnimationInd
         glColor4f(0.6, 0.3, 0.3, 1);
       else if(partHighlighted==selectName)
         glColor4f(0.4, 0.5, 0.3, 1);
-      else if(_highlightLimbWeight)       //anim is actually a WeightedAnimation
+      else if(_highlightLimbWeight)
       {
         if(relativeJointWeights == NULL || relativeJointWeights->count()<=0)
           Announcer::Exception(this, "Relative joint weights not initialized properly");
-        //TODO
-        double relW = relativeJointWeights->value(getSelectedPart()->name(), -1.13);
-        glColor4f(0.6, 0.5, 0.5, 0.25+0.75*relW);
+
+        double relW = relativeJointWeights->value(motion->name(), 1.0);
+        float alpha = 0.25+0.75*(float)relW;
+        glColor4f(0.6, 0.5, 0.5, alpha);
       }
       else        //normal body color
         glColor4f(0.6, 0.5, 0.5, 1);           //edu: when drawing aux figures, use (0.55, 0.5, 0.5, 0.9)
@@ -1397,6 +1398,13 @@ const QString AnimationView::getPartName(int index)
   return getAnimation()->getPartName(index % ANIMATION_INCREMENT);
 }
 */
+
+void AnimationView::setRelativeJointWeights(QMap<QString, double>* weights)
+{
+  delete relativeJointWeights;
+  relativeJointWeights = weights;
+}
+
 // returns the selected prop name or an empty string if none selected
 const QString AnimationView::getSelectedPropName()
 {

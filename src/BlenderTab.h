@@ -78,7 +78,7 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
     /** TRUE for unsaved content */
     bool isDirty;
 
-    void setSelectedLimbsWeight(QList<int>* jointNumbers);
+    void adjustSelectedLimbsWeight(QList<int>* jointNumbers);
 
     /////////////edu: DEBUG /////////////
     void sorry();

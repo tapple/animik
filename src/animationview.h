@@ -128,7 +128,7 @@ class AnimationView : public QGLWidget
     void setShowingPartInfo(bool partInfo)                   { _partInfo = partInfo; }
     bool useMirroring() const                                { return _useMirror; }
     void setUseMirroring(bool mirror)                        { _useMirror = mirror; }
-    void setRelativeJointWeights(QMap<QString, double>* rjw) { relativeJointWeights = rjw; }
+    void setRelativeJointWeights(QMap<QString, double>* weights);
     bool highlightLimbsWeight() const                        { return _highlightLimbWeight; }
     void setHighlightsLimbsWeight(bool highlight)            { _highlightLimbWeight = highlight; }
 
@@ -266,7 +266,7 @@ class AnimationView : public QGLWidget
     bool _partInfo;
     bool _useMirror;
     bool _highlightLimbWeight;
-    /** Storage for relative (between 0.0 and 1.0 including) weights of joints in current frame
+    /** Storage for relative weights (between 0.0 and 1.0 including) of joints in current frame
         of an animation. Key is joing name.
         CAUTION: It doesn't have to be (and mostly isn't) the underlying animation of this AnimationView.
         So the QMap must always be externaly set via setRelativeJointWeights() so that it's correctly

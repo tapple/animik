@@ -112,6 +112,10 @@ class BVHNode
     /** Set weight (relative importance used in blending) to this node in given frame.
         Behaves like third key-frame-able attribute (beside position and rotation). **/
     void setKeyframeWeight(int frame, int weight);
+
+    //DEBUG
+    void setKeyFrameRelWeight(int frame, double weight);
+
 //edu: never used?    void insertFrame(int frame); // moves all key frames starting at "frame" one frame further
     void deleteFrame(int frame); // removes frame at position and moves all further frames one down
     bool isKeyframe(int frame) const;

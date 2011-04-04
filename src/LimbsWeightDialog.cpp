@@ -5,7 +5,8 @@
 
 
 
-LimbsWeightDialog::LimbsWeightDialog(QString animationName, QList<BVHNode*>* limbs, int frame, int totalFrames, QWidget *parent)
+LimbsWeightDialog::LimbsWeightDialog(QString animationName, QList<BVHNode*>* limbs, int frame,
+                                     int totalFrames, QWidget *parent)
   : QDialog(parent), ui(new Ui::LimbsWeightDialog)
 {
   currentFrame = frame;
