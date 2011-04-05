@@ -84,7 +84,13 @@ void Blender::EvaluateRelativeLimbWeights(QList<TimelineTrail*>* trails, int tra
           int frameIndex = curPosIndex - item->beginIndex();
           if(!item->getAnimation()->bones()->contains(bName))
             Announcer::Exception(NULL, "Exception: can't evaluate relative weight for limb " +bName);
-          BVHNode* limb = item->getAnimation()->bones()->value(bName);
+
+
+          //          BVHNode* limb = item->getAnimation()->bones()->value(bName);      NOT WORKING. REALLY NEED TO KNOW WHY
+          //desperate DEBUG
+          BVHNode* limb = item->getAnimation()->getNodeByName(bName);
+
+
 //          FrameData data = limb->frameData(frameIndex);
 //          usedData->append(&data);
           usedData->insert(limb, frameIndex);
@@ -911,6 +917,7 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
           sumBearing = clearSumBearing;
         if(sumWeightsXZ == 0)                             //Houdini
           sumWeightsXZ = positionsUsed;
+
 
         Position prevTargetPos = target->getNode(0)->frameData(targetFrame-1).position();
         //calculate Position (only X and Z coordinates) from given start point,

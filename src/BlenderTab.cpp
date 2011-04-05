@@ -529,9 +529,12 @@ void BlenderTab::onSelectedItemChanged()
   {
     QMap<QString, double>* limbRelWeights = new QMap<QString, double>();
     int frame = selItem->selectedFrame();
-    QList<BVHNode*> nodes = selItem->getAnimation()->bones()->values();
-    foreach(BVHNode* node, nodes)
+//    QList<BVHNode*> nodes = selItem->getAnimation()->bones()->values();
+    //DEBUG. And very ugly. It traverses through skeleton over and over many times. TODO: REALLY NEEDS SOME LINEAR HELPER BONE STORAGE
+    QList<QString> nodeNames = selItem->getAnimation()->bones()->keys();
+    foreach(/*BVHNode* node, nodes*/QString name, nodeNames)
     {
+      BVHNode* node = selItem->getAnimation()->getNodeByName(name);
       double relW = node->frameData(frame).relativeWeight();
       QString debugName = node->name();
       limbRelWeights->insert(debugName, relW);
