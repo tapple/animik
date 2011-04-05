@@ -77,8 +77,8 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
     bool canShowWarn;
     /** TRUE for unsaved content */
     bool isDirty;
-
     void adjustSelectedLimbsWeight(QList<int>* jointNumbers);
+    void highlightLimbsByWeight();
 
     /////////////edu: DEBUG /////////////
     void sorry();
@@ -98,6 +98,7 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
     void onPlaybackPaused();
     void onBackgroundClicked();
     void onSelectedItemChanged();
+    void onTimelinePositionChanged();
 };
 
 #endif // BLENDERTAB_H

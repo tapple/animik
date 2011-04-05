@@ -236,6 +236,7 @@ void BlenderTimeline::setCurrentFramePosition(int posIndex)
     trail->setCurrentPosition(posIndex);
 
   ensurePlayFrameVisibility(posIndex);
+  emit timelinePositionChanged();
 }
 
 //Only re-emit higher to BlenderTab

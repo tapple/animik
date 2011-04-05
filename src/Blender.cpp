@@ -59,7 +59,11 @@ void Blender::EvaluateRelativeLimbWeights(QList<TimelineTrail*>* trails, int tra
       int sumWeight = 0;
       int weightsUsed = 0;
       bool emptyPosition = true;
-      QMap<BVHNode*, int>* usedData = new QMap<BVHNode*, int>();    //value is frame index inside respective animation
+
+      //Temporary helper structure. Value is array of 2 integers: frame index inside
+      //respective animation and its frame weight
+      QMap<BVHNode*, QVector<int> >* usedData = new QMap<BVHNode*, QVector<int> >();
+
       for(int i=0; i<trailsCount; i++)
       {
         TrailItem* item = currentItems[i];
@@ -82,42 +86,47 @@ void Blender::EvaluateRelativeLimbWeights(QList<TimelineTrail*>* trails, int tra
         if(item->beginIndex() <= curPosIndex && item->endIndex() >= curPosIndex)
         {
           int frameIndex = curPosIndex - item->beginIndex();
+          int frameWeight = item->getWeight(frameIndex);
+
           if(!item->getAnimation()->bones()->contains(bName))
             Announcer::Exception(NULL, "Exception: can't evaluate relative weight for limb " +bName);
 
 
-          //          BVHNode* limb = item->getAnimation()->bones()->value(bName);      NOT WORKING. REALLY NEED TO KNOW WHY
+//          BVHNode* limb = item->getAnimation()->bones()->value(bName);      NOT WORKING. REALLY NEED TO KNOW WHY
           //desperate DEBUG
           BVHNode* limb = item->getAnimation()->getNodeByName(bName);
 
 
 //          FrameData data = limb->frameData(frameIndex);
 //          usedData->append(&data);
-          usedData->insert(limb, frameIndex);
-          sumWeight += limb->frameData(frameIndex).weight();
+          QVector<int> tempData;
+          tempData << frameIndex << frameWeight;
+          usedData->insert(limb, tempData);
+          sumWeight += frameWeight * limb->frameData(frameIndex).weight();
           weightsUsed++;
         }
-        else
-          Announcer::Exception(NULL, "Lame programmer exception :(");    //DEBUG
+//        else Announcer::Exception(NULL, "Lame programmer exception :(");    //DEBUG
       }
 
       if(emptyPosition)                         //There were no valid item at this position
         break;                                  //so jump to the next one
 
-      QMapIterator<BVHNode*, int> iter(*usedData);
+      QMapIterator<BVHNode*, QVector<int> > iter(*usedData);
       while(iter.hasNext())
       {
         iter.next();
         BVHNode* bone = iter.key();
-        int frame = iter.value();
+        QVector<int> tempData = iter.value();
+        int frame = tempData[0];
+        int frameW = tempData[1];
 
         if(sumWeight==0)                        //Little trick if weight of current limb was 0 on all trails
           bone->setKeyFrameRelWeight(frame, 1.0 / (double)weightsUsed);
         else
         {
 //          usedData->at(x)->setRelativeWeight((double)(usedData->at(x)->weight()) / (double)sumWeight);
-          int globW = bone->frameData(frame).weight();
-          bone->setKeyFrameRelWeight(frame, globW / (double)sumWeight);
+          int limbW = bone->frameData(frame).weight();
+          bone->setKeyFrameRelWeight(frame, frameW*limbW / (double)sumWeight);
         }
       }
 

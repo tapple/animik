@@ -54,13 +54,10 @@ struct FrameData
     /** Limb weight in interval <0, 100>. Meant to be used in blending as a measure of relative importance. **/
     int weight() const;
     void setWeight(int w);
-
-
-    //DEBUG so far
+    /*! Relative BVHNode weight based on its user given absolute weight, weight of its frame and
+        weighting of other nodes/frames that it overlaps with. !*/
     double relativeWeight() const       { return relWeight; }
     void setRelativeWeight(double w)    { if(w<0.0 || w>1.0) throw new QString("Argument exception: value out of range"); relWeight=w; }
-
-
     bool easeIn() const;
     bool easeOut() const;
     void setEaseIn(bool state);

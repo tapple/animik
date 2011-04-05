@@ -43,6 +43,7 @@ BlenderTab::BlenderTab(qavimator* mainWindow, const QString& fileName, bool crea
   connect(this, SIGNAL(resetCamera()), blenderAnimationView, SLOT(resetCamera()));
   connect(blenderTimeline, SIGNAL(resultingAnimationChanged(WeightedAnimation*)),
           blenderPlayer, SLOT(onAnimationChanged(WeightedAnimation*)));
+  connect(blenderTimeline, SIGNAL(timelinePositionChanged()), this, SLOT(onTimelinePositionChanged()));
   connect(blenderTimeline, SIGNAL(selectedItemChanged()),
           this, SLOT(onSelectedItemChanged()));
   connect(blenderTimeline, SIGNAL(selectedItemLost()), this, SLOT(onSelectedItemChanged()));
@@ -510,6 +511,8 @@ void BlenderTab::onLimbsDialogPreviousFrame()
 void BlenderTab::onPlaybackStarted()
 {
   blenderTimeline->limitUserActions(true);
+  blenderAnimationView->setPickingMode(NO_PICKING);
+  blenderAnimationView->setHighlightsLimbsWeight(false);
 }
 
 void BlenderTab::onPlaybackPaused()
@@ -524,13 +527,25 @@ void BlenderTab::onBackgroundClicked()
 
 void BlenderTab::onSelectedItemChanged()
 {
+  highlightLimbsByWeight();
+  blenderAnimationView->repaint();      //When time-line position remains the same
+}
+
+void BlenderTab::onTimelinePositionChanged()
+{
+  highlightLimbsByWeight();
+}
+
+
+void BlenderTab::highlightLimbsByWeight()
+{
   TrailItem* selItem = blenderTimeline->getSelectedItem();
   if(selItem != NULL)
   {
     QMap<QString, double>* limbRelWeights = new QMap<QString, double>();
     int frame = selItem->selectedFrame();
 //    QList<BVHNode*> nodes = selItem->getAnimation()->bones()->values();
-    //DEBUG. And very ugly. It traverses through skeleton over and over many times. TODO: REALLY NEEDS SOME LINEAR HELPER BONE STORAGE
+    //DEBUG. And very ugly. It traverses through skeleton over and over many times. TODO: REALLY NEED SOME LINEAR HELPER BONE STORAGE
     QList<QString> nodeNames = selItem->getAnimation()->bones()->keys();
     foreach(/*BVHNode* node, nodes*/QString name, nodeNames)
     {

@@ -1050,8 +1050,9 @@ void AnimationView::drawPart(Animation* anim, //unsigned int currentAnimationInd
           Announcer::Exception(this, "Relative joint weights not initialized properly");
 
         double relW = relativeJointWeights->value(motion->name(), 1.0);
-        float alpha = 0.25+0.75*(float)relW;
-        glColor4f(0.6, 0.5, 0.5, alpha);
+        float red = 0.5 + 0.1*(float)relW;
+        float alpha = 0.20 + 0.8*(float)relW;
+        glColor4f(red, 0.5, 0.5, alpha);
       }
       else        //normal body color
         glColor4f(0.6, 0.5, 0.5, 1);           //edu: when drawing aux figures, use (0.55, 0.5, 0.5, 0.9)

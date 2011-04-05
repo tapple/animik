@@ -41,6 +41,7 @@ class BlenderTimeline : public QFrame
   signals:
     /** Warn about Animation and its first frame position */
     void resultingAnimationChanged(WeightedAnimation*);
+    void timelinePositionChanged();
     void selectedItemChanged();
     void selectedItemLost();
 

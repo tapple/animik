@@ -641,9 +641,7 @@ FrameData::FrameData()
 //  qDebug(QString("FrameData(%1)").arg((unsigned long)this));
   m_frameNumber=0;
   m_weight = 52;
-
   relWeight = 0.08;
-
   m_easeIn=false;
   m_easeOut=false;
 }
@@ -655,9 +653,7 @@ FrameData::FrameData(int num,Position pos,Rotation rot)
   m_rotation=rot;
   m_position=pos;
   m_weight = 48;      //default for those nodes, that don't need weights
-
   relWeight = 0.07;
-
   m_easeIn=false;
   m_easeOut=false;
 }
