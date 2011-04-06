@@ -148,12 +148,12 @@ void AnimationView::debugWrite()
   {
     BVHNode* part = getSelectedPart();
     Rotation rot = getAnimation()->getRotation(part);
-    Position pos = getAnimation()->getPosition();
+    Position pos = getAnimation()->getGlobalPosition(part);
 
     innerTextLines.clear();
     QString text = "ROT: x=" +QString::number(rot.x, 'f', 3)+ ", y=" +QString::number(rot.y, 'f', 3)+ ", z=" +QString::number(rot.z, 'f', 3);
     innerTextLines.append(text);
-    if(part->type == BVH_ROOT)
+//    if(part->type = BVH_ROOT)
     {
       text = " POS: x=" +QString::number(pos.x, 'f', 3)+ ", y=" +QString::number(pos.y, 'f', 3)+ ", z=" +QString::number(pos.z, 'f', 3);
       innerTextLines.append(text);
@@ -743,7 +743,8 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
                        Rotation(getAnimation()->getRotation(part)),
                        Rotation(getAnimation()->getGlobalRotation(part)),
                        getAnimation()->getRotationLimits(part),
-                       Position(getAnimation()->getPosition())
+                       Position(getAnimation()->getPosition()),
+                       Position(getAnimation()->getGlobalPosition(part))
                       );
       emit partClicked(partSelected % ANIMATION_INCREMENT);
 
@@ -931,12 +932,16 @@ void AnimationView::drawFigure(Animation* anim,unsigned int index)
 
     selectName = index*ANIMATION_INCREMENT;
     glEnable(GL_DEPTH_TEST);
-    drawPart(anim, /*index,*/ anim->getFrame(), anim->getMotion(), joints[figType], MODE_PARTS);
+    drawPart(anim, /*index,*/ anim->getFrame(), anim->getMotion(), joints[figType], MODE_PARTS);      //edu: TODO: think of this: all the drawings could be done in one drawPart call
     selectName = index*ANIMATION_INCREMENT;
     glEnable(GL_COLOR_MATERIAL);
 
+
+
     //edu
+//    glEnable(GL_DEPTH_TEST);
 //    drawRotationHelpers(anim->getFrame(), anim->getMotion(), joints[figType]);
+
 
     drawPart(anim, /*index,*/ anim->getFrame(), anim->getMotion(), joints[figType], MODE_ROT_AXES);
     selectName = index*ANIMATION_INCREMENT;
@@ -1086,90 +1091,96 @@ void AnimationView::drawPart(Animation* anim, //unsigned int currentAnimationInd
 
 
 
-/*edu
+/*//edu
 void AnimationView::drawRotationHelpers(int frame, BVHNode* motion, BVHNode* joints)
 {
+  if(motion==NULL || joints==NULL)
+    throw new QString("Argument exception: NULL skeleton");
+
   GLint renderMode;
   glGetIntegerv(GL_RENDER_MODE, &renderMode);
   selecting=(renderMode==GL_SELECT);
 
-  if(motion && joints)
+  selectName++;
+  glPushMatrix();
+  glTranslatef(joints->offset[0], joints->offset[1], joints->offset[2]);
+
+  if(motion->type==BVH_NO_SL)       //edu: WHILE rather than IF?
   {
     selectName++;
-    glPushMatrix();
-    glTranslatef(joints->offset[0],joints->offset[1],joints->offset[2]);
+    motion=motion->child(0);
+  }
 
-    if(motion->type==BVH_NO_SL)       //edu: WHILE rather than IF?
+  Rotation rot=motion->frameData(frame).rotation();
+  for(int i=0; i<motion->numChannels; i++)
+  {
+    Rotation ikRot;
+    if(motion->ikOn) ikRot=motion->ikRot;
+
+    // need to do rotations in the right order
+    switch(motion->channelType[i])
     {
-      selectName++;
-      motion=motion->child(0);
+      case BVH_XROT:
+        glRotatef(rot.x+ikRot.x, 1, 0, 0);
+        qDebug(":::::::::::::::::::%s MOVED rot.x+ikRot.x=%f", motion->name().toLatin1().constData(), rot.x+ikRot.x);
+      break;
+      case BVH_YROT:
+        glRotatef(rot.y+ikRot.y, 0, 1, 0);
+        qDebug(":::::::::::::::::::%s MOVED rot.y+ikRot.y=%f", motion->name().toLatin1().constData(), rot.x+ikRot.y);
+      break;
+      case BVH_ZROT:
+        glRotatef(rot.z+ikRot.z, 0, 0, 1);
+        qDebug(":::::::::::::::::::%s MOVED rot.z+ikRot.z=%f", motion->name().toLatin1().constData(), rot.x+ikRot.z);
+      break;
+      default: break;
     }
+  }//for
 
-    Rotation rot=motion->frameData(frame).rotation();
+  if(!selecting && partSelected==selectName)
+  {
+    Rotation glob = getAnimation(0)->getGlobalRotation(motion);
+
     for(int i=0; i<motion->numChannels; i++)
     {
-      Rotation ikRot;
-      if(motion->ikOn) ikRot=motion->ikRot;
-
-      // need to do rotations in the right order
       switch(motion->channelType[i])
       {
         case BVH_XROT:
-          glRotatef(rot.x+ikRot.x, 1, 0, 0);
-          qDebug(":::::::::::::::::::%s MOVED rot.x+ikRot.x=%f", motion->name().toLatin1().constData(), rot.x+ikRot.x);
-        break;
+            glRotatef(-(glob.x), 1, 0, 0);
+          break;
         case BVH_YROT:
-          glRotatef(rot.y+ikRot.y, 0, 1, 0);
-          qDebug(":::::::::::::::::::%s MOVED rot.y+ikRot.y=%f", motion->name().toLatin1().constData(), rot.x+ikRot.y);
-        break;
+            glRotatef(-(glob.y), 0, 1, 0);
+          break;
         case BVH_ZROT:
-          glRotatef(rot.z+ikRot.z, 0, 0, 1);
-          qDebug(":::::::::::::::::::%s MOVED rot.z+ikRot.z=%f", motion->name().toLatin1().constData(), rot.x+ikRot.z);
-        break;
+            glRotatef(-(glob.z), 0, 0, 1);
+          break;
+        default: break;
+      }
+
+      switch(motion->channelType[i])
+      {
+        case BVH_XROT:
+            drawCircle(0, 9, xSelect ? 4 : 2);
+          break;
+        case BVH_YROT:
+            drawCircle(1, 9, ySelect ? 4 : 2);
+          break;
+        case BVH_ZROT:
+            drawCircle(2, 9, zSelect ? 4 : 2);
+          break;
         default: break;
       }
     }//for
-
-    if(!selecting && partSelected==selectName)
-    {
-      Rotation glob = getAnimation(0)->getGlobalRotation(motion);
-/*      switch(motion->channelType[i])
-      {
-        case BVH_XROT:      */
-//          glRotatef(-(glob.x), 1, 0, 0);
-/*        break;
-        case BVH_YROT:    */
-//          glRotatef(-(glob.y), 0, 1, 0);
-/*        break;
-        case BVH_ZROT:    */
-//          glRotatef(-(glob.z), 0, 0, 1);
-/*        break;prnt
-        default: break;
-      }       */
-
-/*      switch(motion->channelType[i])
-      {
-        case BVH_XROT:    */
-//          drawCircle(0, 9, xSelect ? 4 : 2);
-/*        break;
-        case BVH_YROT:    */
-//          drawCircle(1, 9, ySelect ? 4 : 2);
-/*        break;
-        case BVH_ZROT:    */
-//          drawCircle(2, 9, zSelect ? 4 : 2);
-/*        break;
-        default: break;
-      }   */
-/*    }
-    else
-      for(int i=0;i<motion->numChildren();i++)
-        drawRotationHelpers(frame, motion->child(i), joints->child(i));
-
-    glPopMatrix();
   }
-}
+  else
+  {
+    for(int i=0; i<motion->numChildren(); i++)
+      drawRotationHelpers(frame, motion->child(i), joints->child(i));
+  }
 
+  glPopMatrix();
+}
 */
+
 
 
 
@@ -1461,7 +1472,8 @@ void AnimationView::selectPart(BVHNode* node)
                    Rotation(getAnimation()->getRotation(node)),
                    Rotation(getAnimation()->getGlobalRotation(node)),
                    getAnimation()->getRotationLimits(node),
-                   Position(getAnimation()->getPosition())
+                   Position(getAnimation()->getPosition()),
+                   Position(getAnimation()->getGlobalPosition(node))
                   );
   repaint();
 }

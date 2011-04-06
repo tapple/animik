@@ -73,7 +73,7 @@ protected slots:
     void readSettings();
     void onAnimationStateChanged(bool unsaved);
 
-    void partClicked(BVHNode* node, Rotation rot, Rotation globRot, RotationLimits rotLimits, Position pos);
+    void partClicked(BVHNode* node, Rotation rot, Rotation globRot, RotationLimits rotLimits, Position pos, Position partPos);
     void partDragged(BVHNode* node,double changeX,double changeY,double changeZ);
     void propClicked(Prop* prop);
     void propDragged(Prop* prop,double x,double y,double z);
@@ -264,6 +264,9 @@ protected:
     float getY();
     float getZ();
 
+    void setGlobXPos(float x);
+    void setGlobYPos(float y);
+    void setGlobZPos(float z);
     void setXPos(float x);
     void setYPos(float y);
     void setZPos(float z);

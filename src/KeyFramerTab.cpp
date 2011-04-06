@@ -53,18 +53,18 @@ KeyFramerTab::KeyFramerTab(qavimator* mainWindow, const QString& fileName, bool 
   // playback stopped by default
   setPlaystate(PLAYSTATE_STOPPED);
 
-  readSettings();                                 //TOTO: need to take values from Settings (read in qavimator.cpp)
+  readSettings();                                 //TODO: need to take values from Settings (read in qavimator.cpp)
 
   connect(animationView,SIGNAL(partClicked(BVHNode*,
                                            Rotation,
                                            Rotation,        //edu: global rotation
                                            RotationLimits,
-                                           Position)),
+                                           Position, Position)),
                      this,SLOT(partClicked(BVHNode*,
                                            Rotation,
                                            Rotation,
                                            RotationLimits,
-                                           Position)));
+                                           Position, Position)));
 
   connect(animationView,SIGNAL(partDragged(BVHNode*,double,double,double)),
                      this,SLOT(partDragged(BVHNode*,double,double,double)));
@@ -298,7 +298,7 @@ void KeyFramerTab::onAnimationStateChanged(bool unsaved)
 }
 
 // slot gets called by AnimationView::mousePressEvent()
-void KeyFramerTab::partClicked(BVHNode* node, Rotation rot, Rotation globRot, RotationLimits limits, Position pos)
+void KeyFramerTab::partClicked(BVHNode* node, Rotation rot, Rotation globRot, RotationLimits limits, Position pos, Position partPos)
 {
   avatarPropsTab->setCurrentIndex(0);
   emit enableProps(false);
@@ -361,6 +361,10 @@ void KeyFramerTab::partClicked(BVHNode* node, Rotation rot, Rotation globRot, Ro
       emit enableRotation(false);
     else
       emit enableRotation(!protect);
+
+    setGlobXPos(partPos.x);
+    setGlobYPos(partPos.y);
+    setGlobZPos(partPos.z);
 
     setXPos(pos.x);
     setYPos(pos.y);
@@ -1491,6 +1495,20 @@ float KeyFramerTab::getZ()
 {
   return zRotationSlider->value()/PRECISION;
 }
+
+void KeyFramerTab::setGlobXPos(float x)
+{
+  globXPosEdit->setText(QString::number(x));
+}
+void KeyFramerTab::setGlobYPos(float y)
+{
+  globYPosEdit->setText(QString::number(y));
+}
+void KeyFramerTab::setGlobZPos(float z)
+{
+  globZPosEdit->setText(QString::number(z));
+}
+
 
 void KeyFramerTab::setXPos(float x)
 {

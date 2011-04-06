@@ -559,11 +559,10 @@ Rotation Animation::getRotation(BVHNode* node)
 
 
 //edu
-/** Global limb rotation as sum of relative rotations of parent
-    limbs up to the root */
+/*! Global limb rotation as sum of relative rotations of parent limbs up to the root !*/
 Rotation Animation::getGlobalRotation(BVHNode* node)
 {
-  if(node)
+  if(node!=NULL)
   {
     Rotation relRot = node->frameData(frame).rotation();
     Rotation parentGlobRot = getGlobalRotation(node->Parent());
@@ -664,6 +663,15 @@ Position Animation::getPosition()
 {
   return positionNode->frameData(frame).position();
 }
+
+
+Position Animation::getGlobalPosition(BVHNode* node)
+{
+  if(node==NULL)
+    return Position();
+  return node->frameData(frame).position();
+}
+
 
 const QString Animation::getPartName(int index) const
 {

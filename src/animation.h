@@ -123,6 +123,10 @@ class Animation : public QObject
     RotationLimits getRotationLimits(BVHNode* node);
     void setPosition(double x,double y,double z);
     Position getPosition();
+
+    //edu: DEBUG so far
+    Position getGlobalPosition(BVHNode* node);
+
     int getRotationOrder(const QString& jointName);
     void addKeyFrameAllJoints();
     void addKeyFrame(BVHNode* joint);
