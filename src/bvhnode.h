@@ -113,7 +113,7 @@ class BVHNode
     //DEBUG
     void setKeyFrameRelWeight(int frame, double weight);
 
-//edu: never used?    void insertFrame(int frame); // moves all key frames starting at "frame" one frame further
+    void insertFrame(int frame); // moves all key frames starting at "frame" one frame further
     void deleteFrame(int frame); // removes frame at position and moves all further frames one down
     bool isKeyframe(int frame) const;
     int numKeyframes() const;
@@ -169,8 +169,6 @@ class BVHNode
 
     void setName(const QString& newName);
     double interpolate(double from,double to,int steps,int pos,bool easeOut,bool easeIn) const;
-
-
 
     // mirrors the keyframes inside of this node
     void mirrorKeys();

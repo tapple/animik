@@ -212,7 +212,8 @@ class AnimationView : public QGLWidget
     void drawProp(const Prop* prop) const;
     void drawDragHandles(const Prop* prop) const;
 
-    //edu    void drawRotationHelpers(int frame, BVHNode* motion, BVHNode* joints);
+    //edu
+    void drawRotationHelpers(int frame, BVHNode* motion, BVHNode* joints);
 
     BVH* bvh;
 

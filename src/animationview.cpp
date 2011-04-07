@@ -242,7 +242,8 @@ void AnimationView::drawProp(const Prop* prop) const
   Prop::State state=Prop::Normal;
   if(propSelected==prop->id)
     state=Prop::Selected;
-  else if(partHighlighted==prop->id) state=Prop::Highlighted;
+  else if(partHighlighted==prop->id)
+    state=Prop::Highlighted;
   prop->draw(state);
   if(propSelected==prop->id)
     drawDragHandles(prop);
@@ -939,8 +940,8 @@ void AnimationView::drawFigure(Animation* anim,unsigned int index)
 
 
     //edu
-//    glEnable(GL_DEPTH_TEST);
-//    drawRotationHelpers(anim->getFrame(), anim->getMotion(), joints[figType]);
+    glEnable(GL_DEPTH_TEST);
+    drawRotationHelpers(anim->getFrame(), anim->getMotion(), joints[figType]);
 
 
     drawPart(anim, /*index,*/ anim->getFrame(), anim->getMotion(), joints[figType], MODE_ROT_AXES);
@@ -1027,7 +1028,7 @@ void AnimationView::drawPart(Animation* anim, //unsigned int currentAnimationInd
         default: break;
       }
 
-      if(_useRotationHelpers && mode==MODE_ROT_AXES && !selecting && partSelected==selectName)
+/*      if(_useRotationHelpers && mode==MODE_ROT_AXES && !selecting && partSelected==selectName)
       {
         switch(motion->channelType[i])
         {
@@ -1036,7 +1037,7 @@ void AnimationView::drawPart(Animation* anim, //unsigned int currentAnimationInd
           case BVH_ZROT: drawCircle(2, 10, zSelect ? 4 : 1); break;
           default: break;
         }
-      }
+      }*/
     }
     if(mode==MODE_PARTS)
     {
@@ -1091,10 +1092,10 @@ void AnimationView::drawPart(Animation* anim, //unsigned int currentAnimationInd
 
 
 
-/*//edu
+//edu
 void AnimationView::drawRotationHelpers(int frame, BVHNode* motion, BVHNode* joints)
 {
-  if(motion==NULL || joints==NULL)
+/*Nothing for now  if(motion==NULL || joints==NULL)
     throw new QString("Argument exception: NULL skeleton");
 
   GLint renderMode;
@@ -1146,26 +1147,18 @@ void AnimationView::drawRotationHelpers(int frame, BVHNode* motion, BVHNode* joi
       {
         case BVH_XROT:
             glRotatef(-(glob.x), 1, 0, 0);
+            drawCircle(0, 9, xSelect ? 4 : 2);
+            glRotatef(glob.x, 1, 0, 0);
           break;
         case BVH_YROT:
             glRotatef(-(glob.y), 0, 1, 0);
+            drawCircle(1, 9, ySelect ? 4 : 2);
+            glRotatef(glob.y, 0, 1, 0);
           break;
         case BVH_ZROT:
             glRotatef(-(glob.z), 0, 0, 1);
-          break;
-        default: break;
-      }
-
-      switch(motion->channelType[i])
-      {
-        case BVH_XROT:
-            drawCircle(0, 9, xSelect ? 4 : 2);
-          break;
-        case BVH_YROT:
-            drawCircle(1, 9, ySelect ? 4 : 2);
-          break;
-        case BVH_ZROT:
             drawCircle(2, 9, zSelect ? 4 : 2);
+            glRotatef(glob.z, 0, 0, 1);
           break;
         default: break;
       }
@@ -1177,9 +1170,9 @@ void AnimationView::drawRotationHelpers(int frame, BVHNode* motion, BVHNode* joi
       drawRotationHelpers(frame, motion->child(i), joints->child(i));
   }
 
-  glPopMatrix();
+  glPopMatrix(); */
 }
-*/
+
 
 
 

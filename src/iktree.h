@@ -24,18 +24,20 @@
 
 // #include "bvh.h"
 #include "bvhnode.h"
-
 #include "MT_Quaternion.h"
 
 #define MAX_BONES 50
 #define MAX_CHILDREN 4
 #define MAX_EFFECTORS 5
 
+
+
 struct IKEffectorList
 {
   int num;
   int index[MAX_EFFECTORS];
 };
+
 
 struct IKBone
 {
@@ -48,6 +50,7 @@ struct IKBone
   int numChildren;
   int child[MAX_CHILDREN];
 };
+
 
 class IKTree
 {

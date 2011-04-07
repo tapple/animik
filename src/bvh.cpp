@@ -845,7 +845,7 @@ void BVH::bvhGetChannelLimits(BVHNode* node,BVHChannelType type,double* min, dou
   }
 }
 
-void BVH::bvhResetIK(BVHNode* root)
+void BVH::bvhResetIK(BVHNode* root)           //edu: this rather seems as matter of BVHNode
 {
   int i;
   if(root)

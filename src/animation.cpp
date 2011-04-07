@@ -335,7 +335,6 @@ void Animation::applyIK(const QString& name)
     rot.y+=node->ikRot.y;
     rot.z+=node->ikRot.z;
 
-
     node->ikRot.x=0;
     node->ikRot.y=0;
     node->ikRot.z=0;
@@ -997,7 +996,7 @@ BVHNode* Animation::getNodeByName(QString name) const
   return bvh->bvhFindNode(frames, name);
 }
 
-/*edu: never used?
+
 void Animation::insertFrameHelper(BVHNode* joint,int frame)
 {
   joint->insertFrame(frame);
@@ -1023,7 +1022,6 @@ void Animation::insertFrame(int track,int pos)
   setDirty(true);
   emit frameChanged();
 }
-      */
 
 // recursively remove frames from joint and all its children
 void Animation::deleteFrameHelper(BVHNode* joint,int frame)

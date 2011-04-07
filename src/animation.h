@@ -158,7 +158,7 @@ class Animation : public QObject
 
   public slots:
     void deleteKeyFrame(int jointNumber,int frame);
-//edu: never used?    void insertFrame(int jointNumber,int frame);
+    void insertFrame(int jointNumber,int frame);
     void deleteFrame(int jointNumber,int frame);
 
     // advances curentPlayTime and sends appropriate currentFrame signals
@@ -168,7 +168,7 @@ class Animation : public QObject
     void numberOfFrames(int num);
     void currentFrame(int frame);
     void frameChanged();
-    void redrawTrack(int track);        //edu: what an ugly name
+    void redrawTrack(int track);
     void animationDirty(bool state);
 
   protected:
@@ -204,7 +204,7 @@ class Animation : public QObject
     void recursiveAddKeyFrame(BVHNode* joint);
     bool isKeyFrameHelper(BVHNode* joint);
     void recursiveDeleteKeyFrame(BVHNode* joint);
-//edu: never used?    void insertFrameHelper(BVHNode* joint,int frame);
+    void insertFrameHelper(BVHNode* joint,int frame);
     void deleteFrameHelper(BVHNode* joint,int frame);
     void optimizeHelper(BVHNode* joint);
     void mirrorHelper(BVHNode* joint);

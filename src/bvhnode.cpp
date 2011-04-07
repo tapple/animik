@@ -170,7 +170,6 @@ void BVHNode::deleteKeyframe(int frame)
   keyframes.remove(frame);
 }
 
-/*edu: never used?
 void BVHNode::insertFrame(int frame)
 {
   QMap<int,FrameData>::iterator itCurrent;
@@ -208,8 +207,6 @@ void BVHNode::insertFrame(int frame)
     keyframes.remove(frame);
   } while(itLook!=itCurrent);
 }
-        */
-
 
 // delete a frame and move all keys back one frame
 void BVHNode::deleteFrame(int frame)

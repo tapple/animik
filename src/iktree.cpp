@@ -71,7 +71,8 @@ void IKTree::reset(int frame)
   MT_Quaternion q;
   BVHNode *n;
 
-  for (int i=0; i<numBones; i++) {
+  for (int i=0; i<numBones; i++)
+  {
     bone[i].pos = origin;
     bone[i].lRot = identity;
     bone[i].gRot = identity;
@@ -79,21 +80,22 @@ void IKTree::reset(int frame)
     Rotation rot=n->frameData(frame).rotation();
     Position pos=n->frameData(frame).position();
 
-    for (int k=0; k<n->numChannels; k++) {  // rotate each axis in order
+    for (int k=0; k<n->numChannels; k++)    // rotate each axis in order
+    {
       q = identity;
       switch (n->channelType[k]) {
-      case BVH_XROT:
-        q.setRotation(xAxis, rot.x * M_PI / 180);
-      break;
-      case BVH_YROT:
-        q.setRotation(yAxis, rot.y * M_PI / 180);
-      break;
-      case BVH_ZROT:
-        q.setRotation(zAxis, rot.z * M_PI / 180);
-      break;
-      case BVH_XPOS: bone[i].pos[0] = pos.x; break;
-      case BVH_YPOS: bone[i].pos[1] = pos.y; break;
-      case BVH_ZPOS: bone[i].pos[2] = pos.z; break;
+        case BVH_XROT:
+          q.setRotation(xAxis, rot.x * M_PI / 180);
+        break;
+        case BVH_YROT:
+          q.setRotation(yAxis, rot.y * M_PI / 180);
+        break;
+        case BVH_ZROT:
+          q.setRotation(zAxis, rot.z * M_PI / 180);
+        break;
+        case BVH_XPOS: bone[i].pos[0] = pos.x; break;
+        case BVH_YPOS: bone[i].pos[1] = pos.y; break;
+        case BVH_ZPOS: bone[i].pos[2] = pos.z; break;
       }
       bone[i].lRot = q * bone[i].lRot;
     }
@@ -118,23 +120,20 @@ void IKTree::reset(int frame)
 
 void IKTree::addJoint(BVHNode *node)
 {
-
   bone[numBones].node = node;
-  bone[numBones].offset.setValue((float)node->offset[0],
-				 (float)node->offset[1],
-				 (float)node->offset[2]);
+  bone[numBones].offset.setValue((float)node->offset[0], (float)node->offset[1], (float)node->offset[2]);
   bone[numBones].weight = node->ikWeight;
   bone[numBones].numChildren = 0;
 
   int myNumBones = numBones++;
-  for (int i=0; i<node->numChildren(); i++) {
+  for (int i=0; i<node->numChildren(); i++)
+  {
     bone[myNumBones].child[bone[myNumBones].numChildren++] = numBones;
     addJoint(node->child(i));
   }
 }
 
-void IKTree::toEuler(MT_Quaternion &q, BVHOrderType order,
-		      double &x, double &y, double &z)
+void IKTree::toEuler(MT_Quaternion &q, BVHOrderType order, double &x, double &y, double &z)
 {
   double q0=q[0],q1=q[1],q2=q[2],q3=q[3];
 
@@ -174,11 +173,15 @@ void IKTree::toEuler(MT_Quaternion &q, BVHOrderType order,
 
 void IKTree::updateBones(int i)
 {
-  for (int j=0; j<bone[i].numChildren; j++) {
-    int k = bone[i].child[j];
-    bone[k].gRot = bone[i].gRot * bone[i].lRot;
-    MT_Transform rot(MT_Point3(0,0,0), bone[k].gRot);
-    bone[k].pos = bone[i].pos + rot * bone[k].offset;
+  IKBone theBone = bone[i];
+
+  for (int chld=0; chld<theBone.numChildren; chld++)
+  {
+    int k = theBone.child[chld];
+    IKBone theChild = bone[k];
+    theChild.gRot = theBone.gRot * theBone.lRot;
+    MT_Transform rot(MT_Point3(0,0,0), theChild.gRot);
+    theChild.pos = theBone.pos + rot * theChild.offset;
     updateBones(k);
   }
 }
@@ -195,14 +198,15 @@ void IKTree::solveJoint(int frame, int i, IKEffectorList &effList)
   BVHNode *n;
   int numPosRot = 0, numDirRot = 0;
 
-  if (bone[i].numChildren == 0) {     // reached end site
-    if (bone[i].node->ikOn) {
+  if (bone[i].numChildren == 0)       // reached end site
+  {
+    if (bone[i].node->ikOn)
       effList.index[effList.num++] = i;
-    }
     return;
   }
 
-  for (int j=0; j<bone[i].numChildren; j++) {
+  for (int j=0; j<bone[i].numChildren; j++)
+  {
     IKEffectorList el;
     el.num = 0;
     solveJoint(frame, bone[i].child[j], el);
@@ -213,28 +217,25 @@ void IKTree::solveJoint(int frame, int i, IKEffectorList &effList)
 
   updateBones(i);
 
-  for (int j=0; j<effList.num; j++) {
+  for (int j=0; j<effList.num; j++)
+  {
     int effIndex = effList.index[j];
     n = bone[effIndex].node;
-    MT_Vector3 effGoalPos(n->ikGoalPos[0],
-			  n->ikGoalPos[1],
-			  n->ikGoalPos[2]);
-    const MT_Vector3 pC =
-      (bone[effIndex].pos - bone[i].pos).safe_normalized();
-    const MT_Vector3 pD =
-      (effGoalPos - bone[i].pos).safe_normalized();
+    MT_Vector3 effGoalPos(n->ikGoalPos[0], n->ikGoalPos[1], n->ikGoalPos[2]);
+    const MT_Vector3 pC = (bone[effIndex].pos - bone[i].pos).safe_normalized();
+    const MT_Vector3 pD = (effGoalPos - bone[i].pos).safe_normalized();
     MT_Vector3 rotAxis = pC.cross(pD);
-    if (rotAxis.length2() > MT_EPSILON) {
+    if (rotAxis.length2() > MT_EPSILON)
+    {
       totalPosRot += MT_Quaternion(rotAxis, bone[i].weight * acos(pC.dot(pD)));
       numPosRot++;
     }
 
-    const MT_Vector3 uC =
-      (bone[effIndex].pos - bone[effIndex-1].pos).safe_normalized();
-    const MT_Vector3 uD =
-      (MT_Vector3(n->ikGoalDir[0], n->ikGoalDir[1], n->ikGoalDir[2])).safe_normalized();
+    const MT_Vector3 uC = (bone[effIndex].pos - bone[effIndex-1].pos).safe_normalized();
+    const MT_Vector3 uD = (MT_Vector3(n->ikGoalDir[0], n->ikGoalDir[1], n->ikGoalDir[2])).safe_normalized();
     rotAxis = uC.cross(uD);
-    if (rotAxis.length2() > MT_EPSILON) {
+    if (rotAxis.length2() > MT_EPSILON)
+    {
       double weight = 0.0;
       if (i == effIndex-1) weight = 0.5;
       totalDirRot += MT_Quaternion(rotAxis, weight * acos(uC.dot(uD)));
@@ -242,7 +243,8 @@ void IKTree::solveJoint(int frame, int i, IKEffectorList &effList)
     }
   }
 
-  if ((numPosRot + numDirRot) > MT_EPSILON) {
+  if ((numPosRot + numDirRot) > MT_EPSILON)
+  {
     n = bone[i].node;
     n->ikOn = true;
     // average the quaternions from all effectors
@@ -257,9 +259,11 @@ void IKTree::solveJoint(int frame, int i, IKEffectorList &effList)
     MT_Quaternion targetRot = 0.9 * totalPosRot + 0.1 * totalDirRot;
     targetRot = targetRot * bone[i].lRot;
     toEuler(targetRot, n->channelOrder, x, y, z);
-    if (jointLimits) {
+    if (jointLimits)
+    {
       bone[i].lRot = identity;
-      for (int k=0; k<n->numChannels; k++) {  // clamp each axis in order
+      for (int k=0; k<n->numChannels; k++)    // clamp each axis in order
+      {
         switch (n->channelType[k]) {
           case BVH_XROT: ang = x; axis = xAxis; break;
           case BVH_YROT: ang = y; axis = yAxis; break;
@@ -293,13 +297,16 @@ void IKTree::solve(int frame)
     solveJoint(frame, 0, effList);
   }
 
-  for (int i=0; i<numBones-1; i++) {
+  for (int i=0; i<numBones-1; i++)
+  {
     BVHNode *n = bone[i].node;
-    Rotation rot=n->frameData(frame).rotation();
+    Rotation rot = n->frameData(frame).rotation();
     toEuler(bone[i].lRot, n->channelOrder, x, y, z);
 
-    for (int j=0; j<n->numChannels; j++) {  // rotate each axis in order
-      switch (n->channelType[j]) {
+    for (int j=0; j<n->numChannels; j++)    // rotate each axis in order
+    {
+      switch (n->channelType[j])
+      {
         case BVH_XROT: n->ikRot.x = x - rot.x; break;
         case BVH_YROT: n->ikRot.y = y - rot.y; break;
         case BVH_ZROT: n->ikRot.z = z - rot.z; break;
@@ -317,6 +324,7 @@ void IKTree::solve(int frame)
       }
     } */
   }
+
   display = 1;
   updateBones(0);
   display = 0;
