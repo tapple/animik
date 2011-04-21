@@ -1,5 +1,24 @@
 # Sources
-SET (QAVI_SRC	animation.cpp
+SET (QAVI_SRC AbstractDocumentTab.cpp
+      AnimationList.cpp
+      Announcer.cpp
+      Avbl.cpp
+      Blender.cpp
+      BlenderTab.cpp
+      BlenderTimeline.cpp
+      KeyFramerTab.cpp
+      LimbsWeightDialog.cpp
+      LimbsWeightForm.cpp
+      MixZonesDialog.cpp
+      NewFileDialog.cpp
+      NoArrowsScrollArea.cpp
+      OptionalMessageBox.cpp
+      Player.cpp
+      SaveChangesDialog.cpp
+      TimelineTrail.cpp
+      TrailItem.cpp
+      WeightedAnimation.cpp	
+      animation.cpp
 			animationview.cpp
 			bvh.cpp
 			bvhnode.cpp
@@ -19,7 +38,25 @@ SET (QAVI_SRC	animation.cpp
 			timelineview.cpp)
 
 # Headers
-SET (QAVI_MOC_HDR 	animation.h
+SET (QAVI_MOC_HDR 	AbstractDocumentTab.h
+      AnimationList.h
+      Announcer.h
+      Avbl.h
+      Blender.h
+      BlenderTab.h
+      BlenderTimeline.h
+      KeyFramerTab.h
+      LimbsWeightDialog.h
+      LimbsWeightForm.h
+      MixZonesDialog.h
+      NewFileDialog.h
+      NoArrowsScrollArea.h
+      OptionalMessageBox.h
+      Player.h
+      SaveChangesDialog.h
+      TimelineTrail.h
+      WeightedAnimation.h
+      animation.h
 			animationview.h
 			bvh.h
 			bvhnode.h
@@ -38,7 +75,16 @@ SET (QAVI_MOC_HDR 	animation.h
 			timelineview.h)
 			
 # Interfaces
-SET (QAVI_UI 	mainapplicationform.ui
+SET (QAVI_UI 	AnimationList.ui
+      BlenderTab.ui
+      KeyFramerTab.ui
+      LimbsWeightDialog.ui
+      LimbsWeightForm.ui
+      MixZonesDialog.ui
+      OptionalMessageBox.ui
+      Player.ui
+      SaveChangesDialog.ui
+      mainapplicationform.ui
 			settingsdialogform.ui)
 			
 # Resources
