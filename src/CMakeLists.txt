@@ -81,6 +81,7 @@ SET (QAVI_UI 	AnimationList.ui
       LimbsWeightDialog.ui
       LimbsWeightForm.ui
       MixZonesDialog.ui
+      NewFileDialog.ui
       OptionalMessageBox.ui
       Player.ui
       SaveChangesDialog.ui
@@ -103,7 +104,7 @@ ADD_DEFINITIONS (-DQAVIMATOR_DATAPATH="${INSTALL_DATA_PATH}")
 
 # Compile and link
 ADD_EXECUTABLE (qavimator ${QAVI_SRC} ${QAVI_MOC_SRC} ${QAVI_RSC_SRC} ${QAVI_UI_HDR})
-TARGET_LINK_LIBRARIES (qavimator ${QT_QTCORE_LIBRARY} ${QT_QTOPENGL_LIBRARY} ${QT_QTGUI_LIBRARY} ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES} quat)
+TARGET_LINK_LIBRARIES (qavimator ${QT_QTCORE_LIBRARY} ${QT_QTOPENGL_LIBRARY} ${QT_QTXML_LIBRARY} ${QT_QTGUI_LIBRARY} ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES} quat)
 
 # Install qavimator
 INSTALL (TARGETS qavimator DESTINATION ${INSTALL_BIN})

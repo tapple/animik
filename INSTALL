@@ -33,3 +33,7 @@ Windows MinGW:
 	mingw32-make install
 	
 	- copy [glut package]/glut32.dll into _install directory
+
+################################################	
+	ANIMIK: this is what worked for me on Win32:
+	        cmake DCMAKE_INSTALL_PREFIX=..\_install -G "MinGW Makefiles" -DGLUT_LIBRARIES=[glut package]\GL\glut32.lib -DGLUT_INCLUDE_DIR=[glut package] ..

@@ -2,7 +2,8 @@
 #define ABSTRACTDOCUMENTTAB_H
 
 #include <QWidget>
-#include "NewFileDialog.h"        //TODO
+#include <QVariant>
+//#include "NewFileDialog.h"        //TODO
 
 class qavimator;
 
