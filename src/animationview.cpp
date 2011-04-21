@@ -1028,7 +1028,7 @@ void AnimationView::drawPart(Animation* anim, //unsigned int currentAnimationInd
         default: break;
       }
 
-/*      if(_useRotationHelpers && mode==MODE_ROT_AXES && !selecting && partSelected==selectName)
+      if(_useRotationHelpers && mode==MODE_ROT_AXES && !selecting && partSelected==selectName)
       {
         switch(motion->channelType[i])
         {
@@ -1037,7 +1037,7 @@ void AnimationView::drawPart(Animation* anim, //unsigned int currentAnimationInd
           case BVH_ZROT: drawCircle(2, 10, zSelect ? 4 : 1); break;
           default: break;
         }
-      }*/
+      }
     }
     if(mode==MODE_PARTS)
     {
