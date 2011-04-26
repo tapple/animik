@@ -117,6 +117,7 @@ class Animation : public QObject
     Rotation getRotation(BVHNode* node);
 
     //edu
+    double getRelWeight(BVHNode* node);
     Rotation getGlobalRotation(BVHNode* node);
 
     void useRotationLimits(bool flag);

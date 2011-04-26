@@ -558,6 +558,17 @@ Rotation Animation::getRotation(BVHNode* node)
 
 
 //edu
+double Animation::getRelWeight(BVHNode* node)
+{
+  if(node != NULL)
+  {
+    FrameData _debug = node->frameData(frame);
+    return _debug.relativeWeight();
+  }
+  return -1.0;
+}
+
+//edu
 /*! Global limb rotation as sum of relative rotations of parent limbs up to the root !*/
 Rotation Animation::getGlobalRotation(BVHNode* node)
 {

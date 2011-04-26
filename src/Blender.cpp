@@ -96,9 +96,6 @@ void Blender::EvaluateRelativeLimbWeights(QList<TimelineTrail*>* trails, int tra
           //desperate DEBUG
           BVHNode* limb = item->getAnimation()->getNodeByName(bName);
 
-
-//          FrameData data = limb->frameData(frameIndex);
-//          usedData->append(&data);
           QVector<int> tempData;
           tempData << frameIndex << frameWeight;
           usedData->insert(limb, tempData);
@@ -110,6 +107,8 @@ void Blender::EvaluateRelativeLimbWeights(QList<TimelineTrail*>* trails, int tra
 
       if(emptyPosition)                         //There were no valid item at this position
         break;                                  //so jump to the next one
+
+
 
       QMapIterator<BVHNode*, QVector<int> > iter(*usedData);
       while(iter.hasNext())
@@ -124,9 +123,9 @@ void Blender::EvaluateRelativeLimbWeights(QList<TimelineTrail*>* trails, int tra
           bone->setKeyFrameRelWeight(frame, 1.0 / (double)weightsUsed);
         else
         {
-//          usedData->at(x)->setRelativeWeight((double)(usedData->at(x)->weight()) / (double)sumWeight);
           int limbW = bone->frameData(frame).weight();
-          bone->setKeyFrameRelWeight(frame, frameW*limbW / (double)sumWeight);
+          double relWei = (double)(frameW*limbW) / (double)sumWeight;
+          bone->setKeyFrameRelWeight(frame, relWei);
         }
       }
 

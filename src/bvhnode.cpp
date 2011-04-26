@@ -145,24 +145,20 @@ void BVHNode::setKeyframeWeight(int frame, int weight)
 }
 
 
-//Highly DEBUG
 void BVHNode::setKeyFrameRelWeight(int frame, double weight)
 {
   if(weight<0.0 || weight>1.0)
     throw new QString("Argument exception: relative limb weight out of range: " +QString::number(weight));
-  if(isKeyframe(frame))
+
+  if(!isKeyframe(frame))              //Add new keyframe with interpolated position/rotation
   {
-    FrameData& key = keyframes[frame];
-    key.setRelativeWeight(weight);
+    FrameData redeem = frameData(frame);      //edu: THIS IS FIX. WITHOUT redeem TERRIBLE THINGS HAPPEN!
+    keyframes[frame] = redeem;
   }
-  else
-  {       //add new keyframe with interpolated position/rotation and given weight
-    keyframes[frame] = frameData(frame);
-    keyframes[frame].setRelativeWeight(weight);
-  }
+
+  FrameData& key = keyframes[frame];  //and update its relative weight
+  key.setRelativeWeight(weight);
 }
-
-
 
 
 void BVHNode::deleteKeyframe(int frame)
