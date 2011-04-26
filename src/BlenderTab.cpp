@@ -549,8 +549,12 @@ void BlenderTab::highlightLimbsByWeight()
     QList<QString> nodeNames = selItem->getAnimation()->bones()->keys();
     foreach(/*BVHNode* node, nodes*/QString name, nodeNames)
     {
-      BVHNode* node = selItem->getAnimation()->getNodeByName(name);
-      double relW = node->frameData(frame).relativeWeight();
+      WeightedAnimation* debug = selItem->getAnimation();
+      BVHNode* node = debug->getNodeByName(name);
+
+      FrameData xxxData = node->frameData(frame);
+
+      double relW = xxxData.relativeWeight();
       QString debugName = node->name();
       limbRelWeights->insert(debugName, relW);
     }
