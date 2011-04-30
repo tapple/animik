@@ -3,7 +3,6 @@
 #include "bvh.h"
 #include "TimelineTrail.h"
 #include "TrailItem.cpp"
-#include "WeightedAnimation.h"
 #include <QTextStream>
 #include <QtXml/QDomCDATASection>
 #include <QtXml/QDomDocument>
@@ -14,7 +13,7 @@
 Avbl::Avbl() { }
 
 
-bool Avbl::SaveToFile(QList<TimelineTrail*> trails, QString fileName)
+bool Avbl::SaveToFile(QList<TimelineTrail*> trails, WeightedAnimation::FigureType figure, QString fileName)
 {
   hasErrors = false;
   errorMessage = "";
@@ -24,7 +23,17 @@ bool Avbl::SaveToFile(QList<TimelineTrail*> trails, QString fileName)
     document.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"utf-8\"");
   document.appendChild(pi);
   QDomElement rootElm = document.createElement("avbl");
+  QString fig = "defaultFemale";
+  switch(figure)
+  {
+    case WeightedAnimation::FIGURE_FEMALE : fig = "defaultFemale";
+      break;
+    case WeightedAnimation::FIGURE_MALE : fig = "defaultMale";
+      break;
+  }
+  rootElm.setAttribute("figure", fig);
   document.appendChild(rootElm);
+
   QDomElement trailsElm = document.createElement("trailsDescription");
   trailsElm.setAttribute("count", trails.size());
   rootElm.appendChild(trailsElm);
@@ -101,7 +110,7 @@ bool Avbl::SaveToFile(QList<TimelineTrail*> trails, QString fileName)
 }
 
 
-QList<TrailItem*>* Avbl::LoadFromFile(QString fileName)
+QList<TrailItem*>* Avbl::LoadFromFile(QString fileName, WeightedAnimation::FigureType* figureType)
 {
   hasErrors = false;
   errorMessage = "";
@@ -126,6 +135,11 @@ QList<TrailItem*>* Avbl::LoadFromFile(QString fileName)
   file.close();
 
   QDomElement avbl = document.documentElement();
+  QString figure = avbl.attribute("figure", "defaultFemale");
+  if(figure == "defaultFemale")
+    *figureType = WeightedAnimation::FIGURE_FEMALE;
+  else if(figure == "defaultMale")
+    *figureType = WeightedAnimation::FIGURE_MALE;
 
   QDomElement trailsDesc = avbl.elementsByTagName("trailsDescription").at(0).toElement();
   int trailsCount = trailsDesc.attribute("count", "3").toInt();

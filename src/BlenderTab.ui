@@ -74,6 +74,16 @@
              <height>0</height>
             </size>
            </property>
+           <item>
+            <property name="text">
+             <string>male</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>female</string>
+            </property>
+           </item>
           </widget>
          </item>
          <item row="0" column="0">

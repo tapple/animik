@@ -47,6 +47,8 @@ class LimbsWeightDialog : public QDialog
     void initComponents();
 
   private slots:
+    void on_copyToPrevPushButton_clicked();
+    void on_copyToNextPushButton_clicked();
     void on_prevFrameButton_clicked();
     void on_nextFrameButton_clicked();
     void on_weightSlider_valueChanged(int value);

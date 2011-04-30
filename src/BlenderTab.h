@@ -71,6 +71,7 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
     void editPaste();
 
   private:
+    WeightedAnimation::FigureType figure;
     QAction* setLimbWeightsAction;
     QAction* positionWeightAction;
     void bindMenuActions();
@@ -85,6 +86,7 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
     /////////////////////////////////////
 
   private slots:
+    void on_figureComboBox_currentIndexChanged(int index);
     void on_animsList_AnimationFileTaken(QString filename, int orderInBatch, int batchSize);
     void on_zoomOutButton_clicked();
     void on_zoomInButton_clicked();

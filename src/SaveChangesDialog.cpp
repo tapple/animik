@@ -23,11 +23,22 @@ SaveChangesDialog::SaveChangesDialog(QWidget *parent, QList<AbstractDocumentTab*
   ui->listView->setModel(new QStringListModel(list));
 
   connect(ui->listView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onSelectionChanged()));
+  selectFirst();
 }
 
 SaveChangesDialog::~SaveChangesDialog()
 {
   delete ui;
+}
+
+
+void SaveChangesDialog::selectFirst()
+{
+  QModelIndex index = ui->listView->selectionModel()->model()->index(0, 0);
+  if ( index.isValid() )
+      ui->listView->selectionModel()->select(index, QItemSelectionModel::Select );
+
+  ui->listView->setFocus();
 }
 
 
@@ -43,14 +54,15 @@ void SaveChangesDialog::on_saveButton_clicked()
   for(int i = 0; i< sel.count(); i++)
   {
     QString path = sel.at(i).data(Qt::DisplayRole).toString();
-    map[path]->Save();      //TODO: what if it's new file not saved yet?
-                            //      The full path probably needs to be specified at creation.
-                            //      Remake the NewFileDialog to contain LineEdit & OpenFileDialog button
+    map[path]->Save();
+
     ui->listView->model()->removeRows(sel.at(i).row(), 1);
   }
 
   if(ui->listView->model()->rowCount() < 1)
     accept();
+  else
+    selectFirst();
 }
 
 void SaveChangesDialog::on_dontSaveButton_clicked()

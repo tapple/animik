@@ -27,6 +27,8 @@ private:
   //Key = full path of an animation file. Value = respective tab
   QMap<QString, AbstractDocumentTab*> map;
 
+  void selectFirst();
+
 private slots:
   void onSelectionChanged();
   void on_dontSaveButton_clicked();

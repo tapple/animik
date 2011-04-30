@@ -96,7 +96,7 @@ void BlenderTab::Save()
 {
   Avbl* saver = new Avbl();
   Announcer::StartAction(mainWindow, "Saving file...");
-  bool saved = saver->SaveToFile(blenderTimeline->Trails(), CurrentFile);
+  bool saved = saver->SaveToFile(blenderTimeline->Trails(), figure, CurrentFile);
   Announcer::EndAction();
   isDirty = !saved;
   setCurrentFile(CurrentFile);      //asterisk out
@@ -226,7 +226,7 @@ void BlenderTab::fileAdd(const QString& name)
     bool oldDebug = Settings::Instance()->Debug();        //temporarily turn off DEBUG mode to save
     Settings::Instance()->setDebug(false);                //the hassle connected with building a time-line
     Announcer::StartAction(mainWindow, "Loading file...");
-    QList<TrailItem*>* trails = loader.LoadFromFile(file);
+    QList<TrailItem*>* trails = loader.LoadFromFile(file, &figure);
     if(trails == NULL)
       return;
     blenderTimeline->ConstructTimeLine(trails);
@@ -272,7 +272,7 @@ void BlenderTab::fileSaveAs()         //Ugly code repetition. TODO: think of it 
 
       Avbl* saver = new Avbl();
       Announcer::StartAction(mainWindow, "Saving file...");
-      bool saved = saver->SaveToFile(blenderTimeline->Trails(), file);
+      bool saved = saver->SaveToFile(blenderTimeline->Trails(), figure, file);
       Announcer::EndAction();
       isDirty = !saved;
       setCurrentFile(file);
@@ -458,6 +458,19 @@ void BlenderTab::on_zoomOutButton_clicked()
   sorry();
 }
 
+void BlenderTab::on_figureComboBox_currentIndexChanged(int index)
+{
+  figure = (WeightedAnimation::FigureType)index;
+  Animation* anim = blenderAnimationView->getAnimation();
+  if(anim != NULL)
+  {
+    anim->setFigureType(figure);
+    blenderAnimationView->repaint();
+    isDirty = true;
+    setCurrentFile(CurrentFile);    //update asterisk
+  }
+}
+
 // ---------------------------------------------- //
 
 // --------------- other slots ------------------ //
@@ -465,6 +478,8 @@ void BlenderTab::onTimelineAnimationChanged(WeightedAnimation* anim)
 {
   isDirty = true;
   setCurrentFile(CurrentFile);    //update asterisk
+  anim->setFigureType(figure);
+  figureComboBox->setCurrentIndex((int)figure);
   blenderAnimationView->setAnimation(anim);
   UpdateMenu();                   //ex. export action
 }

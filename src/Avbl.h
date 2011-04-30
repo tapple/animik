@@ -4,6 +4,7 @@
 #include <QHash>
 #include <QList>
 #include <QString>
+#include "WeightedAnimation.h"
 
 class QDomDocument;
 class QDomElement;
@@ -21,8 +22,8 @@ public:
   Avbl();
 
   /** Returns TRUE on success */
-  bool SaveToFile(QList<TimelineTrail*> trails, QString fileName);
-  QList<TrailItem*>* LoadFromFile(QString fileName);
+  bool SaveToFile(QList<TimelineTrail*> trails, WeightedAnimation::FigureType figure, QString fileName);
+  QList<TrailItem*>* LoadFromFile(QString fileName, WeightedAnimation::FigureType* figureType);
 
   bool HasErrors() const { return hasErrors; }
   QString ErrorMessage() const { return errorMessage; }

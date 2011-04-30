@@ -60,7 +60,9 @@ void LimbsWeightDialog::initComponents()
   ui->weightLabel->setText(QString::number(commonWeight));
   ui->frameNumberLabel->setText(QString::number(currentFrame+1) + "/" + QString::number(totalFrames));
   ui->prevFrameButton->setEnabled(currentFrame != 0);
+  ui->copyToPrevPushButton->setEnabled(currentFrame != 0);
   ui->nextFrameButton->setEnabled(currentFrame < totalFrames-1);
+  ui->copyToNextPushButton->setEnabled(currentFrame < totalFrames-1);
 }
 
 
@@ -96,5 +98,23 @@ void LimbsWeightDialog::on_prevFrameButton_clicked()
 {
   currentFrame--;
   emit previousFrame();
+  initComponents();
+}
+
+void LimbsWeightDialog::on_copyToNextPushButton_clicked()
+{
+  int value = _weights[currentFrame];
+  currentFrame++;
+  emit nextFrame();
+  _weights[currentFrame] = value;
+  initComponents();
+}
+
+void LimbsWeightDialog::on_copyToPrevPushButton_clicked()
+{
+  int value = _weights[currentFrame];
+  currentFrame--;
+  emit previousFrame();
+  _weights[currentFrame] = value;
   initComponents();
 }
