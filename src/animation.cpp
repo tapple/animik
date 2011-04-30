@@ -556,14 +556,6 @@ Rotation Animation::getRotation(BVHNode* node)
   return Rotation();
 }
 
-double Animation::getRelativeWeight(BVHNode* node)
-{
-  if(node)
-    return node->frameData(frame).relativeWeight();
-  return -1.0;
-}
-
-
 //edu
 double Animation::getRelWeight(BVHNode* node)
 {

@@ -292,9 +292,11 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
         }
       }
       //Gap between end of previous and begin of current. But mix-in of the previous is bigger than the gap
-      else if(items[i]->mixIn() > (currentItem->beginIndex() - items[i]->endIndex() - 1))
+//      else if(items[i]->mixIn() > (currentItem->beginIndex() - items[i]->endIndex() - 1))
+      //Gap
+      else if(currentItem->beginIndex() - items[i]->endIndex() > 1)
       {
-        int gap = currentItem->beginIndex() - items[i]->endIndex() - 1;
+        int gap = 0; //currentItem->beginIndex() - items[i]->endIndex() - 1;
         int framesNum = items[i]->mixIn() - gap;
 
         WeightedAnimation* mixInShadow = new WeightedAnimation(new BVH(), "");
@@ -412,9 +414,11 @@ QList<TrailItem*> Blender::createMixOutsImpliedShadowItems(QList<TrailItem*> ite
         }
       }
       //Gap smaller than mix-out
-      else if(currentItem->mixOut() > (currentItem->beginIndex() - items[i]->endIndex() - 1))
+//      else if(currentItem->mixOut() > (currentItem->beginIndex() - items[i]->endIndex() - 1))
+      //Gap
+      else if(currentItem->beginIndex() - items[i]->endIndex() > 1)
       {
-        int gap = currentItem->beginIndex()-items[i]->endIndex()-1;
+        int gap = 0; //currentItem->beginIndex()-items[i]->endIndex()-1;
         int framesNum = currentItem->mixOut() - gap;
 
         WeightedAnimation* mixOutShadow = new WeightedAnimation(new BVH(), "");
@@ -862,6 +866,8 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
           positionsUsed++;
           BVHNode* positNode = currentItem->getAnimation()->getNode(partIndex);
 
+          //TODO: one great IF for equal positions (distance = bearing = 0.0;)
+
           Position p1 = positNode->frameData(currentFrame-1).position();
           p1.Add(currentItem->getAnimation()->getOffset());
 
@@ -882,23 +888,25 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
           clearSumDistance += distance;
           sumDistance += distance*frameW*limbW;
 
-          double sinPhi = absolut(p2.z - p1.z) / distance;
+          double sinPhi = absolut(p2.x - p1.x) / distance;
+
           double angle = asin(sinPhi) * 180.0 / PI;
 
-          if(p2.x == p1.x && p2.z >= p1.z)                //no position change or move straight forward
+          if(p2.x == p1.x && p2.z >= p1.z)                //No position change or move straight forward
             bearing = 0.0;
-          else if(p2.x >= p1.x && p2.z > p1.z)            //latter position in quarter 1 comparing to previous
+          else if(p2.x >= p1.x && p2.z > p1.z)            //Latter position in quarter 4 comparing to previous
             bearing = angle;
-          else if(p2.x > p1.x && p2.z <= p1.z)            //quarter 2
-            bearing = angle + 90.0;
+          else if(p2.x > p1.x && p2.z <= p1.z)            //quarter 3
+            bearing = 180.0 - angle;
           else if(p2.x == p1.x && p2.z < p1.z)            //between quarters 2 and 3 (move backward)
             bearing = 180.0;
-          else if(p2.x < p1.x && p2.z <= p1.z)            //quarter 3
-//            bearing = 270.0-angle;
-            bearing = -90.0 - angle;
-          else if(p2.x < p1.x && p2.z > p1.z)             //quarter 4
-//            bearing = 360.0-angle;
-            bearing = -90.0 + angle;
+          else if(p2.x < p1.x && p2.z == p1.z)            //between Q1 and Q2 (move right)
+            bearing = -90.0;
+          else if(p2.x < p1.x && p2.z < p1.z)             //Q2
+            bearing = -180.0 + angle;
+          else if(p2.x < p1.x && p2.z > p1.z)             //Q1
+            bearing = -1 * angle;
+
           else { Announcer::Exception(NULL, "Invalid value exception: can't evaluate bearing"); return; }
 
 /*VERY, VERY NASTY BUG. THINK OF KOVAR.

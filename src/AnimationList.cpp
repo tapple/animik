@@ -1,5 +1,6 @@
-#include <QStringListModel>
 #include <QFileDialog>
+#include <QKeyEvent>
+#include <QStringListModel>
 
 #include "AnimationList.h"
 #include "ui_AnimationList.h"
@@ -60,6 +61,18 @@ void AnimationList::addNewFile()
   onSelectionChanged();
 }
 
+
+void AnimationList::keyPressEvent(QKeyEvent* event)
+{
+  if(event->key()==Qt::Key_Delete)
+  {
+    if(ui->availableAnimsListView->selectionModel()->selectedRows(0).count() > 0)
+      removeSelectedItems();
+  }
+  else
+    event->ignore();      //Send it to parent
+}
+
 //--------------------- UI slots ---------------------//
 
 void AnimationList::onSelectionChanged()
@@ -95,6 +108,13 @@ void AnimationList::on_addButton_clicked()
 }
 
 void AnimationList::on_removeButton_clicked()
+{
+  removeSelectedItems();
+}
+//---------------------------------------------------------//
+
+
+void AnimationList::removeSelectedItems()
 {
   QStringListModel* model =  dynamic_cast<QStringListModel*>(ui->availableAnimsListView->model());
   QItemSelectionModel* selModel = ui->availableAnimsListView->selectionModel();

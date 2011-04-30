@@ -335,8 +335,8 @@ void qavimator::configChanged()
 // Menu Action: Help / About ...
 void qavimator::helpAbout()
 {
-  QMessageBox::about(this,QObject::tr("About QAvimator"),
-                     QObject::tr("QAvimator - Animation editor for Second Life<br />%1").arg(SVN_ID));
+  QMessageBox::about(this,QObject::tr("About Animik"),
+                     QObject::tr("Animik - Animation editor for Second Life<br />(derived from QAvimator"));
 }
 
 // checks if a file already exists at the given path and displays a warning message
@@ -346,7 +346,9 @@ bool qavimator::checkFileOverwrite(const QFileInfo& fileInfo)
   // get file info
   if(fileInfo.exists())
   {
-    int answer=QMessageBox::question(this,tr("File Exists"),tr("A file with the name \"%1\" does already exist. Do you want to overwrite it?").arg(fileInfo.fileName()),QMessageBox::Yes,QMessageBox::No,QMessageBox::NoButton);
+    int answer=QMessageBox::question(this,tr("File Exists"),
+                                     tr("A file with the name \"%1\" does already exist. Do you want to overwrite it?").arg(fileInfo.fileName()),
+                                     QMessageBox::Yes, QMessageBox::No, QMessageBox::NoButton);
     if(answer==QMessageBox::No) return false;
   }
   return true;
