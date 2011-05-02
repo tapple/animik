@@ -255,6 +255,8 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
 
         //adjust shadow skeleton posture
         int crossPoint = items[i]->frames() - (items[i]->endIndex() - currentItem->beginIndex());                 //TODO: possible BUG. What if they just touch?
+        if(crossPoint > items[i]->frames())             //they're touching
+          crossPoint-=2;
         interpolatePosture(items[i]->getAnimation(), crossPoint, currentItem->getAnimation(), 0,
                            mixInShadow);
 
@@ -264,7 +266,7 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
           double value = (double)(n+1 + (items[i]->mixIn() - framesNum) ) / (double)items[i]->mixIn();
           mixInShadow->setFrameWeight(n, (int)(value*100));
 
-//DEBUG          mixInShadow->getNode(0)->setKeyframeWeight(n, 0);    //position always taken from 'master' blender
+          mixInShadow->getNode(0)->setKeyframeWeight(n, 0);    //position always taken from 'master' blender
         }
 
         TrailItem* shadowItem = new TrailItem(mixInShadow, "(1)mix in shadow for " +currentItem->name(),
@@ -310,8 +312,7 @@ QList<TrailItem*> Blender::createMixInsImpliedShadowItems(QList<TrailItem*> item
         {
           double value = (double)(n+1) / (double)framesNum;
           mixInShadow->setFrameWeight(n, (int)(value*100));
-
-//DEBUG          mixInShadow->getNode(0)->setKeyframeWeight(n, 0);    //position always taken from 'master' blender
+          mixInShadow->getNode(0)->setKeyframeWeight(n, 0);    //position always taken from 'master' blender
         }
 
         TrailItem* shadowItem = new TrailItem(mixInShadow, "(2)mix in shadow for "+currentItem->name(),
@@ -395,8 +396,7 @@ QList<TrailItem*> Blender::createMixOutsImpliedShadowItems(QList<TrailItem*> ite
         {
           double value = (double)(currentItem->mixOut()-n) / (double)currentItem->mixOut();
           mixOutShadow->setFrameWeight(n, (int)(value*100));
-
-//DEBUG          mixOutShadow->getNode(0)->setKeyframeWeight(n, 0);    //position always taken from 'master' blender
+          mixOutShadow->getNode(0)->setKeyframeWeight(n, 0);    //position always taken from 'master' blender
         }
 
         TrailItem* shadowItem = new TrailItem(mixOutShadow, "(1)mix out shadow for "+currentItem->name(),
@@ -432,8 +432,7 @@ QList<TrailItem*> Blender::createMixOutsImpliedShadowItems(QList<TrailItem*> ite
         {
           double value = (double)n / (double)currentItem->mixOut();
           mixOutShadow->setFrameWeight(framesNum-n, (int)(value*100));
-
-//DEBUG          mixOutShadow->getNode(0)->setKeyframeWeight(n-1, 0);    //position always taken from 'master' blender
+          mixOutShadow->getNode(0)->setKeyframeWeight(n-1, 0);    //position always taken from 'master' blender
         }
 
         TrailItem* shadowItem = new TrailItem(mixOutShadow, "(2)mix out shadow for "+currentItem->name(),
@@ -471,25 +470,65 @@ void Blender::interpolatePosture(WeightedAnimation* anim1, int frame1,
 }
 
 
+/*! Content filler for shadow items !*/
 void Blender::interpolatePostureHelper(WeightedAnimation* anim1, int frame1,
                                        WeightedAnimation* anim2, int frame2,
                                        int nodeIndex, WeightedAnimation* targetAnim)
 {
+  Position clearSumPos(0.0, 0.0, 0.0);
+  Position sumPos(0.0, 0.0, 0.0);
+  Rotation clearSumRot(0.0, 0.0, 0.0);
+  Rotation sumRot(0.0, 0.0, 0.0);
+  double sumWeight = 0.0;
+
   BVHNode* node1 = anim1->getNode(nodeIndex);
   FrameData data1 = node1->frameData(frame1);
+  int frameW1 = anim1->getFrameWeight(frame1);
+  int limbW1 = data1.weight();
+
   BVHNode* node2 = anim2->getNode(nodeIndex);
-
   FrameData data2 = node2->frameData(frame2);
-  Position off1 = anim1->getOffset();
-  Position off2 = anim2->getOffset();
-  Position newPos( (data1.position().x + off1.x + data2.position().x + off2.x) / 2.0,
-                   (data1.position().y + off1.y + data2.position().y + off2.y) / 2.0,
-                   (data1.position().z + off1.z + data2.position().z + off2.z) / 2.0);
-  Rotation newRot( (data1.rotation().x + data2.rotation().x) / 2.0,
-                   (data1.rotation().y + data2.rotation().y) / 2.0,
-                   (data1.rotation().z + data2.rotation().z) / 2.0);
+  int frameW2 = anim2->getFrameWeight(frame2);
+  int limbW2 = data2.weight();
 
-  targetAnim->getNode(nodeIndex)->addKeyframe(0, newPos, newRot);
+  sumWeight = sumWeight+(frameW1*limbW1);
+
+  Position p1 = data1.position();
+  p1.Add(anim1->getOffset());
+  clearSumPos.Add(p1);
+  p1.Multiply(frameW1*limbW1);
+  sumPos.Add(p1);
+
+  Position p2 = data2.position();
+  p2.Add(anim2->getOffset());
+  clearSumPos.Add(p2);
+  p2.Multiply(frameW2*limbW2);
+  sumPos.Add(p2);
+
+  sumWeight = sumWeight+(frameW2*limbW2);
+
+  Rotation r1 = data1.rotation();
+  clearSumRot.Add(r1);
+  r1.Multiply(frameW1*limbW1);
+  sumRot.Add(r1);
+
+  Rotation r2 = data2.rotation();
+  clearSumRot.Add(r2);
+  r2.Multiply(frameW2*limbW2);
+  sumRot.Add(r2);
+
+  if(sumWeight == 0.0)
+  {
+    clearSumPos.Multiply(0.5);        // like "/=2"
+    clearSumRot.Multiply(0.5);
+    targetAnim->getNode(nodeIndex)->addKeyframe(0, clearSumPos, clearSumRot);
+  }
+  else
+  {
+    sumPos.Multiply(1/sumWeight);
+    sumRot.Multiply(1/sumWeight);
+    targetAnim->getNode(nodeIndex)->addKeyframe(0, sumPos, sumRot);
+  }
 
   for(int i=0; i<node1->numChildren(); i++)
   {
