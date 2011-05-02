@@ -31,6 +31,8 @@ class Player : public QWidget
     void suspend(bool suspend);
     int fps() const                { return animation->fps(); }
     void setFPS(int fps)           { animation->setFPS(fps); }
+    bool loop() const              { return _loop; }
+    void setLoop(bool looping)     { _loop = looping; }
 
     void PlayOrPause();
     void StepForward();
@@ -41,6 +43,7 @@ class Player : public QWidget
   signals:
     void playbackStarted();
     void playbackPaused();
+    void playerOptionsChanged(int fps);
 
   public slots:
     void setPlaybackFrame(int frame);
@@ -49,11 +52,12 @@ class Player : public QWidget
   protected:
     WeightedAnimation* animation;
     QTimer timer;
-    bool loop;
+    bool _loop;
     int loopIn;         //the class Animation has its
     int loopOut;        //own loop-in/out  TODO: think of it. UPDATE: think harder. AnimationView (and so Animation) even has stepForward,...
                                                             //        It smells like major methods of this Player may become just thin GUI shells
                                                             //        for AnimaionView that sends them further to Animation
+                                                            //UPDATE2: well, it seems the LoopIN/LoopOUT points are useless for this Player used in BlenderTab
     int playFrame();
     int totalFrames();
     void updateLabel();
@@ -72,6 +76,7 @@ private:
     PlayState stateBeforeSuspend;
 
 private slots:
+    void on_optionsPushButton_clicked();
     void on_endButton_clicked();
     void on_beginButton_clicked();
     void on_nextButton_clicked();

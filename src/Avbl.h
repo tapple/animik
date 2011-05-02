@@ -22,8 +22,10 @@ public:
   Avbl();
 
   /** Returns TRUE on success */
-  bool SaveToFile(QList<TimelineTrail*> trails, WeightedAnimation::FigureType figure, QString fileName);
-  QList<TrailItem*>* LoadFromFile(QString fileName, WeightedAnimation::FigureType* figureType);
+  bool SaveToFile(QList<TimelineTrail*> trails, WeightedAnimation::FigureType figure, int fps, bool loop,       //TODO: there is too much of the properties
+                  QString fileName);                                                                            //set through in-out params.
+  QList<TrailItem*>* LoadFromFile(QString fileName, WeightedAnimation::FigureType* figureType, int* fps,        //It asks for a wrapping struct.
+                                  bool* loop);
 
   bool HasErrors() const { return hasErrors; }
   QString ErrorMessage() const { return errorMessage; }

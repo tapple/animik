@@ -138,7 +138,7 @@ int Animation::fps() const
 
 void Animation::setFPS(int fps)
 {
-  if(frames)
+  if(frames && fps>1)
   {
     framesPerSecond=fps;
     setDirty(true);

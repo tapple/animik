@@ -13,7 +13,8 @@
 Avbl::Avbl() { }
 
 
-bool Avbl::SaveToFile(QList<TimelineTrail*> trails, WeightedAnimation::FigureType figure, QString fileName)
+bool Avbl::SaveToFile(QList<TimelineTrail*> trails, WeightedAnimation::FigureType figure, int fps, bool loop,
+                      QString fileName)
 {
   hasErrors = false;
   errorMessage = "";
@@ -32,6 +33,8 @@ bool Avbl::SaveToFile(QList<TimelineTrail*> trails, WeightedAnimation::FigureTyp
       break;
   }
   rootElm.setAttribute("figure", fig);
+  rootElm.setAttribute("fps", fps);
+  rootElm.setAttribute("loop", loop ? "true" : "false");
   document.appendChild(rootElm);
 
   QDomElement trailsElm = document.createElement("trailsDescription");
@@ -110,7 +113,8 @@ bool Avbl::SaveToFile(QList<TimelineTrail*> trails, WeightedAnimation::FigureTyp
 }
 
 
-QList<TrailItem*>* Avbl::LoadFromFile(QString fileName, WeightedAnimation::FigureType* figureType)
+QList<TrailItem*>* Avbl::LoadFromFile(QString fileName, WeightedAnimation::FigureType* figureType, int* fps,
+                                      bool* loop)
 {
   hasErrors = false;
   errorMessage = "";
@@ -140,6 +144,8 @@ QList<TrailItem*>* Avbl::LoadFromFile(QString fileName, WeightedAnimation::Figur
     *figureType = WeightedAnimation::FIGURE_FEMALE;
   else if(figure == "defaultMale")
     *figureType = WeightedAnimation::FIGURE_MALE;
+  *fps = avbl.attribute("fps", "30").toInt();
+  *loop = avbl.attribute("loop", "true") == "true" ? true : false;
 
   QDomElement trailsDesc = avbl.elementsByTagName("trailsDescription").at(0).toElement();
   int trailsCount = trailsDesc.attribute("count", "3").toInt();

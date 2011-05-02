@@ -32,6 +32,8 @@ BlenderTab::BlenderTab(qavimator* mainWindow, const QString& fileName, bool crea
   canShowWarn = false;
   isDirty = false;
 
+  framesPerSecond = -1;
+
   setAttribute(Qt::WA_DeleteOnClose);
 
   setLimbWeightsAction = new QAction(tr("Set limbs' weights"), this);
@@ -43,14 +45,16 @@ BlenderTab::BlenderTab(qavimator* mainWindow, const QString& fileName, bool crea
   connect(this, SIGNAL(resetCamera()), blenderAnimationView, SLOT(resetCamera()));
   connect(blenderTimeline, SIGNAL(resultingAnimationChanged(WeightedAnimation*)),
           blenderPlayer, SLOT(onAnimationChanged(WeightedAnimation*)));
+  connect(blenderTimeline, SIGNAL(resultingAnimationChanged(WeightedAnimation*)),
+          this, SLOT(onTimelineAnimationChanged(WeightedAnimation*)));
   connect(blenderTimeline, SIGNAL(timelinePositionChanged()), this, SLOT(onTimelinePositionChanged()));
   connect(blenderTimeline, SIGNAL(selectedItemChanged()),
           this, SLOT(onSelectedItemChanged()));
   connect(blenderTimeline, SIGNAL(selectedItemLost()), this, SLOT(onSelectedItemChanged()));
-  connect(blenderTimeline, SIGNAL(resultingAnimationChanged(WeightedAnimation*)),
-          this, SLOT(onTimelineAnimationChanged(WeightedAnimation*)));
+
   connect(blenderPlayer, SIGNAL(playbackStarted()), this, SLOT(onPlaybackStarted()));
   connect(blenderPlayer, SIGNAL(playbackPaused()), this, SLOT(onPlaybackPaused()));
+  connect(blenderPlayer, SIGNAL(playerOptionsChanged(int)), this, SLOT(onPlayerOptionsChanged(int)));
   connect(blenderAnimationView, SIGNAL(backgroundClicked()), this, SLOT(onBackgroundClicked()));
 
   if(createFile)
@@ -96,7 +100,8 @@ void BlenderTab::Save()
 {
   Avbl* saver = new Avbl();
   Announcer::StartAction(mainWindow, "Saving file...");
-  bool saved = saver->SaveToFile(blenderTimeline->Trails(), figure, CurrentFile);
+  bool saved = saver->SaveToFile(blenderTimeline->Trails(), figure, framesPerSecond, blenderPlayer->loop(),
+                                 CurrentFile);
   Announcer::EndAction();
   isDirty = !saved;
   setCurrentFile(CurrentFile);      //asterisk out
@@ -226,10 +231,12 @@ void BlenderTab::fileAdd(const QString& name)
     bool oldDebug = Settings::Instance()->Debug();        //temporarily turn off DEBUG mode to save
     Settings::Instance()->setDebug(false);                //the hassle connected with building a time-line
     Announcer::StartAction(mainWindow, "Loading file...");
-    QList<TrailItem*>* trails = loader.LoadFromFile(file, &figure);
+    bool loop;
+    QList<TrailItem*>* trails = loader.LoadFromFile(file, &figure, &framesPerSecond, &loop);
     if(trails == NULL)
       return;
     blenderTimeline->ConstructTimeLine(trails);
+    blenderPlayer->setLoop(loop);
     Announcer::EndAction();
     if(oldDebug)
     {
@@ -272,7 +279,8 @@ void BlenderTab::fileSaveAs()         //Ugly code repetition. TODO: think of it 
 
       Avbl* saver = new Avbl();
       Announcer::StartAction(mainWindow, "Saving file...");
-      bool saved = saver->SaveToFile(blenderTimeline->Trails(), figure, file);
+      bool saved = saver->SaveToFile(blenderTimeline->Trails(), figure, blenderPlayer->fps(),
+                                     blenderPlayer->loop(), file);
       Announcer::EndAction();
       isDirty = !saved;
       setCurrentFile(file);
@@ -431,10 +439,15 @@ void BlenderTab::on_animsList_AnimationFileTaken(QString filename, int orderInBa
   if(anim->isFirstFrameTPose())
     canShowWarn = true;
 
+  if(blenderTimeline->isClear() && orderInBatch==1)       //Adding first animation to empty time-line, so
+    framesPerSecond = anim->fps();                        //adopt its FPS for all next blended outputs
+
   QFileInfo fInfo(filename);
   if(!blenderTimeline->AddAnimation(anim, fInfo.completeBaseName()))
+  {
     QMessageBox::warning(this, "Error loading animation", "Can't add animation file '" +
                          filename + "' to timeline. Not enough space.");
+  }
 
   if(canShowWarn && orderInBatch==batchSize && Settings::Instance()->tPoseWarning())
   {
@@ -478,7 +491,11 @@ void BlenderTab::onTimelineAnimationChanged(WeightedAnimation* anim)
 {
   isDirty = true;
   setCurrentFile(CurrentFile);    //update asterisk
-  anim->setFigureType(figure);
+  if(anim != NULL)
+  {
+    anim->setFigureType(figure);
+    anim->setFPS(framesPerSecond);
+  }
   figureComboBox->setCurrentIndex((int)figure);
   blenderAnimationView->setAnimation(anim);
   UpdateMenu();                   //ex. export action
@@ -533,6 +550,13 @@ void BlenderTab::onPlaybackStarted()
 void BlenderTab::onPlaybackPaused()
 {
   blenderTimeline->limitUserActions(false);
+}
+
+void BlenderTab::onPlayerOptionsChanged(int fps)
+{
+  framesPerSecond = fps;
+  isDirty = true;           //actually the animation itself doesn't change, just its playback options
+  setCurrentFile(CurrentFile);
 }
 
 void BlenderTab::onBackgroundClicked()

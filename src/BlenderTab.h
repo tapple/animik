@@ -71,7 +71,11 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
     void editPaste();
 
   private:
+    //Following properties are rather for the underlying animation, but must be saved here because
+    //the animation is being replaced frequently and needs some outer memory for them.
     WeightedAnimation::FigureType figure;
+    int framesPerSecond;
+
     QAction* setLimbWeightsAction;
     QAction* positionWeightAction;
     void bindMenuActions();
@@ -98,6 +102,7 @@ class BlenderTab : public QWidget, public Ui::BlenderTab, public AbstractDocumen
     void onLimbsDialogNextFrame();
     void onPlaybackStarted();
     void onPlaybackPaused();
+    void onPlayerOptionsChanged(int fps);
     void onBackgroundClicked();
     void onSelectedItemChanged();
     void onTimelinePositionChanged();

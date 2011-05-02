@@ -1,6 +1,7 @@
 #include <QTimer>
 #include "Player.h"
 #include "ui_Player.h"
+#include "PlayerOptionsDialog.h"
 
 
 
@@ -17,7 +18,7 @@ Player::Player(QWidget *parent) : QWidget(parent), ui(new Ui::Player)
   ui->playButton->setIcon(playIcon);
   loopIn = 0;
   loopOut = 0;
-  loop = true;
+  _loop = true;
 
   setButtonsEnabled(false);
   updateLabel();
@@ -102,12 +103,13 @@ void Player::StepForward()
     setPlaybackFrame(playFrame()+1);
   else
   {
-    if(loop)
+    if(_loop)
       setPlaybackFrame(loopIn);
     else    //we reached the end of non-looping animation
     {
       _state = PLAYSTATE_STOPPED;
       timer.stop();
+      ui->playButton->setIcon(playIcon);
     }
   }
 }
@@ -116,7 +118,7 @@ void Player::StepBackward()
 {
   if(playFrame() > loopIn)
     setPlaybackFrame(playFrame()-1);
-  else if(loop)      //TODO: is this the right place for looping?
+  else if(_loop)
     setPlaybackFrame(loopOut);
 }
 
@@ -130,7 +132,7 @@ void Player::SkipToLast()
 {
   if(playFrame() != loopOut)
   {
-    if(!loop)
+    if(!_loop)
     {
       _state = PLAYSTATE_STOPPED;
       timer.stop();
@@ -146,7 +148,7 @@ void Player::onAnimationChanged(WeightedAnimation *animation)
 
   int oldPlayFrame = playFrame();
   //When first overall animation emerges, stretch looping to max
-  if(/*DEBUG. Uncomment when LoopIn/Out set by some form. this->animation==0 &&*/ animation)
+  if(/*DEBUG. Uncomment when LoopIn/Out set by some form. this->animation==0 &&*/ animation!=NULL)
     loopOut = animation->getNumberOfFrames()-1;
 
 //edu: this is insidous! Disconnects ALL slots tied to that object.
@@ -188,6 +190,7 @@ void Player::setButtonsEnabled(bool enabled)
   ui->playButton->setEnabled(enabled);
   ui->nextButton->setEnabled(enabled);
   ui->endButton->setEnabled(enabled);
+  ui->optionsPushButton->setEnabled(enabled);
 }
 
 void Player::updateLabel()
@@ -224,4 +227,22 @@ void Player::on_beginButton_clicked()
 void Player::on_endButton_clicked()
 {
   SkipToLast();
+}
+
+void Player::on_optionsPushButton_clicked()
+{
+  PlayerOptionsDialog* pod = new PlayerOptionsDialog(fps(), _loop, this);
+  pod->exec();
+
+  if(pod->result() == QDialog::Accepted && animation != NULL)
+  {
+    if(pod->fps() != fps() || pod->loop() != _loop)
+    {
+      animation->setFPS(pod->fps());
+      _loop = pod->loop();         //No need to set looping on the animation
+      emit playerOptionsChanged(fps());
+    }
+  }
+
+  delete pod;
 }

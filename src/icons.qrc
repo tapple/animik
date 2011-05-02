@@ -32,5 +32,6 @@
         <file>icons/player/PlayerPlay.png</file>
         <file>icons/player/PlayerRew.png</file>
         <file>icons/player/PlayerStart.png</file>
+        <file>icons/player/PlayerOptions.png</file>
     </qresource>
 </RCC>

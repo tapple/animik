@@ -35,7 +35,8 @@ SOURCES += animation.cpp \
     Avbl.cpp \
     NoArrowsScrollArea.cpp \
     LimbsWeightDialog.cpp \
-    Announcer.cpp
+    Announcer.cpp \
+    PlayerOptionsDialog.cpp
 HEADERS += animation.h \
     animationview.h \
     bvh.h \
@@ -70,7 +71,8 @@ HEADERS += animation.h \
     Avbl.h \
     NoArrowsScrollArea.h \
     LimbsWeightDialog.h \
-    Announcer.h
+    Announcer.h \
+    PlayerOptionsDialog.h
 FORMS += mainapplicationform.ui \
     settingsdialogform.ui \
     KeyFramerTab.ui \
@@ -82,7 +84,8 @@ FORMS += mainapplicationform.ui \
     Player.ui \
     MixZonesDialog.ui \
     OptionalMessageBox.ui \
-    LimbsWeightDialog.ui
+    LimbsWeightDialog.ui \
+    PlayerOptionsDialog.ui
 RESOURCES += icons.qrc
 TEMPLATE = app
 TARGET = ../bin/qavimator
