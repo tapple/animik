@@ -153,7 +153,7 @@ void AnimationView::debugWrite()
     innerTextLines.clear();
     QString text = "ROT: x=" +QString::number(rot.x, 'f', 3)+ ", y=" +QString::number(rot.y, 'f', 3)+ ", z=" +QString::number(rot.z, 'f', 3);
     innerTextLines.append(text);
-    if(part->type = BVH_ROOT)
+    if(part->type == BVH_ROOT)
     {
       Position pos = getAnimation()->getPosition();
       text = " POS: x=" +QString::number(pos.x, 'f', 3)+ ", y=" +QString::number(pos.y, 'f', 3)+ ", z=" +QString::number(pos.z, 'f', 3);
