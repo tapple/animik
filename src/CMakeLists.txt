@@ -14,6 +14,7 @@ SET (QAVI_SRC AbstractDocumentTab.cpp
       NoArrowsScrollArea.cpp
       OptionalMessageBox.cpp
       Player.cpp
+      PlayerOptionsDialog.cpp
       SaveChangesDialog.cpp
       TimelineTrail.cpp
       TrailItem.cpp
@@ -53,6 +54,7 @@ SET (QAVI_MOC_HDR 	AbstractDocumentTab.h
       NoArrowsScrollArea.h
       OptionalMessageBox.h
       Player.h
+      PlayerOptionsDialog.h
       SaveChangesDialog.h
       TimelineTrail.h
       WeightedAnimation.h
@@ -84,6 +86,7 @@ SET (QAVI_UI 	AnimationList.ui
       NewFileDialog.ui
       OptionalMessageBox.ui
       Player.ui
+      PlayerOptionsDialog.ui
       SaveChangesDialog.ui
       mainapplicationform.ui
 			settingsdialogform.ui)
