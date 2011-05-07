@@ -963,7 +963,7 @@ void Blender::combineKeyFramesHelper(QList<TrailItem*> sortedItems, QList<int> i
 
       if(positionsUsed > 0)
       {
-        if(clearSumBearing == 180.0)                      //Dirty workaround when back and forth
+        if(clearSumBearing == 180.0 && positionsUsed>1)                      //Dirty workaround when back and forth
           sumBearing = 0.0;                               //moves are blended
 
         if(sumDistance == 0.0)
