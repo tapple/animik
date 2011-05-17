@@ -7,6 +7,7 @@
 #include <QSize>
 #include "Announcer.h"
 #include "bvh.h"
+#include "framesweightdialog.h"
 #include "MixZonesDialog.h"
 #include "settings.h"
 #include "TimelineTrail.h"
@@ -21,7 +22,7 @@
 #define MIN_FRAME_WIDTH  8     //minimum frame space width that can't be crossed when zooming
 #define MAX_FRAME_WIDTH  20    //TODO: maximum when zooming
 #define ZOOM_STEP        4     //TODO: the zooming
-#define MAX_TRAIL_FRAMES 400//DEBUG 4000
+#define MAX_TRAIL_FRAMES 4000
 #define MAX_WEIGHT       100.0 //max frame weight
 
 
@@ -52,11 +53,12 @@ TimelineTrail::TimelineTrail(QWidget* parent, Qt::WindowFlags, QString debugName
   connect(deleteItemAction, SIGNAL(triggered()), this, SLOT(deleteCurrentItem()));
   moveItemAction = new QAction(tr("Move on timeline"), this);
   connect(moveItemAction, SIGNAL(triggered()), this, SLOT(moveCurrentItem()));
+  framesWeightAction = new QAction(tr("Set frame weights"), this);
+  connect(framesWeightAction, SIGNAL(triggered()), this, SLOT(onFramesWeight()));
   mixZonesAction = new QAction(tr("Set mix-in/out"), this);
   connect(mixZonesAction, SIGNAL(triggered()), this, SLOT(setMixZones()));
   limbWeightsAction = new QAction(tr("Set limbs' weights"), this);
   connect(limbWeightsAction, SIGNAL(triggered()), this, SLOT(showLimbsWeight()));
-
 
   _debugName = debugName;
 }
@@ -432,7 +434,7 @@ void TimelineTrail::drawTrailItem(TrailItem* item)
       }
     }
 
-  }//if(Debug())
+  }//if(Debug() || !isShadow)
 }
 /***********************************************************************************/
 
@@ -657,6 +659,7 @@ void TimelineTrail::contextMenuEvent(QContextMenuEvent *event)
     menu.addAction(deleteItemAction);
     menu.addAction(moveItemAction);
     menu.addSeparator();
+    menu.addAction(framesWeightAction);
     menu.addAction(mixZonesAction);
     menu.addAction(limbWeightsAction);
     menu.exec(event->globalPos());
@@ -819,6 +822,12 @@ void TimelineTrail::moveCurrentItem()
 {
   draggingItem = cutItem(selectedItem);
   emit movingItem(draggingItem);
+}
+
+void TimelineTrail::onFramesWeight()
+{
+  FramesWeightDialog* fwd = new FramesWeightDialog(selectedItem);
+  fwd->exec();
 }
 
 void TimelineTrail::showLimbsWeight()

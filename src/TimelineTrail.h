@@ -73,6 +73,7 @@ class TimelineTrail : public QFrame
   protected slots:
     void deleteCurrentItem();
     void moveCurrentItem();
+    void onFramesWeight();
     void showLimbsWeight();
     void setMixZones();
 
@@ -98,6 +99,7 @@ class TimelineTrail : public QFrame
     QAction* moveItemAction;
     QAction* mixZonesAction;
     QAction* limbWeightsAction;
+    QAction* framesWeightAction;
 
 
     void clearShadowItems();
