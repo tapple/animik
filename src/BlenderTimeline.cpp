@@ -2,7 +2,7 @@
   The timeline widget inside BlenderTab. Includes 3 tracks.
 */
 #define BLENDING_TRACKS      3
-#define MIN_TRAIL_FRAMES     150  //edu: trail is 150 frames long
+#define MIN_TRAIL_FRAMES     150  //edu: trail is 150 positions long
 
 #include <QHBoxLayout>
 #include <QKeyEvent>

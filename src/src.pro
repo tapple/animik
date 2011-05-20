@@ -37,7 +37,8 @@ SOURCES += animation.cpp \
     LimbsWeightDialog.cpp \
     Announcer.cpp \
     PlayerOptionsDialog.cpp \
-    framesweightdialog.cpp
+    framesweightdialog.cpp \
+    FramesWeightFrame.cpp
 HEADERS += animation.h \
     animationview.h \
     bvh.h \
@@ -74,7 +75,8 @@ HEADERS += animation.h \
     LimbsWeightDialog.h \
     Announcer.h \
     PlayerOptionsDialog.h \
-    framesweightdialog.h
+    framesweightdialog.h \
+    FramesWeightFrame.h
 FORMS += mainapplicationform.ui \
     settingsdialogform.ui \
     KeyFramerTab.ui \
@@ -88,7 +90,8 @@ FORMS += mainapplicationform.ui \
     OptionalMessageBox.ui \
     LimbsWeightDialog.ui \
     PlayerOptionsDialog.ui \
-    framesweightdialog.ui
+    framesweightdialog.ui \
+    FramesWeightFrame.ui
 RESOURCES += icons.qrc
 TEMPLATE = app
 TARGET = ../bin/qavimator

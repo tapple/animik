@@ -827,7 +827,8 @@ void TimelineTrail::moveCurrentItem()
 void TimelineTrail::onFramesWeight()
 {
   FramesWeightDialog* fwd = new FramesWeightDialog(selectedItem);
-  fwd->exec();
+  if(fwd->exec() == QDialog::Accepted)
+    emit trailContentChanged(_firstItem);
 }
 
 void TimelineTrail::showLimbsWeight()

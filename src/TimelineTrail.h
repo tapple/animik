@@ -35,7 +35,7 @@ class TimelineTrail : public QFrame
     void limitUserActions(bool limit);
 
   signals:
-    void resized(const QSize& newSize);
+    void resized(const QSize& newSize);       //TODO: is this ever listened?
     /** Let other trails know current position changed so they synchronize */
     void currentPositionChanged(int newPositionIndex);
     /** Let other trails know current TrailItem changed so they unselect theirs */

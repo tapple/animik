@@ -1,27 +1,39 @@
 #include "framesweightdialog.h"
 #include "ui_framesweightdialog.h"
-#include <QPainter>
-#include <QPixmap>
-#include "TrailItem.cpp"
 
-#define TRACK_HEIGHT        100
-#define FRAME_BAR_WIDTH     10
+#include "FramesWeightFrame.h"
+#include "NoArrowsScrollArea.h"
+#include <QKeyEvent>
+#include "TrailItem.cpp"
 
 
 FramesWeightDialog::FramesWeightDialog(TrailItem* animItem, QWidget *parent) :
   QDialog(parent), ui(new Ui::FramesWeightDialog)
 {
   ui->setupUi(this);
-  offscreen = NULL;
-
   setWindowTitle(animItem->name() + " - frame weights");
-  _anim = animItem->getAnimation();
-  frames_count = _anim->getNumberOfFrames();
-  frameWeights = new int[frames_count];
-  for(int i=0; i<frames_count; i++)
-    frameWeights[i] = _anim->getFrameWeight(i);
 
-  offscreen = new QPixmap(frames_count*FRAME_BAR_WIDTH, TRACK_HEIGHT);
+  scrollArea = new NoArrowsScrollArea(ui->leftFrame);
+  scrollArea->setBackgroundRole(QPalette::Dark);
+  scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+  stackWidget = new QWidget(scrollArea);
+
+  QVBoxLayout* scrollLayout = new QVBoxLayout(stackWidget);
+  scrollLayout->setMargin(0);
+
+  fwf = new FramesWeightFrame(animItem, stackWidget);
+  //TODO: connect key press signals
+  scrollLayout->addWidget(fwf);
+
+  setFocusPolicy(Qt::WheelFocus);         //I need this if I want to handle key press event
+  stackWidget->setFocusPolicy(Qt::WheelFocus);
+  scrollArea->setFocusPolicy(Qt::WheelFocus);
+  stackWidget->setLayout(scrollLayout);
+  scrollArea->setWidget(stackWidget);
+  stackWidget->resize(fwf->FrameBarWidth * fwf->frameCount(), fwf->TrackHeight + fwf->ScrollBarOffset);
+
+  needsReshape=true;
 }
 
 FramesWeightDialog::~FramesWeightDialog()
@@ -29,52 +41,47 @@ FramesWeightDialog::~FramesWeightDialog()
   delete ui;
 }
 
-
-void FramesWeightDialog::paintEvent(QPaintEvent *)
+void FramesWeightDialog::keyPressEvent(QKeyEvent* keyEvent)
 {
-  drawWeights();
-
-  QPainter p(this);
-  p.drawPixmap(0, 0, *offscreen);
+  if((keyEvent->key()==Qt::Key_Enter || keyEvent->key()==Qt::Key_Return) && ui->commonWeightSpinBox->hasFocus())
+    on_setWeightPushButton_clicked();
+  else
+    keyEvent->ignore();
 }
 
-void FramesWeightDialog::drawWeights()
+void FramesWeightDialog::paintEvent(QPaintEvent*)
 {
-  if(!offscreen) return;
-
-  QPainter p(offscreen);
-  QColor boxColor = QColor("#5c4179");
-
-  p.fillRect(0, 0, frames_count*FRAME_BAR_WIDTH, TRACK_HEIGHT, boxColor);
-
-  //emphasize the first frame if it's T-pose
-  if(_anim->isFirstFrameTPose())
-    p.fillRect(0, 0, FRAME_BAR_WIDTH, TRACK_HEIGHT, QColor("#84365D"));
-
-  double hFactor = ((double)TRACK_HEIGHT) / 100.0;
-  QColor barColor("#999999");
-
-  for(int i=0; i<frames_count; i++)
+  if(needsReshape)
   {
-    int barHeight = (int)(_anim->getFrameWeight(i)*hFactor);
-/*TODO    if(i==currentPosition)
-    {
-      p.fillRect(i*_positionWidth+2, TOP_MARGIN+BORDER_WIDTH+(FRAME_HEIGHT-BORDER_WIDTH)-barHeight,
-                 _positionWidth-2, barHeight, QColor("#0080ff"));
-    }
-    else    */
-    {
-      p.fillRect(i*FRAME_BAR_WIDTH +1, TRACK_HEIGHT-barHeight, FRAME_BAR_WIDTH-2, barHeight, barColor);
-    }
+    int wdth = fwf->FrameBarWidth * fwf->frameCount();
+    if(wdth > ui->leftFrame->width())
+      wdth = ui->leftFrame->width();
+    int hght = fwf->TrackHeight + fwf->ScrollBarOffset;
+    scrollArea->resize(wdth+4, hght);
+
+    needsReshape=false;
   }
+}
+
+void FramesWeightDialog::resizeEvent(QResizeEvent *)
+{
+  needsReshape=true;
 }
 
 
 void FramesWeightDialog::on_setWeightPushButton_clicked()
 {
   int value = ui->commonWeightSpinBox->value();
-  for(int i=0; i<frames_count; i++)
-    frameWeights[i] = value;
+  fwf->setCommonWeight(value);
+}
 
-  repaint();
+void FramesWeightDialog::on_buttonBox_accepted()
+{
+  if(fwf->isDirty())
+  {
+    setResult(QDialog::Accepted);
+    fwf->saveWeightsToAnimation();
+  }
+  else
+    setResult(QDialog::Rejected);
 }

@@ -3,10 +3,10 @@
 
 #include <QDialog>
 
-class QPixmap;
+class FramesWeightFrame;
+class NoArrowsScrollArea;
+class QKeyEvent;
 class TrailItem;
-class WeightedAnimation;
-
 
 namespace Ui {
   class FramesWeightDialog;
@@ -21,19 +21,19 @@ public:
   ~FramesWeightDialog();
 
 protected:
-  virtual void paintEvent(QPaintEvent *);
+  void keyPressEvent(QKeyEvent* keyEvent);
+  void paintEvent(QPaintEvent*);
+  void resizeEvent(QResizeEvent*);
 
 private:
   Ui::FramesWeightDialog *ui;
-  QPixmap* offscreen;
-
-  WeightedAnimation* _anim;
-  int frames_count;
-  int* frameWeights;
-
-  void drawWeights();
+  FramesWeightFrame* fwf;
+  QWidget* stackWidget;
+  NoArrowsScrollArea* scrollArea;
+  bool needsReshape;
 
 private slots:
+  void on_buttonBox_accepted();
   void on_setWeightPushButton_clicked();
 };
 
