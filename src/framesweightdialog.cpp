@@ -23,10 +23,9 @@ FramesWeightDialog::FramesWeightDialog(TrailItem* animItem, QWidget *parent) :
   scrollLayout->setMargin(0);
 
   fwf = new FramesWeightFrame(animItem, stackWidget);
-  //TODO: connect key press signals
   scrollLayout->addWidget(fwf);
 
-  setFocusPolicy(Qt::WheelFocus);         //I need this if I want to handle key press event
+  setFocusPolicy(Qt::WheelFocus);
   stackWidget->setFocusPolicy(Qt::WheelFocus);
   scrollArea->setFocusPolicy(Qt::WheelFocus);
   stackWidget->setLayout(scrollLayout);

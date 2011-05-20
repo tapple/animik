@@ -25,6 +25,7 @@ public:
   static const int FrameBarWidth = 10;
   static const int TrackHeight = 100;
   static const int ScrollBarOffset = 22;
+  static const int TextSize = 16;
 
   int frameCount() const;
   void saveWeightsToAnimation();
@@ -33,6 +34,9 @@ public:
   void setCommonWeight(int value);
 
 protected:
+  virtual void mouseMoveEvent(QMouseEvent* mouseEvent);
+  virtual void mousePressEvent(QMouseEvent* mouseEvent);
+  virtual void mouseReleaseEvent(QMouseEvent *);
   virtual void paintEvent(QPaintEvent *);
   virtual void resizeEvent(QResizeEvent *);
 
@@ -43,9 +47,12 @@ private:
   WeightedAnimation* _anim;
   int frames_count;
   int* frameWeights;
+  int weightedFrame;
   bool dirty;
+  bool mouseDown;
 
   void drawWeights();
+  void adjustWeight(int y);
 };
 
 #endif // FRAMESWEIGHTFRAME_H
