@@ -3,7 +3,7 @@
 
 #include <QFrame>
 #include <QList>
-#include "WeightedAnimation.h"
+#include "weightedanimation.h"
 
 class QKeyEvent;
 class QSize;

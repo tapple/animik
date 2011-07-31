@@ -2,9 +2,8 @@
 #define BLENDERTAB_H
 
 #include <QWidget>
-#include <ui_BlenderTab.h>
-
-#include "AbstractDocumentTab.h"
+#include "ui_blendertab.h"
+#include "abstractdocumenttab.h"
 
 class qavimator;
 class QAction;

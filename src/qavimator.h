@@ -37,7 +37,7 @@
 /*#include "rotation.h"
 #include "playstate.h"    */
 
-#include "NewFileDialog.h"
+#include "newfiledialog.h"
 
 class Animation;
 class Prop;

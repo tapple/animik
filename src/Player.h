@@ -3,8 +3,8 @@
 
 #include <QWidget>
 #include <QIcon>
-#include "WeightedAnimation.h"
-#include <playstate.h>
+#include "weightedanimation.h"
+#include "playstate.h"
 
 class QTimer;
 

@@ -2,7 +2,7 @@
 #define TIMELINETRAIL_H
 
 #include <QFrame>
-#include "WeightedAnimation.h"
+#include "weightedanimation.h"
 
 class QPixmap;
 class QAction;

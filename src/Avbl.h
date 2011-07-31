@@ -4,7 +4,7 @@
 #include <QHash>
 #include <QList>
 #include <QString>
-#include "WeightedAnimation.h"
+#include "weightedanimation.h"
 
 class QDomDocument;
 class QDomElement;

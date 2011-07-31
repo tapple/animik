@@ -1,6 +1,6 @@
-#include "Announcer.h"
+#include "announcer.h"
 #include "bvh.h"
-#include "WeightedAnimation.h"
+#include "weightedanimation.h"
 
 
 #define MIX_IN_OUT        3

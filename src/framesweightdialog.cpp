@@ -1,10 +1,9 @@
+#include <QKeyEvent>
 #include "framesweightdialog.h"
 #include "ui_framesweightdialog.h"
-
-#include "FramesWeightFrame.h"
-#include "NoArrowsScrollArea.h"
-#include <QKeyEvent>
-#include "TrailItem.cpp"
+#include "framesweightframe.h"
+#include "noarrowsscrollarea.h"
+#include "trailitem.cpp"
 
 
 FramesWeightDialog::FramesWeightDialog(TrailItem* animItem, QWidget *parent) :

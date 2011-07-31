@@ -1,8 +1,6 @@
-#include "AbstractDocumentTab.h"
+#include "abstractdocumenttab.h"
 #include "qavimator.h"
-#include "KeyFramerTab.h"
-
-
+#include "keyframertab.h"
 
 AbstractDocumentTab::AbstractDocumentTab(qavimator* mainWindow)
 {

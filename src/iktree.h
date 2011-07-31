@@ -24,7 +24,7 @@
 
 // #include "bvh.h"
 #include "bvhnode.h"
-#include "MT_Quaternion.h"
+#include "mt_quaternion.h"
 
 #define MAX_BONES 50
 #define MAX_CHILDREN 4

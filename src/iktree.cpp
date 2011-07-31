@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "MT_Transform.h"
+#include "mt_transform.h"
 #include "iktree.h"
 
 int display = 0;

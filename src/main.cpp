@@ -21,9 +21,7 @@
 #include "qavimator.h"
 #include "settings.h"
 
-
 #include <QMessageBox>      //DEBUG, TODO: delete
-
 
 int main( int argc, char ** argv )
 {

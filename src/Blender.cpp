@@ -2,17 +2,16 @@
   Offers computations related to blending of multiple animations.
 */
 
-#include "Announcer.h"
-#include "Blender.h"
+#include "announcer.h"
+#include "blender.h"
 #include "bvh.h"
 #include "settings.h"
-#include "TimelineTrail.h"
-#include "TrailItem.cpp"
-#include "WeightedAnimation.h"
+#include "timelinetrail.h"
+#include "trailitem.cpp"
+#include "weightedanimation.h"
 
 #include <math.h>
 #define PI 3.14159265
-
 
 Blender::Blender() { }
 Blender::~Blender() { }

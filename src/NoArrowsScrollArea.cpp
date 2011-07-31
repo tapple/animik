@@ -1,8 +1,6 @@
 #include <QScrollBar>
 #include <QWheelEvent>
-#include "NoArrowsScrollArea.h"
-
-
+#include "noarrowsscrollarea.h"
 
 NoArrowsScrollArea::NoArrowsScrollArea(QWidget* parent) : QScrollArea(parent)
 {

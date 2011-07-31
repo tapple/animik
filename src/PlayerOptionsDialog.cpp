@@ -1,7 +1,5 @@
-#include "PlayerOptionsDialog.h"
-#include "ui_PlayerOptionsDialog.h"
-
-
+#include "playeroptionsdialog.h"
+#include "ui_playeroptionsdialog.h"
 
 PlayerOptionsDialog::PlayerOptionsDialog(int fps, bool loop, QWidget *parent)
   : QDialog(parent), ui(new Ui::PlayerOptionsDialog)

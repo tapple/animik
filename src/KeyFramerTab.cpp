@@ -7,15 +7,15 @@
 
 
 #include "animationview.h"
-#include "Announcer.h"
-#include "KeyFramerTab.h"
+#include "announcer.h"
+#include "keyframertab.h"
 #include "prop.h"
 #include "qavimator.h"
 #include "rotation.h"
 #include "settings.h"
 #include "timeline.h"
 #include "timelineview.h"
-#include "ui_KeyFramerTab.h"
+#include "ui_keyframertab.h"
 //edu#include "settingsdialog.h"
 
 #define ANIM_FILTER "Animation Files (*.avm *.bvh)"

@@ -25,14 +25,14 @@
 #include <QMdiSubWindow>
 #include <QRegExp>
 
-#include "Announcer.h"
+#include "announcer.h"
 #include "qavimator.h"
 #include "settings.h"
 #include "settingsdialog.h"
-#include "SaveChangesDialog.h"
-#include "NewFileDialog.h"
-#include "KeyFramerTab.h"
-#include "BlenderTab.h"
+#include "savechangesdialog.h"
+#include "newfiledialog.h"
+#include "keyframertab.h"
+#include "blendertab.h"
 
 #define ANIM_FILTER "Animation Files (*.avm *.avbl *.bvh)"
 #define SVN_ID      "$Id$"

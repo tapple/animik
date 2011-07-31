@@ -18,14 +18,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <math.h>
-
-#include "bvhnode.h"
-
-
 #include <QMessageBox>          //DEBUG, TODO: delete
-
-
+#include <math.h>
+#include "bvhnode.h"
 
 BVHNode::BVHNode(const QString& name, /*edu*/BVHNode* parent)
 {

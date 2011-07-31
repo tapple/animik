@@ -1,15 +1,11 @@
 #ifndef LIMBSWEIGHTDIALOG_H
 #define LIMBSWEIGHTDIALOG_H
 
-
-
 #include <QDialog>
 #include <QHash>
 #include <QList>
 
-
 class BVHNode;
-
 
 namespace Ui {
   class LimbsWeightDialog;

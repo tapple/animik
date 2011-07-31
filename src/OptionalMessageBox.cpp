@@ -1,7 +1,5 @@
-#include "OptionalMessageBox.h"
-#include "ui_OptionalMessageBox.h"
-
-
+#include "optionalmessagebox.h"
+#include "ui_optionalmessagebox.h"
 
 OptionalMessageBox::OptionalMessageBox(QString title, QString text, QWidget* parent)
   : QDialog(parent), ui(new Ui::OptionalMessageBox)

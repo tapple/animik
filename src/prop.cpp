@@ -20,13 +20,12 @@
 
 #ifdef __APPLE__
 #include <OpenGL/glu.h>
-#include <GLUT/glut.h>
 #else
 #include <GL/glu.h>
-#include <GL/glut.h>
 #endif
 
 #include "prop.h"
+#include "glshapes.h"
 
 Prop::Prop(unsigned int propId,PropType newType,const QString& newName)
 {
@@ -72,23 +71,23 @@ void Prop::draw(State state) const
   if(type==Box)
   {
     glScalef(xs,ys,zs);
-    glutSolidCube(1);
+    SolidCube(1);
   }
   else if(type==Sphere)
   {
     glScalef(xs/2,ys/2,zs/2);
-    glutSolidSphere(1,16,16);
+    SolidSphere(1,16,16);
   }
   else if(type==Cone)
   {
     glTranslatef(0,0,-5);
     glScalef(xs/2,ys/2,zs/2);
-    glutSolidCone(1,2,16,16);
+    SolidCone(1,2,16,16);
   }
   else if(type==Torus)
   {
     glScalef(xs/4,ys/4,zs/2);
-    glutSolidTorus(1,1,16,16);
+    SolidTorus(1,1,16,16);
   }
 
   glPopMatrix();

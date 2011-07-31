@@ -1,9 +1,7 @@
-#include "Announcer.h"
-
+#include "announcer.h"
 
 QCursor Announcer::_cursor = QCursor();
 QWidget* Announcer::_parent = NULL;
-
 
 void Announcer::Exception(QWidget* parent, QString message)
 {

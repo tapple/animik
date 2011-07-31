@@ -7,12 +7,12 @@
 #include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QScrollArea>
-#include "Blender.h"
-#include "BlenderTimeline.h"
-#include "NoArrowsScrollArea.h"
-#include "TimelineTrail.h"
-#include "TrailItem.cpp"
-#include "LimbsWeightForm.h"
+#include "blender.h"
+#include "blendertimeline.h"
+#include "noarrowsscrollarea.h"
+#include "timelinetrail.h"
+#include "trailitem.cpp"
+#include "limbsweightform.h"
 
 
 

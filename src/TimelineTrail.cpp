@@ -5,13 +5,13 @@
 #include <QPainter>
 #include <QPalette>
 #include <QSize>
-#include "Announcer.h"
+#include "announcer.h"
 #include "bvh.h"
 #include "framesweightdialog.h"
-#include "MixZonesDialog.h"
+#include "mixzonesdialog.h"
 #include "settings.h"
-#include "TimelineTrail.h"
-#include "TrailItem.cpp"
+#include "timelinetrail.h"
+#include "trailitem.cpp"
 
 
 #define TRACK_HEIGHT     72

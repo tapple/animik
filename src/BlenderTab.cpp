@@ -8,15 +8,15 @@
 #include <QStringListModel>
 
 #include "animationview.h"
-#include "Avbl.h"
-#include "Announcer.h"
-#include "BlenderTab.h"
-#include "LimbsWeightDialog.h"
-#include "OptionalMessageBox.h"
+#include "avbl.h"
+#include "announcer.h"
+#include "blendertab.h"
+#include "limbsweightdialog.h"
+#include "optionalmessagebox.h"
 #include "qavimator.h"
 #include "settings.h"
-#include "TrailItem.cpp"
-#include "ui_BlenderTab.h"
+#include "trailitem.cpp"
+#include "ui_blendertab.h"
 
 
 

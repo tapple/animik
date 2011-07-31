@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <QModelIndex>
 
-#include "ui_NewFileDialog.h"
+#include "ui_newfiledialog.h"
 
 class QPalette;
 

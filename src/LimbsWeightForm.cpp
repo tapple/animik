@@ -1,10 +1,8 @@
 #include "bvh.h"
 #include "bvhnode.h"
-#include "WeightedAnimation.h"
-#include "LimbsWeightForm.h"
-#include "ui_LimbsWeightForm.h"
-
-
+#include "weightedanimation.h"
+#include "limbsweightform.h"
+#include "ui_limbsweightform.h"
 
 LimbsWeightForm::LimbsWeightForm(QWidget *parent) : QWidget(parent), ui(new Ui::LimbsWeightForm)
 {

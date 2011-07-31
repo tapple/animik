@@ -13,7 +13,7 @@
 				<string>bvh</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-			<string>qavimator</string>
+			<string>animik</string>
 			<key>CFBundleTypeName</key>
 			<string>QAnimation</string>
 			<key>CFBundleTypeRole</key>
@@ -29,9 +29,9 @@
 				<string>prp</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-			<string>qavimator</string>
+			<string>animik</string>
 			<key>CFBundleTypeName</key>
-			<string>QAvimator Prop</string>
+			<string>Animik Prop</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSTypeIsPackage</key>
@@ -41,15 +41,15 @@
 		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
-	<string>qavimator</string>
+	<string>animik</string>
 	<key>CFBundleIconFile</key>
-	<string>qavimator</string>
+	<string>animik</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>0.1</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.qavimator.mac</string>
+	<string>org.animik.mac</string>
 	<key>CFBundleName</key>
-	<string>QAvimator</string>
+	<string>Animik</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>

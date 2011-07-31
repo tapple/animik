@@ -9,8 +9,6 @@ class TimelineTrail;
 class TrailItem;
 class WeightedAnimation;
 
-
-
 class Blender
 {
 public:

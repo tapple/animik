@@ -1,7 +1,5 @@
-#include "MixZonesDialog.h"
-#include "ui_MixZonesDialog.h"
-
-
+#include "mixzonesdialog.h"
+#include "ui_mixzonesdialog.h"
 
 MixZonesDialog::MixZonesDialog(int frames, int mixIn, int mixOut, QWidget *parent)
   : QDialog(parent), ui(new Ui::MixZonesDialog)

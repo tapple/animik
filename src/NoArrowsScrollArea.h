@@ -3,7 +3,6 @@
 
 #include <QScrollArea>
 
-
 /** Reimplementation of scroll area that doesn't scroll on arrows key press.
     It's default scroll behaviour is to scroll horizontally */
 class NoArrowsScrollArea : public QScrollArea

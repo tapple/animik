@@ -1,0 +1,16 @@
+Animik
+========
+
+Animik is a fork of QAvimator with focus on improving the user interface and character manipulation. This version also adds interface for animation composition from existing animations.
+
+Credits
+----------
+- Martin Mihalovic: Animation composition functionality
+- Peter Drahoš: CMake based build + Mac OS X bundle support
+- Michal Kundrát: Quaternions integration.
+- Zi Ree: QAvimator port of Avimator, main developer, windows setup
+- Darkside Eldrich: Multi avatar base code
+- Christine Montgomery: Responsible for the MacOS X port.
+- Vince Invincible: Developer of orginal Avimator
+- Lynard Goodliffe: Made the first Windows setup build.
+Thanks to everyone who helped with testing,

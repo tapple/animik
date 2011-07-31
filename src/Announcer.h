@@ -7,7 +7,6 @@
 #include <QToolTip>
 #include <QWidget>
 
-
 /** Helper static class for application messages (so far only with message box) and cursor handling */
 class Announcer
 {

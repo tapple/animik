@@ -1,7 +1,7 @@
 #include <QTimer>
-#include "Player.h"
-#include "ui_Player.h"
-#include "PlayerOptionsDialog.h"
+#include "player.h"
+#include "ui_player.h"
+#include "playeroptionsdialog.h"
 
 
 

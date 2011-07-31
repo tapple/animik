@@ -2,13 +2,11 @@
 #include <QKeyEvent>
 #include <QStringListModel>
 
-#include "AnimationList.h"
-#include "ui_AnimationList.h"
+#include "animationlist.h"
+#include "ui_animationlist.h"
 #include "settings.h"
 
 #define ANIM_FILTER "Animation Files (*.avm *.bvh)"         //TODO: this is repeated on few places. Solve it.
-
-
 
 AnimationList::AnimationList(QWidget *parent) :
     QWidget(parent), ui(new Ui::AnimationList)

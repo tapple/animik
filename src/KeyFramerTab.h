@@ -1,7 +1,6 @@
 #ifndef KEYFRAMERTAB_H
 #define KEYFRAMERTAB_H
 
-
 #define PLAY_IMAGE "data/play.png"
 #define PAUSE_IMAGE "data/pause.png"
 #define KEY_IMAGE "data/key.png"
@@ -9,8 +8,8 @@
 
 #include <QWidget>
 
-#include "AbstractDocumentTab.h"
-#include "ui_KeyFramerTab.h"
+#include "abstractdocumenttab.h"
+#include "ui_keyframertab.h"
 #include "bvhnode.h"
 #include "animation.h"
 #include "prop.h"

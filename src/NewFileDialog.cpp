@@ -3,8 +3,8 @@
 #include <QListData>
 #include <QFileDialog>
 
-#include "NewFileDialog.h"
-#include "ui_NewFileDialog.h"
+#include "newfiledialog.h"
+#include "ui_newfiledialog.h"
 #include "settings.h"
 
 

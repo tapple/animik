@@ -25,9 +25,8 @@
 #include <GL/glu.h>
 #endif
 
-#include "camera.h"
-
 #include <QDebug>
+#include "camera.h"
 
 CameraPosition::CameraPosition(float px,float py,float pz,float rx,float ry)
 {

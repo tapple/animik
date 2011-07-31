@@ -1,3 +1,0 @@
-#!/bin/bash
-
-qembed --images stop.png loop.png play.png > ../src/icons.h

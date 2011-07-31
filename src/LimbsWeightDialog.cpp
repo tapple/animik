@@ -1,9 +1,7 @@
 #include <QHashIterator>
-#include "LimbsWeightDialog.h"
-#include "ui_LimbsWeightDialog.h"
+#include "limbsweightdialog.h"
+#include "ui_limbsweightdialog.h"
 #include "bvhnode.h"
-
-
 
 LimbsWeightDialog::LimbsWeightDialog(QString animationName, QList<BVHNode*>* limbs, int frame,
                                      int totalFrames, QWidget *parent)

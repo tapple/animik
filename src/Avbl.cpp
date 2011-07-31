@@ -1,17 +1,14 @@
-#include "Announcer.h"
-#include "Avbl.h"
-#include "bvh.h"
-#include "TimelineTrail.h"
-#include "TrailItem.cpp"
 #include <QTextStream>
 #include <QtXml/QDomCDATASection>
 #include <QtXml/QDomDocument>
 #include <QtXml/QDomElement>
-
-
+#include "announcer.h"
+#include "avbl.h"
+#include "bvh.h"
+#include "timelinetrail.h"
+#include "trailitem.cpp"
 
 Avbl::Avbl() { }
-
 
 bool Avbl::SaveToFile(QList<TimelineTrail*> trails, WeightedAnimation::FigureType figure, int fps, bool loop,
                       QString fileName)

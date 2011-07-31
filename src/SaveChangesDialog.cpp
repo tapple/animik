@@ -1,10 +1,9 @@
 #include <QAbstractListModel>
 #include <QStringListModel>
 
-#include "SaveChangesDialog.h"
-#include "ui_SaveChangesDialog.h"
-
-#include "AbstractDocumentTab.h"
+#include "savechangesdialog.h"
+#include "ui_savechangesdialog.h"
+#include "abstractdocumenttab.h"
 
 
 SaveChangesDialog::SaveChangesDialog(QWidget *parent, QList<AbstractDocumentTab*> tabs) :

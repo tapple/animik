@@ -22,7 +22,7 @@
 #define BVHNODE_H
 
 #include <QtCore>
-#include <qstring.h>
+#include <QString.h>
 
 #include "rotation.h"
 

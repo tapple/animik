@@ -1,8 +1,8 @@
 #ifndef TRAILITEM_C
 #define TRAILITEM_C
 
-#include "Announcer.h"
-#include "WeightedAnimation.h"
+#include "announcer.h"
+#include "weightedanimation.h"
 
 
 /** Wrapper for an WeightedAnimation item on BlenderTimeline. TrailItems are supposed

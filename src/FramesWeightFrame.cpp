@@ -4,9 +4,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPixmap>
-#include "TrailItem.cpp"
-
-
+#include "trailitem.cpp"
 
 FramesWeightFrame::FramesWeightFrame(TrailItem* animItem, QWidget *parent) : QFrame(parent), ui(new Ui::FramesWeightFrame)
 {
