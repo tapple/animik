@@ -32,8 +32,8 @@
 #ifndef ANIMATIONVIEW_H
 #define ANIMATIONVIEW_H
 
-#include <QtOpenGL/QGLWidget>
-
+#include <QGLWidget>
+  
 #include "animation.h"
 #include "camera.h"
 #include "rotation.h"

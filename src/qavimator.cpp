@@ -52,11 +52,6 @@ qavimator::qavimator() //: QMainWindow(0)
   setMinimumSize(800, 600);
   if(Settings::Instance()->windowMaximized())
     setWindowState(Qt::WindowMaximized);
-
-  if(qApp->argc()>1)
-  {
-    fileOpen(qApp->argv()[1]);
-  }
 }
 
 qavimator::~qavimator()

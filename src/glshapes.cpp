@@ -1,7 +1,8 @@
+
+#include <QtOpenGL>
 #include <cmath>
 #include <cstdlib>
 #include "glshapes.h"
-
 
 // Reused code from freeglut project
 static void fghCircleTable(double **sint,double **cost,const int n)

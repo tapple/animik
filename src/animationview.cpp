@@ -18,17 +18,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifdef __APPLE__
-#include <OpenGL/glu.h>
-#include <QApplication.h>
-#else
+#define GL_GLEXT_PROTOTYPES
+#include <QtWidgets>
+#include <QtOpenGL>
 #include <GL/glu.h>
-#endif
 
-#include <QGLFramebufferObject>           //DEBUG so far
-
+#include <QGLFramebufferObject>
 #include <QMenu>
 #include <QMouseEvent>
+
 #include "animationview.h"
 #include "announcer.h"
 #include "bvh.h"
@@ -39,8 +37,6 @@
 #define SHIFT 1
 #define CTRL  2
 #define ALT   4
-
-
 
 AnimationView::AnimationView(QWidget* parent, const char* /* name */, Animation* anim)
  : QGLWidget(parent)

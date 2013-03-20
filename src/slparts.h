@@ -23,12 +23,7 @@
 #define SLPARTS_H
 
 #include <QString>
-
-#ifdef __APPLE__
-#include <OpenGL/glu.h>
-#else
-#include <GL/glu.h>
-#endif
+#include <QtOpenGL>
 
 void drawSLMalePart(const QString& name);
 void drawSLFemalePart(const QString& name);

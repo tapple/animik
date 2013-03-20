@@ -1,23 +1,63 @@
-PROJECT (animik C CXX)
-CMAKE_MINIMUM_REQUIRED (VERSION 2.8.0)
+cmake_minimum_required ( VERSION 2.8.7 )
+project ( animik C CXX )
 
-# Configurable install variables, use CMAKE_INSTALL_PREFIX to install into target directory
-SET (INSTALL_BIN "." CACHE PATH "Executable install path")
-SET (INSTALL_DATA "." CACHE PATH "Data install path")
-SET (INSTALL_DATA_PATH "." CACHE PATH "Where to search for data")
+# configurable install variables, use CMAKE_INSTALL_PREFIX to install into target directory
+set ( INSTALL_BIN "." CACHE PATH "Executable install path" )
+set ( INSTALL_DATA "." CACHE PATH "Data install path" )
+set ( INSTALL_DATA_PATH "." CACHE PATH "Where to search for data" )
 
-# Initialize and search for QT4 libraries
-SET( QT_USE_QTOPENGL TRUE )
-FIND_PACKAGE (Qt4 REQUIRED)
-INCLUDE (${QT_USE_FILE})
+# Initialize and search for Qt libraries
+set ( CMAKE_AUTOMOC ON )
+set ( CMAKE_INCLUDE_CURRENT_DIR ON )
+find_package ( Qt5Widgets REQUIRED )
+find_package ( Qt5OpenGL REQUIRED )
+find_package ( Qt5Xml REQUIRED )
 
 # Search for OpenGL
-FIND_PACKAGE (OpenGL REQUIRED)
+find_package ( OpenGL REQUIRED )
 
-INCLUDE_DIRECTORIES (libquat src ${OPENGL_INCLUDE_DIR})
+include_directories ( libquat src ${OPENGL_INCLUDE_DIR} )
 
-SUBDIRS (libquat)
-SUBDIRS (src)
+# libquat sources
+file ( GLOB QUAT_SRC libquat/*.cpp )
+
+# build a static lib
+add_library ( quat ${QUAT_SRC} )
+
+# Animik sources
+file ( GLOB ANIMIK_SRC src/*.cpp )
+#file ( GLOB ANIMIK_MOC_HDR src/*.h )
+file ( GLOB ANIMIK_UI src/*.ui )
+file ( GLOB ANIMIK_RSC src/*.qrc )
+
+# Prepare and generate all needed sources and headers
+qt5_add_resources ( ANIMIK_RSC_SRC ${ANIMIK_RSC} )
+qt5_wrap_ui ( ANIMIK_UI_HDR ${ANIMIK_UI} )
+#QT5_WRAP_CPP ( ANIMIK_MOC_SRC ${ANIMIK_MOC_HDR} )
+
+# Include path to the generated header files
+include_directories ( ${CMAKE_BINARY_DIR}/src )
+
+# Set defines
+add_definitions ( -DQAVIMATOR_DATAPATH="${INSTALL_DATA_PATH}" )
+
+# No console on Windows
+if ( CYGWIN OR MINGW OR WIN32 )
+  set ( EXE_TYPE WIN32 )
+endif ()
+
+# Compile and link
+add_executable ( animik ${EXE_TYPE} ${ANIMIK_SRC} ${ANIMIK_MOC_SRC} ${ANIMIK_RSC_SRC} ${ANIMIK_UI_HDR} )
+target_link_libraries ( animik ${OPENGL_LIBRARIES} quat )
+qt5_use_modules ( animik Widgets OpenGL Xml )
+
+# Use static gcc lib
+if ( CYGWIN OR MINGW )
+  set_target_properties ( animik PROPERTIES LINK_FLAGS "-static-libgcc" )
+endif ()
+
+# Install animik
+install ( TARGETS animik DESTINATION ${INSTALL_BIN} )
 
 # Install data
-INSTALL (DIRECTORY resources/ DESTINATION ${INSTALL_DATA})
+install ( DIRECTORY resources/ DESTINATION ${INSTALL_DATA} )
