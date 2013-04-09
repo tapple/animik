@@ -1,6 +1,25 @@
 cmake_minimum_required ( VERSION 2.8.7 )
 project ( animik C CXX )
 
+# Ogre setup
+set ( CMAKE_MODULE_PATH "$ENV{OGRE_HOME}/CMake/;${CMAKE_MODULE_PATH}" )
+
+find_package ( OGRE REQUIRED )
+find_package ( OIS REQUIRED )
+
+include_directories ( ${OIS_INCLUDE_DIRS} ${OGRE_INCLUDE_DIRS} )
+
+# Find Boost
+set ( BOOST_ROOT "$ENV{OGRE_HOME}/boost/")
+set ( Boost_USE_STATIC_LIBS TRUE )
+set ( CMAKE_FIND_LIBRARY_PREFIXES ${CMAKE_FIND_LIBRARY_PREFIXES} "" )
+set (OGRE_BOOST_COMPONENTS system thread date_time )
+
+find_package ( Boost COMPONENTS ${OGRE_BOOST_COMPONENTS} REQUIRED )
+ 
+include_directories ( ${Boost_INCLUDE_DIR} )
+add_definitions ( -DBOOST_ALL_NO_LIB )
+
 # configurable install variables, use CMAKE_INSTALL_PREFIX to install into target directory
 set ( INSTALL_BIN "." CACHE PATH "Executable install path" )
 set ( INSTALL_DATA "." CACHE PATH "Data install path" )
@@ -48,7 +67,7 @@ endif ()
 
 # Compile and link
 add_executable ( animik ${EXE_TYPE} ${ANIMIK_SRC} ${ANIMIK_MOC_SRC} ${ANIMIK_RSC_SRC} ${ANIMIK_UI_HDR} )
-target_link_libraries ( animik ${OPENGL_LIBRARIES} quat )
+target_link_libraries ( animik ${OPENGL_LIBRARIES} ${OGRE_LIBRARIES} ${OIS_LIBRARIES} ${Boost_LIBRARIES} quat )
 qt5_use_modules ( animik Widgets OpenGL Xml )
 
 # Use static gcc lib
